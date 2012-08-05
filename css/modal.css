@@ -1,0 +1,60 @@
+#popup {
+    display: float;
+    right: 0;
+    top: 25px;
+    width: 30%;
+    padding: 10px;
+    background: #E0E0E0;
+    border: solid grey 5px;
+    position: absolute;
+    z-index: 200;
+    border: solid grey 1px;
+    font-size: small;
+}
+
+#popup_list {
+    position: relative;
+    overflow-y: scroll;
+    height: 300px;
+    border: solid gray 1px;
+}
+
+#popup_block {
+    display: block;
+    width: 100%;
+    border: 0px;
+    padding: 0;
+    margin: 0;
+    background: #606060;
+    opacity: 0.5;
+    z-index: 199;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+}
+
+#popup_filename {
+    width: 80%;
+}
+
+div.filelist {
+    list-style-type: none;
+    background-color: white;
+}
+
+div.fileitem {
+    color: grey;
+    cursor: default;
+    padding-left: 10px;
+}
+
+div.fileitem.dir {
+    color: blue;
+    cursor: pointer;
+}
+
+div.fileitem.ora, div.fileitem.png {
+    color: black;
+    cursor: pointer;
+}

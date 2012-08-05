@@ -1,0 +1,278 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <!-- <meta name="viewport" content="width=device-width; -->
+    <!-- initial-scale=1.0; user-scalable:no;"/> -->
+    <!-- <meta name="viewport" -->
+    <!--       content="width=device-width, height=device-height, -->
+    <!--                initial-scale=1.0, user-scalable=no"> -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>0ldPaint</title>
+    <link type="text/css" href="css/smoothness/jquery-ui-1.8.20.custom.css" rel="Stylesheet" />
+    <link rel="stylesheet" href="css/main.css" type="text/css"/>
+    <link rel="stylesheet" media="screen" type="text/css" href="css/colorpicker.css" />
+    <link rel="stylesheet" href="css/modal.css" type="text/css"/>
+  </head>
+  <body oncontextmenu="return false;">
+    <form><input id="files" class="action" type="file" name="files[]" /></form>
+
+    <div id="drawing_container">
+      <div id="drawing_frame"></div>
+      <div id="layers_container"></div>
+    </div>
+    <div id="selection" class="selection"></div>
+
+    <table class="main">
+      <tr class="fg">
+        <td colspan="3" class="fg">
+          <div class="header table">
+            <div class="header row">
+              <div class="cell header">
+                OldPaint
+              </div>
+              <div class="cell header action">
+                <button id="load_local" class="tool">Load&nbsp;local</button>
+              </div>
+              <div class="cell header action">
+                <button id="save_local" class="tool">Save&nbsp;local</button>
+              </div>
+              <div class="cell header action">
+                <button id="resize_image" class="tool">Resize</button>
+              </div>
+              <div class="cell header action">
+                <button id="save_image" class="tool">Save</button>
+              </div>
+              <div class="cell header action">
+                <button id="load_image" class="tool">Load</button>
+              </div>
+              <div class="cell header action">
+                <button id="convert_image" class="tool">Convert</button>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr class="layout">
+        <td class="toolbar fg">
+          <div id="tools"></div>
+          <div id="brushes"></div>
+          <div id="user_brushes"></div>
+        </td>
+        <td id="drawing_window">
+
+        </td>
+        <td class="minilayers fg">
+          <div class="minilayers table">
+            <div class="minilayers row">
+              <div class="cell">
+                <div id="minilayers_container">
+                  <div id="minilayers"></div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="cell">
+                <div class="table">
+                  <div class="row">
+                    <button id="layer_add" class="tool cell">Add</button>
+                    <button id="layer_delete" class="tool cell">Delete</button>
+                    <button id="layer_merge" class="tool cell">Merge</button>
+                    <button id="layer_clear" class="tool cell">Clear</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr class="fg">
+        <td id="palette_editor" colspan="3">
+        </td>
+      </tr>
+      <tr id="bottom">
+        <td colspan="2" id="message">Message</td>
+        <td id="coordinates">x:-&nbsp;y:-</td>
+      </tr>
+    </table>
+
+    <img src="images/cursor.png" id="cursor"></img>
+
+    <!-- === TEMPLATES === -->
+
+    <script id="selection_template" type="text/template">
+      <div id="selection_block">
+      </div>
+      <div id="selection_main" class="selection table">
+        <div class="selection row">
+          <div id="selection_topleft" class="selection handle cell"></div>
+          <div id="selection_top" class="selection cell"></div>
+          <div id="selection_topright" class="selection handle cell"></div>
+        </div>
+        <div class="selection row">
+          <div id="selection_left" class="selection cell"></div>
+          <div id="selection_center" class="selection cell">
+            <div id="selection_frame1" class="selection frame"></div>
+            <div id="selection_frame2" class="selection frame"></div>
+          </div>
+          <div id="selection_right" class="selection cell"></div>
+        </div>
+        <div class="selection row">
+          <div id="selection_botleft" class="selection handle cell"></div>
+          <div id="selection_bot" class="selection cell"></div>
+          <div id="selection_botright" class="selection handle cell"></div>
+        </div>
+      </div>
+    </script>
+
+    <script id="toolbar_template" type="text/template">
+      <div class="table">
+      <% for (var i = 0; i < (tools.length / 3); i+=1) { %>
+         <div class="row">
+           <% for (var j = 0; j < 3; j+=1) { %>
+              <% var tool = tools.at(i*3+j); %>
+              <% if (tool) { %>
+              <div class="cell">
+                <button id="<%= tool.name %>" data="<%= tool.cid %>"
+                        class="tool" title="<%= tool.name %>">
+                  <img src="images/icons/<%= tool.name %>.png"
+                       style="vertical-align: middle"></img>
+                </button>
+              </div>
+              <% } %>
+            <% } %>
+         </div>
+       <% } %>
+       </div>
+    </script>
+
+    <script id="brushes_template" type="text/template">
+        <% for (var i = 0; i < brushes.length; i++) { %>
+           <% var brush = brushes.at(i); %>
+           <div data="<%= brush.cid %>" class="brush"> </div>
+        <% } %>
+    </script>
+
+    <script id="palette_template" type="text/template">
+      <div class="palette colors table">
+        <% for (var i = 0; i < Math.min(size.x*size.y, colors.length); i+=1) { %>
+           <% if (i % size.x == 0) { %> <div class="colors row"> <% } %>
+             <% var color = colors[i], hex = Util.colorToHex(color); %>
+             <div data="<%= i %>" class="colors cell"
+                  style="background: #<%= hex %>" title="<%= i %>">
+               <div id="color<%= i %>" data="<%= i %>" class="color"
+                    title="<%= i %>">
+               </div>
+             </div>
+           <% if (i % size.x == size.x - 1) { %> </div> <% } %>
+        <% } %>
+      </div>
+    </script>
+
+    <script id="paletteeditor_template" type="text/template">
+      <table class="palette_editor">
+        <tr>
+          <td class="palette"></td>
+
+          <td>
+            <table id="color_sliders">
+              <tr>
+                <td><input id="color_value_r" class="color_value"
+                           size="2"></input></td>
+                <td class="color_slider">
+                <div id="color_slider_r" class="color_slider cell"></div></td>
+                </tr><tr>
+                <td ><input id="color_value_g" class="color_value"
+                            size="2"></input></td>
+                <td class="color_slider">
+                <div id="color_slider_g" class="color_slider cell"></div></td>
+                </tr><tr>
+                <td><input id="color_value_b" class="color_value"
+                           size="2"></input></td>
+                <td class="color_slider">
+                <div id="color_slider_b" class="color_slider cell"></div></td>
+              </tr>
+              <tr>
+                <td colspan="2">
+                  <button id="color_spread" class="tool">Spread</button>
+                  <button id="color_swap" class="tool cell">Swap</button>
+                  <button id="color_transp" class="tool cell">Transparent</button>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </script>
+
+    <script id="minilayer_template" type="text/template">
+      <input type="checkbox" class="layerVisibleCheck" title="Layer visibility" checked/>
+      <input type="checkbox" class="layerAnimatedCheck" title="Animation frame"/>
+    </script>
+
+    <script id="load_popup_template" type="text/template">
+      <div id="popup">
+        <div id="popup_body"></div>
+      </div>
+      <div id="popup_block">
+      </div>
+
+    </script>
+
+    <script id="save_popup_template" type="text/template">
+      <div id="popup">
+        <div id="popup_body"></div>
+          <input id="popup_filename" type="text" name="filename" />
+          <button id="popup_save">Save</button>
+      </div>
+      <div id="popup_block">
+      </div>
+    </script>
+
+    <!-- === DEPENDENCIES === -->
+    <script src="js/libs/jquery-1.7.2.js" type="text/javascript"></script>
+    <script src="js/libs/underscore.js" type="text/javascript"></script>
+    <script src="js/libs/backbone.js" type="text/javascript"></script>
+    <script src="js/libs/jquery.mousewheel.js" type="text/javascript"></script>
+    <script src="js/libs/jquery-ui-1.8.20.custom.min.js" type="text/javascript"></script>
+    <script src="js/libs/colorpicker.js" type="text/javascript"></script>
+    <script src="js/libs/modal.popup.js" type="text/javascript"></script>
+    <script src="js/libs/Base64.js" type="text/javascript"></script>
+    <script src="js/libs/png-deflate.js" type="text/javascript"></script>
+    <script src="js/libs/PNG.js" type="text/javascript"></script>
+    <script src="js/libs/FileSaver.js" type="text/javascript" ></script>
+    <script src="js/libs/canvas-toBlob.js" type="text/javascript"></script>
+    <script type="text/javascript" src="js/libs/zip.js"></script>
+    <script type="text/javascript" src="js/libs/jszip.js"></script>
+    <script type="text/javascript"
+            src="js/libs/jszip-deflate.js"></script>
+    <script type="text/javascript" src="js/libs/jszip-inflate.js"></script>
+    <script type="text/javascript" src="js/libs/jszip-load.js"></script>
+    <script type="text/javascript" src="js/libs/XMLWriter-1.0.0-min.js"></script>
+    <script type="text/javascript" src="js/libs/mousetrap.min.js"></script>
+
+    <!-- internals -->
+    <script src="js/oldpaint.js" type="text/javascript"></script>
+    <script src="js/util.js" type="text/javascript"></script>
+    <script src="js/draw.js" type="text/javascript"></script>
+    <script src="js/pnglib.js" type="text/javascript"></script>
+    <script src="js/indexedimage.js" type="text/javascript"></script>
+    <script src="js/rgbimage.js" type="text/javascript"></script>
+
+    <!-- models -->
+    <script src="js/tool.js" type="text/javascript"></script>
+    <script src="js/palette.js" type="text/javascript"></script>
+    <script src="js/image.js" type="text/javascript"></script>
+    <script src="js/brush.js" type="text/javascript"></script>
+    <script src="js/layer.js" type="text/javascript"></script>
+    <script src="js/drawing.js" type="text/javascript"></script>
+
+    <!-- views -->
+    <script src="js/layer_view.js" type="text/javascript"></script>
+    <script src="js/drawing_view.js" type="text/javascript"></script>
+    <script src="js/minilayers_view.js" type="text/javascript"></script>
+    <script src="js/paletteeditor_view.js" type="text/javascript"></script>
+    <script src="js/misc_views.js" type="text/javascript"></script>
+
+    <script src="js/main.js" type="text/javascript"></script>
+  </body>
+</html>
