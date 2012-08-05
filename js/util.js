@@ -281,7 +281,9 @@ Util.load_png = function (data, drawing) {
 // Loads an OpenRaster file into a drawing
 Util.load_ora = function (data, drawing) {
     var zip = new JSZip();
-    zip.load(data.slice(13), {base64: true});
+    //Need to do some more checking here, seems like the miletype can
+    //be confused. Here we assume it's "image/openraster"
+    zip.load(data.slice(29), {base64: true});
     var stack_file = zip.file("stack.xml");
     var xml = Util.mkXML(stack_file.data);
     var layer_nodes = xml.getElementsByTagName("layer");
