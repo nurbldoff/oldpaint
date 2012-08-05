@@ -14,8 +14,7 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     cursor: {
         image: $("#cursor"),
-        offset: {x: Math.floor($("#cursor").width() / 2),
-                 y: Math.floor($("#cursor").height() / 2)}
+        offset: {x: 10, y: 10}
     },
 
     events: {
