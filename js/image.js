@@ -34,6 +34,7 @@ OldPaint.Image = Backbone.Model.extend ({
     },
 
     restore_backup: function (rect, dest_rect) {
+        console.log("Restored");
         if (rect) {
             if (dest_rect) {
                 this.image.blit(this.backup, rect, dest_rect, true);

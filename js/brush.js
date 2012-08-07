@@ -1,7 +1,7 @@
 // A brush is an Image that can be drawn *with*
 OldPaint.Brush = OldPaint.Image.extend ({
     color: null,
-    preview: null,
+    preview: null,  // used to show the brush in the tool button
 
     initialize: function (spec) {
         console.log("brush:", spec);
@@ -9,12 +9,11 @@ OldPaint.Brush = OldPaint.Image.extend ({
         this.color = spec.color;
     },
 
-    set_color: function (color, force) {
+    set_color: function (color) {
+        console.log("Brush color set:", color);
+        this.make_backup();
         this.color = color;
-        if (force || !(this instanceof OldPaint.ImageBrush)) {
-            this.make_backup();
-            this.image.colorize(color);
-        }
+        this.image.colorize(color);
     }
 });
 
@@ -64,6 +63,15 @@ OldPaint.ImageBrush = OldPaint.Brush.extend ({
         console.log("ImageBrush:", spec2);
         OldPaint.ImageBrush.__super__.initialize.apply(this, [spec2]);
         this.preview = Util.copy_canvas(this.image.canvas);
+    },
+
+    set_color: function (color, force) {
+        console.log("Brush color set:", color);
+        this.color = color;
+        if (force) {
+            this.make_backup();
+            this.image.colorize(color);
+        }
     }
 });
 

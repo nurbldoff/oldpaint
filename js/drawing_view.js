@@ -250,8 +250,8 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.model.layers.active.clear_temporary();
     },
 
-    update_brush: function (index, rgb) {
-        OldPaint.active_brushes.active.set_color(index);
+    update_brush: function (color) {
+        OldPaint.active_brushes.active.set_color(color);
     },
 
     // Update the position of the mouse pointer and draw brush preview
@@ -295,11 +295,9 @@ OldPaint.DrawingView = Backbone.View.extend({
         switch (this.stroke.button) {
         case 1:  // Drawing
             this.model.before_draw(OldPaint.tools.active, this.stroke);
-            this.stroke.draw = true;
-            this.stroke.color =
-                // active_brushes.active instanceof ImageBrush ? false :
-                this.model.palette.foreground;
-            //this.stroke.brush.set_color(this.stroke.color, true);
+            this.stroke.draw = true;  // we're drawing, not e.g. panning
+            this.stroke.color = this.model.palette.foreground;
+            this.stroke.brush.set_color(this.stroke.color);
             this.model.draw(OldPaint.tools.active, this.stroke);
             break;
         case 3:  // Erasing
@@ -385,11 +383,11 @@ OldPaint.DrawingView = Backbone.View.extend({
     // Make the selection editable
     edit_selection: function () {
         $("#selection_block").css(
-            {visibility: "visible"}).unbind(
-            ).on("mousedown", this.begin_scroll
-                ).on("mousemove", this.scroll
-                    ).on("mouseup", this.end_scroll
-                        ).on("click", this.model.selection.action);
+            {visibility: "visible"}).unbind()
+            .on("mousedown", this.begin_scroll)
+            .on("mousemove", this.scroll)
+            .on("mouseup", this.end_scroll)
+            .on("click", this.model.selection.action);
         $(".selection.handle").css(
             {visibility: "visible",
              "pointer-events": "auto"}

@@ -222,6 +222,7 @@ OldPaint.IndexedImage = function (data) {
 
     this.colorize = function (color, update) {
         // change the color of all non-transparent pixels
+        console.log("colorize:", color);
         var pixbuf = this.icontext.getImageData(0, 0,
                                                this.canvas.width,
                                                this.canvas.height);
