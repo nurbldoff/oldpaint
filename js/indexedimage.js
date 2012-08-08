@@ -58,12 +58,7 @@ OldPaint.IndexedImage = function (data) {
     this.drawline = function (startPt, endPt, brush, color) {
         var rect = Draw.drawLineWithBrush(
             this.icontext, startPt, endPt, brush.image.icanvas);
-        // Draw.drawLineWithBrush(
-        //     this.rgbContext, startPt, endPt, brush.image.canvas);
         this.updateCanvas(rect);
-        // if (this.palette.colors[color][3] === 0) {
-        //
-        // }
         return rect;
     };
 
@@ -146,7 +141,6 @@ OldPaint.IndexedImage = function (data) {
         }, this);
         var width = this.icanvas.width, height = this.icanvas.height;
         var pixbuf = this.icontext.getImageData(0, 0, width, height);
-        //console.log("filling...", color);
         var rect = Draw.gradientfill(pixbuf.data, width, height, pt, colors);
         this.update(pixbuf, 0, 0, width, height, true);
         this.updateCanvas();

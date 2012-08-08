@@ -97,7 +97,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.model.palette.on("change", this.on_palette_changed);
         //this.model.layers.on("stroke", this.on_stroke);
 
-        $("#resize_image").on("click", this.resize_image);
+        $("#resize_image").on("click", this.on_resize_image);
         $("#load_image").on("click", this.load_popup);
         $("#save_image").on("click", this.save_popup);
 
@@ -233,6 +233,23 @@ OldPaint.DrawingView = Backbone.View.extend({
         }
     },
 
+    on_resize_image: function () {
+        var resize = function () {
+            this.model.resize(this.model.selection);
+            this.model.msg("Resized to (" + this.model.selection.width + ", " +
+                           this.model.selection.height + ")");
+            this.model.set_selection();
+        };
+        resize = _.bind(resize, this);
+        this.model.set_selection({
+            left: 0, top: 0, width: this.model.get("width"),
+            height: this.model.get("height")
+        }, resize);
+        this.edit_selection();
+        this.model.msg("Resize the image by dragging the corner handles. " +
+                       "Click anywhere to finish.");
+    },
+
     on_convert_image: function (event) {
         this.model.convert_to_rgb_type();
     },
@@ -340,20 +357,6 @@ OldPaint.DrawingView = Backbone.View.extend({
         $(".fg").css({"pointer-events": "auto"});
     },
 
-    resize_image: function () {
-        var resize = function () {
-            console.log("Resize...");
-            this.model.resize(this.model.selection);
-            this.model.set_selection();
-        };
-        resize = _.bind(resize, this);
-        this.model.set_selection({
-            left: 0, top: 0, width: this.model.get("width"),
-            height: this.model.get("height")
-        }, resize);
-        this.edit_selection();
-    },
-
     // Visualize the selection rectangle
     make_selection: function (begin) {
         if (this.model.selection) {
@@ -389,15 +392,14 @@ OldPaint.DrawingView = Backbone.View.extend({
             .on("mouseup", this.end_scroll)
             .on("click", this.model.selection.action);
         $(".selection.handle").css(
-            {visibility: "visible",
-             "pointer-events": "auto"}
-        ).on("mousedown", this, function (event) {
-            $(".selection.handle").css("pointer-events", "none");
-            $("#selection_block").on("mousemove", this,
-                                     event.data.resize_selection);
-            $("#selection_block").on("mouseup",
-                                     event.data.resize_selection_done);
-        });
+            {visibility: "visible", "pointer-events": "auto"})
+            .on("mousedown", this, function (event) {
+                $(".selection.handle").css("pointer-events", "none");
+                $("#selection_block").on("mousemove", this,
+                                         event.data.resize_selection);
+                $("#selection_block").on("mouseup",
+                                         event.data.resize_selection_done);
+            });
     },
 
     begin_scroll: function (event) {
@@ -542,58 +544,4 @@ OldPaint.DrawingView = Backbone.View.extend({
         modalPopup( Util.clean_path("list/" + current_dir), this.model, true );
     },
 
-    // Obsolete, should be removed
-    on_keypress: function (event) {
-        console.log("key", event.which);
-        switch (event.which) {
-        case "-".charCodeAt(0): this.zoom_out(event); break;
-        case "+".charCodeAt(0): this.zoom_in(event);  break;
-        case "z".charCodeAt(0): this.model.undo(); break;
-        case "y".charCodeAt(0): this.model.redo(); break;
-            // case "s".charCodeAt(0):
-            //     this.model.layers.active.image.make_png();
-            //     break;
-
-            // === Layers ===
-            // case "a".charCodeAt(0): this.model.add_layer(true); break;
-            // case "d".charCodeAt(0):
-            //     this.model.remove_layer(this.model.layers.active);
-            //     break;
-        case "v".charCodeAt(0):
-            this.model.layers.active.set(
-                "visible", !this.model.layers.active.get("visible"));
-            break;
-        case "a".charCodeAt(0):
-            this.model.layers.active.set(
-                "animated", !this.model.layers.active.get("animated"));
-            break;
-        case "x".charCodeAt(0):  // previous layer
-            var index = this.model.layers.indexOf(this.model.layers.active);
-            var new_index = index == 0 ? this.model.layers.length - 1 : index - 1;
-            this.model.layers.at(new_index).activate();
-            break;
-        case "c".charCodeAt(0):  // next animation frame
-            var index = this.model.layers.indexOf(this.model.layers.active);
-            var new_index = index == this.model.layers.length - 1 ? 0 : index + 1;
-            this.model.layers.at(new_index).activate();
-            break;
-        case "s".charCodeAt(0):  // previous animation frame
-            var frames = this.model.layers.get_animated();
-            if (frames.length > 1) {
-                var index = _.indexOf(frames, this.model.layers.active);
-                var new_index = index == 0 ? frames.length - 1 : index - 1;
-                (frames[new_index]).activate();
-            }
-            break;
-        case "d".charCodeAt(0):  // next animation frame
-            var frames = this.model.layers.get_animated();
-            console.log("frames", frames);
-            if (frames.length > 1) {
-                var index = _.indexOf(frames, this.model.layers.active);
-                var new_index = index == frames.length - 1 ? 0 : index + 1;
-                (frames[new_index]).activate();
-            }
-            break;
-        }
-    }
 });
