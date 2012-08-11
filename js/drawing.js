@@ -160,6 +160,7 @@ OldPaint.Drawing = Backbone.Model.extend({
         }
     },
 
+    // Merge all the layers into one, in order of appearance
     flatten: function () {
         var flattened = new this.image_type(
             {width: this.get("width"), height: this.get("height"),
@@ -197,17 +198,15 @@ OldPaint.Drawing = Backbone.Model.extend({
     after_draw: function(tool, stroke) {
         tool.after(this, stroke);
         var layer = this.layers.active;
-        //this.save_patch(layer, layer.dirty_rect, true);
-        this.push_undo(this.make_action(
-            "draw", {rect: layer.dirty_rect,
-                     patch: layer.make_patch(layer.trim_rect(layer.dirty_rect), true),
-                     layer: layer}));
+        this.push_undo(this.make_action("draw", {
+            rect: layer.dirty_rect,
+            patch: layer.make_patch(layer.trim_rect(layer.dirty_rect), true),
+            layer: layer}));
         layer.cleanup();
         this.redos = [];
         stroke.brush.restore_backup();
         //this.msg("Done using " + tool.name + " tool.");
     },
-
 
     preview_brush: function(brush, color, pos) {
         var layer = this.layers.active;
