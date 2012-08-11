@@ -20,7 +20,8 @@ OldPaint.Image = Backbone.Model.extend ({
     },
 
     get_size: function () {
-        return {width: this.canvas.width, height: this.canvas.height};
+        return {width: this.image.canvas.width,
+                height: this.image.canvas.height};
     },
 
 
@@ -45,18 +46,21 @@ OldPaint.Image = Backbone.Model.extend ({
             }
         } else {
             //this.canvas.width = this.canvas.width;  // clear canvas
-            //this.canvas.getContext('2d').drawImage(this.backup, 0, 0);
+            //this.canvas.getContext('2d').drawImage(this.backup, 0,
+            //0);
+            var size = this.get_size();
             var all_rect = {left: 0, top: 0,
-                            width: this.canvas.width, height: this.canvas.height};
+                            width: size.width, height: size.height};
             this.image.blit(this.backup, all_rect, all_rect, true);
             this.trigger_update(all_rect, true);
         }
     },
 
+    // Create a Patch from part of the image
     make_patch: function (rect, backup) {
-        rect = Util.intersect(rect, {left: 0, top:0, width: this.image.canvas.width,
-                                     height: this.image.canvas.height});
-        // Create a Patch from part of the image
+        var size = this.get_size();
+        rect = Util.intersect(rect, {left: 0, top:0,
+                                     width: size.width, height: size.height});
         return new OldPaint.Patch(backup ? this.backup : this.image.get_data(),
                          rect, this.cid, this.image.palette);
     },
@@ -64,8 +68,8 @@ OldPaint.Image = Backbone.Model.extend ({
     draw_patch: function (patch, position, merge) {
         var rect = position ?
                 {left: position.left, top: position.top,
-                 width: patch.rect.width, height: patch.rect.height} :
-            patch.rect;
+                 width: patch.rect.width, height: patch.rect.height}
+            : patch.rect;
         return this.image.blit(patch.canvas,
                                {left: 0, top: 0,
                                 width: patch.rect.width,

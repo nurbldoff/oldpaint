@@ -93,22 +93,6 @@ OldPaint.Drawing = Backbone.Model.extend({
         saveAs(blob, Util.change_extension(this.name, "png"));
     },
 
-    add_layer: function (activate, data) {
-        var new_layer = new OldPaint.Layer({width: this.get("width"),
-                                            height: this.get("height"),
-                                            palette: this.palette,
-                                            image_type: this.image_type,
-                                            image: data,
-                                            background: this.palette.background});
-        this.layers.add(new_layer);
-        console.log("Layer was added");
-        this.undos.push({type: this.undo_types.add_layer, layer: new_layer});
-        if (activate) new_layer.activate();
-        this.msg("Added new layer.");
-        new_layer.cleanup();
-        return new_layer;
-    },
-
     // Convert the whole drawing from Indexed to RGB format.
     convert_to_rgb_type: function () {
         if (this.image_type == OldPaint.IndexedImage) {
@@ -128,11 +112,28 @@ OldPaint.Drawing = Backbone.Model.extend({
         } else this.msg("Drawing is not of Indexed type - not converting.");
     },
 
+    add_layer: function (activate, data) {
+        var new_layer = new OldPaint.Layer({width: this.get("width"),
+                                            height: this.get("height"),
+                                            palette: this.palette,
+                                            image_type: this.image_type,
+                                            image: data,
+                                            background: this.palette.background});
+        this.layers.add(new_layer);
+        this.push_undo(this.make_action("add_layer",
+                                        {layer: new_layer,
+                                         index: this.layers.indexOf(new_layer)}));
+        if (activate) new_layer.activate();
+        this.msg("Added new layer.");
+        new_layer.cleanup();
+        return new_layer;
+    },
+
     remove_layer: function (layer) {
         var index = this.layers.indexOf(layer);
         this.layers.remove(layer);
-        this.undos.push({type: this.undo_types.remove_layer,
-                         layer: layer, index: index});
+        this.push_undo(this.make_action("remove_layer",
+                                        {layer: layer, index: index}));
     },
 
     clear_layer: function (layer, color) {
@@ -148,10 +149,11 @@ OldPaint.Drawing = Backbone.Model.extend({
         var to_index = from_index - 1;
         if (to_index >= 0) {
             var to_layer = this.layers.at(to_index);
-            var action =  {type: this.undo_types.merge_layer,
-                           patch: to_layer.make_patch(to_layer.trim_rect()),
-                           index: from_index,
-                           layer: layer};
+            var action = this.make_action("merge_layer", {
+                patch: to_layer.make_patch(to_layer.trim_rect()),
+                index: from_index,
+                layer: layer
+            });
             to_layer.draw_other_layer(layer);
             this.layers.remove(layer);
             this.push_undo(action);
@@ -163,7 +165,7 @@ OldPaint.Drawing = Backbone.Model.extend({
             {width: this.get("width"), height: this.get("height"),
              palette: this.palette});
         this.layers.each( function (layer) {
-
+            // Do something!!!
         });
     },
 
@@ -195,7 +197,11 @@ OldPaint.Drawing = Backbone.Model.extend({
     after_draw: function(tool, stroke) {
         tool.after(this, stroke);
         var layer = this.layers.active;
-        this.save_patch(layer, layer.dirty_rect, true);
+        //this.save_patch(layer, layer.dirty_rect, true);
+        this.push_undo(this.make_action(
+            "draw", {rect: layer.dirty_rect,
+                     patch: layer.make_patch(layer.trim_rect(layer.dirty_rect), true),
+                     layer: layer}));
         layer.cleanup();
         this.redos = [];
         stroke.brush.restore_backup();
@@ -212,35 +218,50 @@ OldPaint.Drawing = Backbone.Model.extend({
         }
     },
 
+    // An "action" represents an undoable change. It is a function
+    // that, when invoked, undoes the change and returns its own inverse,
+    // i.e. a new action that undoes the undo.
+    make_action: function (type, data, invert) {
+        var drawing = this;
+        // The different types of actions available
+        var types = {
+            draw: function (data, invert) {
+                data.patch = data.layer.swap_patch(data.patch);
+                return data;
+            },
+            add_layer: function (data, invert) {
+                if (invert) drawing.layers.add(data.layer, {index: data.index});
+                else drawing.layers.remove(data.layer);
+                return data;
+            },
+            remove_layer: function (data, invert) {
+                if (invert) drawing.layers.remove(data.layer);
+                else drawing.layers.add(data.layer, {index: data.index});
+                return data;
+            },
+            merge_layer: function (data, invert) {
+                if (invert) {
+                    drawing.merge_layer_down(drawing.layers.at(data.index));
+                } else {
+                    drawing.layers.add(data.layer, {index: data.index});
+                    data.patch = drawing.restore_patch(data.patch);
+                }
+                return data;
+            }
+        };
+        var action = types[type];
+        var make_action = this.make_action;
+        return function () {
+            data = action(data, !!invert);
+            return make_action(type, data, !invert);
+        };
+    },
+
     undo: function () {
         var action = this.undos.pop();
         this.layers.active.clear_temporary();
         if (action) {
-            console.log("undoing", action.type);
-            switch (action.type) {
-            case this.undo_types.patch:
-                this.push_redo({type: this.undo_types.patch,
-                                patch: this.restore_patch(action.patch)});
-                this.msg("Undid stroke.");
-                break;
-            case this.undo_types.add_layer:
-                this.push_redo(action);
-                this.layers.remove(action.layer);
-                this.msg("Undid add layer.");
-                break;
-            case this.undo_types.delete_layer:
-                this.push_redo(action);
-                this.layers.add(action.layer, {index: action.index});
-                this.msg("Undid remove layer.");
-                break;
-            case this.undo_types.merge_layer:
-                this.layers.add(action.layer, {index: action.index});
-                this.push_redo({type: this.undo_types.merge_layer,
-                                index: action.index,
-                                patch: this.restore_patch(action.patch)});
-                this.msg("Undid remove layer.");
-                break;
-            }
+            this.push_redo(action());
         } else {
             this.msg("Nothing to Undo!");
         }
@@ -250,29 +271,9 @@ OldPaint.Drawing = Backbone.Model.extend({
         var action = this.redos.pop();
         this.layers.active.clear_temporary();
         if (action) {
-            console.log("redoing", action.type);
-            switch (action.type) {
-            case this.undo_types.patch:
-                this.push_undo({type: this.undo_types.patch,
-                                patch: this.restore_patch(action.patch)});
-                this.msg("Redid stroke.");
-                break;
-            case this.undo_types.add_layer:
-                this.push_undo(action);
-                this.layers.add(action.layer, {index: action.index});
-                this.msg("Redid add layer.");
-                break;
-            case this.undo_types.delete_layer:
-                this.push_undo(action);
-                this.layers.remove(layer);
-                this.msg("Redid remove layer.");
-                break;
-            case this.undo_types.merge_layer:
-                this.merge_layer_down(this.layers.at(action.index));
-                break;
-            }
+            this.push_undo(action());
         } else {
-            this.msg("No more redos!");
+            this.msg("Nothing to Redo!");
         }
     },
 
