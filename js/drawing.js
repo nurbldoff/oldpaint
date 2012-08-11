@@ -11,9 +11,6 @@ OldPaint.Drawing = Backbone.Model.extend({
         height: 0
     },
 
-    undo_types: Object.freeze({patch: 0,
-                               add_layer: 1, remove_layer: 2, merge_layer: 3}),
-
     initialize: function (spec) {
         _.bindAll(this);
         this.palette = spec.palette;
@@ -63,11 +60,9 @@ OldPaint.Drawing = Backbone.Model.extend({
         };
         $.ajax ({
             type: "POST",
-            //the url where you want to sent the userName and password to
             url: Util.clean_path("save/" + path),
             contentType: "application/json",
             async: false,
-            //json object to sent to the authentication url
             data: JSON.stringify(postdata),
             error: function () {
                 alert("There was an error, image may not have been saved!");
@@ -136,9 +131,9 @@ OldPaint.Drawing = Backbone.Model.extend({
     },
 
     clear_layer: function (layer, color) {
-        this.undos.push({type: this.undo_types.patch, patch: layer.make_patch()});
+        this.push_undo(this.make_action("draw", {
+            patch: layer.make_patch(null, true), layer: layer}));
         layer.draw_clear(color);
-        layer.make_backup();
         layer.trigger("redraw_preview");
     },
 
@@ -149,15 +144,11 @@ OldPaint.Drawing = Backbone.Model.extend({
         var action = this.make_action(
             "merge_layer", {
                 patch: to_layer.make_patch(to_layer.trim_rect()),
-                index: from_index,
-                layer: from_layer
-            });
+                index: from_index, layer: from_layer});
         to_layer.draw_other_layer(from_layer);
         if (to_index >= 0) {
             this.layers.remove(from_layer);
-            if (!no_undo) {
-                this.push_undo(action);
-            }
+            if (!no_undo) this.push_undo(action);
         }
     },
 
