@@ -172,7 +172,11 @@ OldPaint.MiniLayersView = Backbone.View.extend({
     },
 
     merge_layer: function (event) {
-        this.model.merge_layer_down(this.model.layers.active);
+        var index = this.model.layers.indexOf(this.model.layers.active);
+        if (index > 0) {
+            this.model.merge_layers(this.model.layers.active,
+                                    this.model.layers.at(index-1));
+        }
     },
 
     clear_layer: function (event) {

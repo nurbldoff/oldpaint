@@ -82,9 +82,13 @@ OldPaint.Drawing = Backbone.Model.extend({
                Util.change_extension(this.name, "ora"));
     },
 
-    // Save locally as PNG file
-    save_png_local: function (name, flatten) {
-        var blob = this.layers.active.image.make_png();
+    // Save locally as PNG file. By default flattens all layers into one.
+    save_png_local: function (name, single) {
+        if (!!single) {
+            var blob = this.layers.active.image.make_png(true);
+        } else {
+            var blob = this.flatten().make_png(true);
+        }
         saveAs(blob, Util.change_extension(this.name, "png"));
     },
 
@@ -138,31 +142,36 @@ OldPaint.Drawing = Backbone.Model.extend({
         layer.trigger("redraw_preview");
     },
 
-    // Combine the given layer with the layer below it.
-    merge_layer_down: function (layer) {
-        var from_index = this.layers.indexOf(layer);
-        var to_index = from_index - 1;
-        if (to_index >= 0) {
-            var to_layer = this.layers.at(to_index);
-            var action = this.make_action("merge_layer", {
+    // Combine two layers into one, in order of appearance.
+    merge_layers: function (from_layer, to_layer, no_undo) {
+        var from_index = this.layers.indexOf(from_layer);
+        var to_index = this.layers.indexOf(to_layer);
+        var action = this.make_action(
+            "merge_layer", {
                 patch: to_layer.make_patch(to_layer.trim_rect()),
                 index: from_index,
-                layer: layer
+                layer: from_layer
             });
-            to_layer.draw_other_layer(layer);
-            this.layers.remove(layer);
-            this.push_undo(action);
+        to_layer.draw_other_layer(from_layer);
+        if (to_index >= 0) {
+            this.layers.remove(from_layer);
+            if (!no_undo) {
+                this.push_undo(action);
+            }
         }
     },
 
-    // Merge all the layers into one, in order of appearance
+    // Return an Image which is the result of merging all layers.
     flatten: function () {
-        var flattened = new this.image_type(
-            {width: this.get("width"), height: this.get("height"),
-             palette: this.palette});
-        this.layers.each( function (layer) {
-            // Do something!!!
-        });
+        var new_layer = new OldPaint.Layer({width: this.get("width"),
+                                            height: this.get("height"),
+                                            palette: this.palette,
+                                            image_type: this.image_type});
+        for (var i=0; i<this.layers.length; i++) {
+            console.log("Merging layer", i);
+            this.merge_layers(this.layers.at(i), new_layer, true);
+        }
+        return new_layer.image;
     },
 
     resize: function(size) {
@@ -230,11 +239,14 @@ OldPaint.Drawing = Backbone.Model.extend({
                 return data;
             },
             merge_layer: function (data, invert) {
+                var lower = drawing.layers.at(data.index-1);
                 if (invert) {
-                    drawing.merge_layer_down(drawing.layers.at(data.index));
+                    data.patch = lower.swap_patch(data.patch);
+                    drawing.merge_layers(drawing.layers.at(data.index),
+                                         drawing.layers.at(data.index-1), true);
                 } else {
                     drawing.layers.add(data.layer, {index: data.index});
-                    data.patch = drawing.restore_patch(data.patch);
+                    data.patch = lower.swap_patch(data.patch);
                 }
                 return data;
             }
@@ -275,17 +287,6 @@ OldPaint.Drawing = Backbone.Model.extend({
     push_redo: function (action) {
         this.redos.push(action);
         if (this.redos.length > 20) {this.redos.shift();}
-    },
-
-    // Put part of the image on the undo/redo stack
-    save_patch: function (layer, rect, undo) {
-        var action = {type: this.undo_types.patch,
-                      patch: layer.make_patch(layer.trim_rect(rect), undo)};
-        if (undo) {
-            this.push_undo(action);
-        } else {
-            this.push_redo(action);
-        }
     },
 
     // restore part of the image
