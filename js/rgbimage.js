@@ -83,7 +83,6 @@ OldPaint.RGBImage = function (data) {
     };
 
     this.clear = function(rect) {
-        console.log("clear");
         if (rect) {
             this.context.clearRect(rect.left, rect.top,
                                    rect.width, rect.height);

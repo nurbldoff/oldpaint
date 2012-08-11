@@ -167,14 +167,15 @@ OldPaint.Layers = Backbone.Collection.extend({
     },
 
     set_active: function (layer) {
-        console.log("activated");
-        if (this.active && this.active != layer) {
-            this.active.clear_temporary();
-            this.active.trigger("deactivate");
+        if (layer) {  // this "if" clause shouldn't be needed
+            console.log("set_active", layer);
+            if (this.active && this.active != layer) {
+                this.active.clear_temporary();
+                this.active.trigger("deactivate");
+            }
+            this.active = layer;
+            layer.trigger("activate");
         }
-        this.active = layer;
-
-        //layer.trigger("activate");
     },
 
     // Change the position of one layer in the stack
