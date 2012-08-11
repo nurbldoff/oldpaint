@@ -22,9 +22,6 @@ OldPaint.Drawing = Backbone.Model.extend({
         this.redos = [];
         this.image_type = spec.image_type;
         this.layers.on("stroke", this.on_stroke);
-        //this.palette.on("change", this.update);
-
-        //this.preview_brush = _.throttle(this._preview_brush, 100);
     },
 
     // Load image data
@@ -64,8 +61,6 @@ OldPaint.Drawing = Backbone.Model.extend({
             width: image.canvas.width,
             height: image.canvas.height
         };
-
-        console.log("drawing save", path);
         $.ajax ({
             type: "POST",
             //the url where you want to sent the userName and password to
@@ -184,10 +179,7 @@ OldPaint.Drawing = Backbone.Model.extend({
             layer.restore_backup(layer.temporary_rect);
             layer.temporary_rect = null;
         }
-        //layer.make_backup();
-
         tool.before(this, stroke);
-        //this.msg("Using " + tool.name + " tool.");
     },
 
     draw: function(tool, stroke) {
@@ -205,7 +197,6 @@ OldPaint.Drawing = Backbone.Model.extend({
         layer.cleanup();
         this.redos = [];
         stroke.brush.restore_backup();
-        //this.msg("Done using " + tool.name + " tool.");
     },
 
     preview_brush: function(brush, color, pos) {
@@ -261,9 +252,8 @@ OldPaint.Drawing = Backbone.Model.extend({
         this.layers.active.clear_temporary();
         if (action) {
             this.push_redo(action());
-        } else {
-            this.msg("Nothing to Undo!");
         }
+        return action;
     },
 
     redo: function () {
@@ -271,9 +261,8 @@ OldPaint.Drawing = Backbone.Model.extend({
         this.layers.active.clear_temporary();
         if (action) {
             this.push_undo(action());
-        } else {
-            this.msg("Nothing to Redo!");
         }
+        return action;
     },
 
     push_undo: function (action) {
@@ -299,7 +288,6 @@ OldPaint.Drawing = Backbone.Model.extend({
 
     // restore part of the image
     restore_patch: function (patch) {
-        //console.log("restore:", patch);
         var layer = this.layers.getByCid(patch.layerid);
         return layer.swap_patch(patch);
     },
