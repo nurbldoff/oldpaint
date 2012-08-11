@@ -298,6 +298,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         $(".fg").css({"pointer-events": "none"});
         switch (this.stroke.button) {
         case 1:  // Drawing
+            this.model.msg(OldPaint.tools.active.help);
             this.model.before_draw(OldPaint.tools.active, this.stroke);
             this.stroke.draw = true;  // we're drawing, not e.g. panning
             this.stroke.color = this.model.palette.foreground;
@@ -305,6 +306,7 @@ OldPaint.DrawingView = Backbone.View.extend({
             this.model.draw(OldPaint.tools.active, this.stroke);
             break;
         case 3:  // Erasing
+            this.model.msg(OldPaint.tools.active.help);
             this.model.before_draw(OldPaint.tools.active, this.stroke);
             this.stroke.draw = true;
             this.stroke.color = this.model.palette.background;
@@ -341,6 +343,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         }
         this.stroke = null;
         $(".fg").css({"pointer-events": "auto"});
+        this.model.msg("");
     },
 
     // Visualize the selection rectangle

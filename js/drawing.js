@@ -252,8 +252,9 @@ OldPaint.Drawing = Backbone.Model.extend({
         this.layers.active.clear_temporary();
         if (action) {
             this.push_redo(action());
+        } else {
+            this.msg("Nothing more to undo!");
         }
-        return action;
     },
 
     redo: function () {
@@ -261,8 +262,9 @@ OldPaint.Drawing = Backbone.Model.extend({
         this.layers.active.clear_temporary();
         if (action) {
             this.push_undo(action());
+        } else {
+            this.msg("Nothing more to redo!");
         }
-        return action;
     },
 
     push_undo: function (action) {
