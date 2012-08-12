@@ -59,8 +59,7 @@ OldPaint.Layer = OldPaint.Image.extend ({
 
     draw_fill: function (start, color) {
         this.trigger_update(
-            OldPaint.Layer.__super__.draw_fill.apply(this, arguments),
-            true);
+            OldPaint.Layer.__super__.draw_fill.apply(this, arguments), true);
     },
 
     draw_gradientfill: function (start, colors) {
@@ -71,14 +70,12 @@ OldPaint.Layer = OldPaint.Image.extend ({
 
     draw_clear: function () {
         this.trigger_update(
-            OldPaint.Layer.__super__.draw_clear.apply(this),
-            true);
+            OldPaint.Layer.__super__.draw_clear.apply(this), true);
     },
 
     draw_patch: function (patch, position) {
         this.trigger_update(
-            OldPaint.Layer.__super__.draw_patch.apply(this, arguments),
-            true);
+            OldPaint.Layer.__super__.draw_patch.apply(this, arguments), true);
     },
 
     draw_other_layer: function (layer) {
@@ -103,7 +100,6 @@ OldPaint.Layer = OldPaint.Image.extend ({
     // This should be run after a completed drawing action
     // Returns the changed rect
     cleanup: function () {
-        console.log("cleanup");
         var rect = this.dirty_rect;
         this.dirty_rect = null;
         if (rect) {
@@ -124,13 +120,10 @@ OldPaint.Layer = OldPaint.Image.extend ({
             {width: rect.width, height: rect.height,
              palette: this.image.palette});
         this.canvas = this.image.canvas;
-        this.restore_backup({
-            left: 0, top: 0,
-            width: orig_width, height: orig_height
-        }, {
-            left: -rect.left, top: -rect.top,
-            width: orig_width, height: orig_height
-        });
+        this.restore_backup({left: 0, top: 0,
+                             width: orig_width, height: orig_height},
+                            {left: -rect.left, top: -rect.top,
+                             width: orig_width, height: orig_height});
         this.make_backup();
         this.cleanup();
     },
@@ -140,8 +133,7 @@ OldPaint.Layer = OldPaint.Image.extend ({
     },
 
     trigger_update: function (rect, clear, temporary) {
-        //console.log("trigger_update", rect);
-        if (!rect) {return};
+        if (!rect) return;
         // add 1 pixel padding
         //rect.left -= 1; rect.top -= 1; rect.width += 2; rect.height += 2;
         rect = this.trim_rect(rect);
@@ -168,7 +160,6 @@ OldPaint.Layers = Backbone.Collection.extend({
 
     set_active: function (layer) {
         if (layer) {  // this "if" clause shouldn't be needed
-            console.log("set_active", layer);
             if (this.active && this.active != layer) {
                 this.active.clear_temporary();
                 this.active.trigger("deactivate");
@@ -183,9 +174,7 @@ OldPaint.Layers = Backbone.Collection.extend({
         tmp = this.at(from);
         this.models.splice(from, 1);
         this.models.splice(to, 0, tmp);
-        if (trigger) {
-            this.trigger("move", from, to);
-        }
+        if (trigger) this.trigger("move", from, to);
     },
 
     // Overriding the remove method to keep track of active layer

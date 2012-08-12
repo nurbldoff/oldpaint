@@ -39,9 +39,8 @@ OldPaint.Drawing = Backbone.Model.extend({
         var image, imagedata, imagelist;
         for (var i=0; i < this.layers.length; i++) {
             image = this.layers.at(i).image;
-            imagedata = image.context.getImageData(0, 0,
-                                                   image.canvas.width,
-                                                   image.canvas.height);
+            imagedata = image.context.getImageData(
+                0, 0, image.canvas.width, image.canvas.height);
             imagelist = [];
             for (var j=0; j < imagedata.data.length; j+=4) {
                 imagelist.push(imagedata.data[j]);
@@ -107,6 +106,8 @@ OldPaint.Drawing = Backbone.Model.extend({
             this.redos = [];
         } else this.msg("Drawing is not of Indexed type - not converting.");
     },
+
+    // === Layer operations ===
 
     add_layer: function (activate, data) {
         var new_layer = new OldPaint.Layer({width: this.get("width"),
@@ -252,26 +253,6 @@ OldPaint.Drawing = Backbone.Model.extend({
         };
     },
 
-    undo: function () {
-        var action = this.undos.pop();
-        this.layers.active.clear_temporary();
-        if (action) {
-            this.push_redo(action());
-        } else {
-            this.msg("Nothing more to undo!");
-        }
-    },
-
-    redo: function () {
-        var action = this.redos.pop();
-        this.layers.active.clear_temporary();
-        if (action) {
-            this.push_undo(action());
-        } else {
-            this.msg("Nothing more to redo!");
-        }
-    },
-
     push_undo: function (action) {
         this.undos.push(action);
         if (this.undos.length > 20) {this.undos.shift();}
@@ -282,11 +263,25 @@ OldPaint.Drawing = Backbone.Model.extend({
         if (this.redos.length > 20) {this.redos.shift();}
     },
 
-    // restore part of the image
-    restore_patch: function (patch) {
-        var layer = this.layers.getByCid(patch.layerid);
-        return layer.swap_patch(patch);
+    undo: function () {
+        var action = this.undos.pop();
+        this.layers.active.clear_temporary();
+        if (action) this.push_redo(action());
+        else this.msg("Nothing more to undo!");
     },
+
+    redo: function () {
+        var action = this.redos.pop();
+        this.layers.active.clear_temporary();
+        if (action) this.push_undo(action());
+        else this.msg("Nothing more to redo!");
+    },
+
+    // // restore part of the image
+    // restore_patch: function (patch) {
+    //     var layer = this.layers.getByCid(patch.layerid);
+    //     return layer.swap_patch(patch);
+    // },
 
     set_selection: function (rect, action) {
         if (rect) {

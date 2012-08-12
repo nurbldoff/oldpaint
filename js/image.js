@@ -4,7 +4,6 @@ OldPaint.Image = Backbone.Model.extend ({
     backup: null,
 
     initialize: function (spec) {
-        console.log("image:", spec);
         _.bindAll(this);
         this.palette = spec.palette || new OldPaint.Palette({});
         this.image = new spec.image_type(
@@ -16,7 +15,6 @@ OldPaint.Image = Backbone.Model.extend ({
             this.draw_patch(spec.patch, {left: 0, top:0});
         }
         this.make_backup();
-        console.log("Done making image");
     },
 
     get_size: function () {
@@ -30,12 +28,10 @@ OldPaint.Image = Backbone.Model.extend ({
     },
 
     make_backup: function () {
-        console.log("backup");
         this.backup = Util.copy_canvas(this.image.get_data());
     },
 
     restore_backup: function (rect, dest_rect) {
-        //console.log("Restored");
         if (rect) {
             if (dest_rect) {
                 this.image.blit(this.backup, rect, dest_rect, true);
@@ -45,9 +41,6 @@ OldPaint.Image = Backbone.Model.extend ({
                 this.trigger_update(rect, true);
             }
         } else {
-            //this.canvas.width = this.canvas.width;  // clear canvas
-            //this.canvas.getContext('2d').drawImage(this.backup, 0,
-            //0);
             var size = this.get_size();
             var all_rect = {left: 0, top: 0,
                             width: size.width, height: size.height};
@@ -106,7 +99,6 @@ OldPaint.Image = Backbone.Model.extend ({
     },
 
     draw_clear: function (color) {
-        console.log("image.draw_clear");
         var rect = this.image.clear();
         if (color >= 0) {
             this.draw_fill({x: 0, y: 0}, color);
@@ -115,10 +107,21 @@ OldPaint.Image = Backbone.Model.extend ({
     },
 
     trim_rect: function (rect) {
+        var size = this.get_size();
         return Util.intersect(rect, {left: 0, top: 0,
-                                     width: this.canvas.width,
-                                     height: this.canvas.height});
+                                     width: size.width,
+                                     height: size.height});
     },
 
     trigger_update: function () {}
 });
+
+
+// Part of an Image
+OldPaint.Patch = function (source, rect, layerid, palette) {
+    console.log("Patch:", rect, source, layerid, palette);
+    this.canvas = Util.copy_canvas(source, rect);
+    this.rect = rect;
+    this.layerid = layerid;
+    this.palette = palette;
+};
