@@ -12,15 +12,7 @@ OldPaint.DrawingView = Backbone.View.extend({
     stroke: null,
     topleft: Util.pos(0, 0),
 
-    cursor: {
-        image: document.getElementById("cursor"),
-        $image: $("#cursor"),
-        offset: {x: 10, y: 10}
-    },
-
     events: {
-        "mouseover": "show_cursor",
-        "mouseout": "hide_cursor",
         "mousedown": "begin_stroke",
         "mousemove": "update_stroke",
         "mouseup": "end_stroke",
@@ -30,7 +22,6 @@ OldPaint.DrawingView = Backbone.View.extend({
     initialize: function (options) {
         _.bindAll(this);
         this.topleft = this.$el.offset();
-        this.cursor.$image.hide();
         this.center();
 
         $(window).resize(true, this.render);  // dowsn't work?!
@@ -245,27 +236,12 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.model.convert_to_rgb_type();
     },
 
-    // Show the drawiung cursor
-    show_cursor: function (event) {
-        this.cursor.$image.show();
-        if (!this.stroke) {
-            OldPaint.active_brushes.active.set_color(this.model.palette.foreground);
-        }
-    },
-
-    hide_cursor: function (event) {
-        this.cursor.$image.hide();
-        this.model.layers.active.clear_temporary();
-    },
-
     update_brush: function (color) {
         OldPaint.active_brushes.active.set_color(color);
     },
 
-    // Update the position of the mouse pointer and draw brush preview
+    // Update the position and draw brush preview
     update_cursor: function (event, stroke) {
-        this.cursor.image.style.top = (event.clientY - this.cursor.offset.x) + "px";
-        this.cursor.image.style.left = (event.clientX - this.cursor.offset.y) + "px";
         var coords = Util.image_coords(
             Util.event_coords(event, this.topleft),
             this.window.offset, this.window.scale);
