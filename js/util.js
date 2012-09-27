@@ -156,6 +156,19 @@ Util.clean_path = function (path) {
     return path.replace("//", "/");
 };
 
+Util.buffer = function(func, wait, scope) {
+  var timer = null;
+  return function() {
+    if(timer) clearTimeout(timer);
+    var args = arguments;
+    timer = setTimeout(function() {
+      timer = null;
+      func.apply(scope, args);
+    }, wait);
+  };
+};
+
+
 // Takes a base64 encoded data URI and returns a binary 'blob'
 Util.convertDataURIToBlob = function (dataURI) {
 
@@ -281,7 +294,7 @@ Util.load_png = function (data, drawing) {
 // Loads an OpenRaster file into a drawing
 Util.load_ora = function (data, drawing) {
     var zip = new JSZip();
-    //Need to do some more checking here, seems like the miletype can
+    //Need to do some more checking here, seems like the mimetype can
     //be confused. Here we assume it's "image/openraster"
     zip.load(data.slice(29), {base64: true});
     var stack_file = zip.file("stack.xml");
@@ -333,14 +346,3 @@ Util.create_ora = function (drawing) {
 };
 
 
-Util.buffer = function(func, wait, scope) {
-  var timer = null;
-  return function() {
-    if(timer) clearTimeout(timer);
-    var args = arguments;
-    timer = setTimeout(function() {
-      timer = null;
-      func.apply(scope, args);
-    }, wait);
-  };
-};
