@@ -150,7 +150,7 @@ Util.split_path = function (path) {
 Util.change_extension = function (filename, extension) {
     var basename = filename.split(".")[0];
     return basename + "." + extension;
-}
+};
 
 Util.clean_path = function (path) {
     return path.replace("//", "/");
@@ -263,7 +263,7 @@ Util.mkXML = function (text) //turns xml string into XMLDOM
           return (new DOMParser()).parseFromString(text, "text/xml");
     }
     else if (typeof ActiveXObject != "undefined") {
-     	var doc = new ActiveXObject("MSXML2.DOMDocument");
+        var doc = new ActiveXObject("MSXML2.DOMDocument");
         doc.loadXML(text);
         return doc;
     }
