@@ -293,14 +293,17 @@ Util.load_ora = function (data, drawing) {
     _.each(layer_nodes, function (node, index) {
         var filename = node.getAttribute("src");
         var image = zip.file(filename);
-        //console.log(btoa(image.data).slice(0, 100));
+
         Util.load_base64_png(btoa(image.data)).done(function (data) {
             drawing.add_layer(true, data.layers[0]);
+            // TODO: this isn't a pretty way of loading the palette...
             if (data.palette.length > 0) {
                 drawing.palette.set_colors(data.palette);
             }
         });
     });
+    drawing.palette.set_background(0);
+    drawing.palette.set_foreground(1);
 };
 
 // Create an ORA file as a data URI. Doesn't deflate, because that results in bad

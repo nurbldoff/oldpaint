@@ -23,6 +23,7 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
     },
 
     render: function () {
+        console.log("palette render");
         var editor_template = _.template( $("#paletteeditor_template").html(), {});
         this.$el.html(editor_template);
 
@@ -38,11 +39,8 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
         // });
 
         $("div.color_slider").slider({
-	    range: "min",
-	    min: 0,
-	    max: 255,
-	    value: 60,
-	    slide: this.update_from_rgb_sliders
+            range: "min", min: 0, max: 255, value: 60,
+            slide: this.update_from_rgb_sliders
 	});
         this.update_rgb_sliders(this.model.colors[this.model.foreground]);
         this.update_range();

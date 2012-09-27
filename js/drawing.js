@@ -23,6 +23,7 @@ OldPaint.Drawing = Backbone.Model.extend({
 
     // Load image data
     load: function (data, loader) {
+        // TODO: guess it should be possible to undo loading..?
         while (this.layers.models.length > 0) {
             this.layers.remove(this.layers.at(0), {silent: true});
         }
