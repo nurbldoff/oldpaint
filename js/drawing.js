@@ -78,10 +78,11 @@ OldPaint.Drawing = Backbone.Model.extend({
 
     // Save locally as PNG file. By default flattens all layers into one.
     save_png_local: function (name, single) {
+        var blob;
         if (!!single) {
-            var blob = this.layers.active.image.make_png(true);
+            blob = this.layers.active.image.make_png(true);
         } else {
-            var blob = this.flatten().make_png(true);
+            blob = this.flatten_visible_layers().make_png(true);
         }
         saveAs(blob, Util.change_extension(this.name, "png"));
     },
@@ -155,16 +156,17 @@ OldPaint.Drawing = Backbone.Model.extend({
         }
     },
 
-    // Return an Image which is the result of merging all layers.
-    flatten: function () {
+    // Return an Image which is the result of merging all visible layers.
+    flatten_visible_layers: function () {
         var new_layer = new OldPaint.Layer({width: this.get("width"),
                                             height: this.get("height"),
                                             palette: this.palette,
                                             image_type: this.image_type});
-        for (var i=0; i<this.layers.length; i++) {
-            console.log("Merging layer", i);
-            this.merge_layers(this.layers.at(i), new_layer, true);
-        }
+        this.layers.each(function (layer, index) {
+            if (layer.get("visible")) {
+                this.merge_layers(layer, new_layer, true);
+            }
+        }, this);
         return new_layer.image;
     },
 
