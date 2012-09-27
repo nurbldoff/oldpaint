@@ -33,6 +33,8 @@ OldPaint.DrawingView = Backbone.View.extend({
         Mousetrap.bind("z", this.model.undo);
         Mousetrap.bind("y", this.model.redo);
 
+        Mousetrap.bind("r", this.model.redraw);
+
         // Layer key actions
         Mousetrap.bind("l a", function () {model.add_layer(true);});
         Mousetrap.bind("l d", function () {
@@ -75,6 +77,10 @@ OldPaint.DrawingView = Backbone.View.extend({
                 var new_index = index == frames.length - 1 ? 0 : index + 1;
                 (frames[new_index]).activate();
             }
+        });
+
+        Mousetrap.bind("h", function () {
+            model.flip_x();
         });
 
         this.model.layers.on("add", this.on_layer_added);

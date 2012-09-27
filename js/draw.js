@@ -34,7 +34,7 @@ Draw.drawimage = function (image, context, x, y, erase) {
     } else {
         context.drawImage(image, x, y, image.width, image.height);
     }
-}
+};
 
 // Bresenham line drawing
 Draw.drawline = function (pix, width, startPt, endPt, color) {
@@ -83,66 +83,26 @@ Draw.drawline = function (pix, width, startPt, endPt, color) {
     return rect;
 };
 
-Draw.drawLineWithBrush = function (context, startPt, endPt, brush, step, erase) {
-    var x1 = startPt.x;
-    var y1 = startPt.y;
-    var x2 = endPt.x;
-    var y2 = endPt.y;
-    var dx = x2 - x1;
-    var sx = 1;
-    var dy = y2 - y1;
-    var sy = 1;
-    var hw = Math.floor(brush.width/2);
-    var hh = Math.floor(brush.height/2);
-    var fraction;
+Draw.drawLineWithBrush = function (context, p0, p1, brush, step, erase) {
+    var x0 = p0.x, y0 = p0.y, x1 = p1.x, y1 = p1.y,
+        dx = Math.abs(x1-x0), sx = x0<x1 ? 1 : -1,
+        dy = -Math.abs(y1-y0), sy = y0<y1 ? 1 : -1,
+        err = dx+dy, e2,
+        hw = Math.floor(brush.width/2),
+        hh = Math.floor(brush.height/2);
 
-    if (dx < 0)    {
-        sx = -1;
-        dx = -dx;
-    }
-    if (dy < 0)    {
-        sy = -1;
-        dy = -dy;
+    while (true) {
+        Draw.drawimage(brush, context, x0-hw, y0-hh, erase);
+        if (x0 === x1 && y0 === y1) break;
+        e2 = 2*err;
+        if (e2 >= dy) { err += dy; x0 += sx; }
+        if (e2 <= dx) { err += dx; y0 += sy; }
     }
 
-    var rect = {left:Math.min(x1, x2)-hw,
-                top:Math.min(y1, y2)-hh,
-                width:dx+brush.width,
-                height:dy+brush.height};
-
-    dx = dx << 1;
-    dy = dy << 1;
-    //context.drawImage(brush, x1-hw, y1-hh, brush.width, brush.height);
-    Draw.drawimage(brush, context, x1-hw, y1-hh, erase);
-    if (dy < dx) {
-        fraction = dy - (dx>>1);
-        while (x1 != x2) {
-            if (fraction >= 0) {
-                y1 += sy;
-                fraction -= dx;
-            }
-            fraction += dy;
-            x1 += sx;
-            //context.drawImage(brush, x1-hw, y1-hh);
-            Draw.drawimage(brush, context, x1-hw, y1-hh, erase);
-        }
-    } else {
-        fraction = dx - (dy>>1);
-        while (y1 != y2)
-        {
-            if (fraction >= 0)
-            {
-                x1 += sx;
-                fraction -= dy;
-            }
-            fraction += dx;
-            y1 += sy;
-            //context.drawImage(brush, x1-hw, y1-hh);
-            Draw.drawimage(brush, context, x1-hw, y1-hh, erase);
-        }
-    }
-    return rect;
+    return Util.rect(Math.min(p0.x, x1)-hw, Math.min(p0.y, y1)-hh,
+                     dx+brush.width, -dy+brush.height);
 };
+
 
 Draw.drawEllipseWithBrush = function (context, x0, y0, a, b, brush, step, n, erase) {
     if (a === 0 || b === 0) {
@@ -150,15 +110,11 @@ Draw.drawEllipseWithBrush = function (context, x0, y0, a, b, brush, step, n, era
     } else {
 	a = Math.abs(a);
 	b = Math.abs(b);
-	var a2  = 2 * a * a;
-	var b2  = 2 * b * b;
-	var error = a * a * b;
-	var x = 0;
-	var y = b;
-	var stopy = 0;
-	var stopx = a2 * b ;
-        var hw = Math.floor(brush.width / 2);
-        var hh = Math.floor(brush.height / 2);
+	var a2 = 2*a*a, b2  = 2*b*b, error = a*a*b, x = 0, y = b,
+            stopy = 0, stopx = a2 * b,
+            hw = Math.floor(brush.width / 2),
+            hh = Math.floor(brush.height / 2);
+
 	while (stopy <= stopx) {
 	    //context.drawImage(brush, x0 + x - hw, y0 + y - hh);
             Draw.drawimage(brush, context, x0+x-hw, y0+y-hh, erase);
@@ -192,11 +148,6 @@ Draw.drawEllipseWithBrush = function (context, x0, y0, a, b, brush, step, n, era
             Draw.drawimage(brush, context, x0-x-hw, y0-y-hh, erase);
 	    //context.drawImage(brush, x0 + x - hw, y0 - y - hh);
             Draw.drawimage(brush, context, x0+x-hw, y0-y-hh, erase);
-
-	    // context.drawImage(brush, x0 + x - hw, y0 + y - hh);
-	    // context.drawImage(brush, x0 - x - hw, y0 + y - hh);
-	    // context.drawImage(brush, x0 - x - hw, y0 - y - hh);
-	    // context.drawImage(brush, x0 + x - hw, y0 - y - hh);
 	    ++y;
 	    error -= a2 * (y - 1);
 	    stopx += a2;
@@ -216,17 +167,14 @@ Draw.drawFilledEllipse = function (context, x0, y0, a, b, color) {
     } else {
 	a = Math.abs(a);
 	b = Math.abs(b);
-	var a2  = 2*a * a;
-	var b2  = 2*b * b;
-	var error  = a*a*b;
-	var x  = 0;
-	var y  = b;
-	var stopy  = 0;
-	var stopx  = a2 * b;
+	var a2  = 2*a * a, b2  = 2*b * b,
+            error  = a*a*b, x  = 0, y  = b,
+            stopy  = 0, stopx  = a2 * b,
+            draw_rect;
         if (color[3] == 0) {
-            var draw_rect = function (x, y, w, h) {context.clearRect(x, y, w, h);};
+            draw_rect = function (x, y, w, h) {context.clearRect(x, y, w, h);};
         } else {
-            var draw_rect = function (x, y, w, h) {context.fillRect(x, y, w, h);};
+            draw_rect = function (x, y, w, h) {context.fillRect(x, y, w, h);};
         }
         if (color instanceof Array) {
             context.fillStyle =
@@ -280,15 +228,14 @@ Draw.get_pos = function (pixel, width) {
 
 Draw.bucketfill = function (colorLayer, canvasWidth, canvasHeight, pt, color) {
     console.log("Bucketfill start");
-    var startX = pt.x;
-    var startY = pt.y;
-    var pixelStack = [[startX, startY]];
-    var startColor = [colorLayer[(startY*canvasWidth+startX)*4],
+    var startX = pt.x, startY = pt.y,
+        pixelStack = [[startX, startY]],
+        startColor = [colorLayer[(startY*canvasWidth+startX)*4],
                       colorLayer[(startY*canvasWidth+startX)*4+1],
-                      colorLayer[(startY*canvasWidth+startX)*4+2]];
-    var newPos, x, y, pixelPos, reachLeft, reachRight;
+                      colorLayer[(startY*canvasWidth+startX)*4+2]],
+        newPos, x, y, pixelPos, reachLeft, reachRight;
 
-    var match_color = function (colorLayer, pixelPos, startcolor) {
+    function match_color (colorLayer, pixelPos, startcolor) {
         var r = colorLayer[pixelPos];
         var g = colorLayer[pixelPos+1];
         var b = colorLayer[pixelPos+2];

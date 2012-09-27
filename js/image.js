@@ -1,7 +1,4 @@
 OldPaint.Image = Backbone.Model.extend ({
-    image: null,
-    canvas: null,
-    backup: null,
 
     initialize: function (spec) {
         _.bindAll(this);
@@ -104,6 +101,10 @@ OldPaint.Image = Backbone.Model.extend ({
             this.draw_fill({x: 0, y: 0}, color);
         }
         return rect;
+    },
+
+    flip_x: function () {
+        return this.image.flipx();
     },
 
     trim_rect: function (rect) {

@@ -69,6 +69,7 @@ OldPaint.Layer = OldPaint.Image.extend ({
     },
 
     draw_clear: function () {
+        this.temporary_rect = null;
         this.trigger_update(
             OldPaint.Layer.__super__.draw_clear.apply(this), true);
     },
@@ -89,12 +90,29 @@ OldPaint.Layer = OldPaint.Image.extend ({
         this.cleanup();
     },
 
+    flip_x: function () {
+        this.trigger_update(
+            OldPaint.Layer.__super__.flip_x.apply(this),
+            true);
+    },
+
     swap_patch: function (patch) {
         var oldpatch = this.make_patch(patch.rect);
         this.draw_patch(patch);
         this.make_backup();
         this.cleanup();
         return oldpatch;
+    },
+
+    // Force a complete redraw. Should never be necessary.
+    redraw: function () {
+        var rect = {left: 0, top:0,
+                    width: this.image.canvas.width,
+                    height: this.image.canvas.height};
+        this.image.updateCanvas(rect);
+        this.trigger_update({left: 0, top:0,
+                             width: this.image.canvas.width,
+                             height: this.image.canvas.height});
     },
 
     // This should be run after a completed drawing action

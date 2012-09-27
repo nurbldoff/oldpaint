@@ -175,6 +175,15 @@ OldPaint.Drawing = Backbone.Model.extend({
         this.layers.trigger("resize");
     },
 
+    redraw: function() {
+        console.log("redraw!");
+        this.layers.active.redraw();
+    },
+
+    flip_x: function() {
+        this.layers.active.flip_x();
+    },
+
     // Things to do when the user starts making a "stroke" with a tool
     before_draw: function(tool, stroke) {
         var layer = this.layers.active;

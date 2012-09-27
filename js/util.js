@@ -88,10 +88,10 @@ Util.rectify = function (start, end) {
 
 // Calculate the canvas position of the cursor
 Util.event_coords = function (event, offset) {
-    if (event.targetTouches && event.targetTouches.length > 0) {
-        console.log("TargetTouches:", event.TargetTouches)
-        event = event.targetTouches[0];
-    }
+    // if (event.targetTouches && event.targetTouches.length > 0) {
+    //     console.log("TargetTouches:", event.TargetTouches)
+    //     event = event.targetTouches[0];
+    // }
     return {x: Math.floor(event.pageX - offset.left),
             y: Math.floor(event.pageY - offset.top)};
 };
