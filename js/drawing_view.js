@@ -86,23 +86,21 @@ OldPaint.DrawingView = Backbone.View.extend({
 
         // Keep track of whether space is held down.
         this.scroll_mode = false;
-        var space_down = _.bind(function (event) {
+        var scroll_key = " ".charCodeAt(0);
+        var scroll_key_down = _.bind(function (event) {
             this.scroll_mode = true;
         }, this);
-
-        var space_up = _.bind(function (event) {
+        var scroll_key_up = _.bind(function (event) {
             this.scroll_mode = false;
         }, this);
 
         $(document).keyup(function(evt) {
-            if (evt.keyCode == 32) {
-                console.log("space up!");
-                space_up(evt);
+            if (evt.keyCode == scroll_key) {
+                scroll_key_up(evt);
             }
         }).keydown(function(evt) {
-            if (evt.keyCode == 32) {
-                console.log("space down...");
-                space_down(evt);
+            if (evt.keyCode == scroll_key) {
+                scroll_key_down(evt);
             }
         });
 
