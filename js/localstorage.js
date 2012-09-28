@@ -143,3 +143,26 @@ LocalStorage.read_images = function () {
         }
     };
 }();
+
+LocalStorage.ls = function (args, fs) {
+
+    var dirReader = fs.root.createReader();
+    var entries = [];
+    
+    function toArray(list) {
+        return Array.prototype.slice.call(list || [], 0);
+    }
+
+    // Call the reader.readEntries() until no more results are returned.
+    var readEntries = function() {
+        dirReader.readEntries (function(results) {
+            if (!results.length) {
+                args.callback(entries.sort());
+            } else {
+                entries = entries.concat(toArray(results));
+                readEntries();
+            }
+        }, LocalStorage.error_handler);
+    };  
+    readEntries(); // Start reading dirs.
+};

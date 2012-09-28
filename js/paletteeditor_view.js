@@ -58,6 +58,7 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
         } else {
             this.render();
         }
+        this.activate(this.model.foreground);
     },
 
     update_rgb_sliders: function (color) {
