@@ -383,11 +383,11 @@ input.color_value {
     text-align: center;
 }
 
-#color_slider_r .ui-slider-range { background: #f00; }
+#color_slider_r .ui-slider-range { background: #f00; width: 256px; }
 #color_slider_r .ui-slider-handle { opacity: 0.5; border-color: #000; }
-#color_slider_g .ui-slider-range { background: #0f0; }
+#color_slider_g .ui-slider-range { background: #0f0; width: 256px; }
 #color_slider_g .ui-slider-handle { opacity: 0.5; border-color: #000; }
-#color_slider_b .ui-slider-range { background: #00f; }
+#color_slider_b .ui-slider-range { background: #00f; width: 256px; }
 #color_slider_b .ui-slider-handle { opacity: 0.5; border-color: #000; }
 
 .ui-slider {border-color: #000; background: black;}
