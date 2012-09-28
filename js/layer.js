@@ -170,6 +170,7 @@ OldPaint.Layer = OldPaint.Image.extend ({
 OldPaint.Layers = Backbone.Collection.extend({
     model: OldPaint.Layer,
     active: null,
+    number: 0,
 
     initialize: function (spec) {
         _.bindAll(this);
@@ -193,6 +194,12 @@ OldPaint.Layers = Backbone.Collection.extend({
         this.models.splice(from, 1);
         this.models.splice(to, 0, tmp);
         if (trigger) this.trigger("move", from, to);
+    },
+
+    // Overriding the add method to keep track of numbering
+    add: function (layer) {
+        layer.id = this.number++;
+        Backbone.Collection.prototype.add.call(this, [layer]);
     },
 
     // Overriding the remove method to keep track of active layer

@@ -26,6 +26,9 @@ OldPaint.DrawingView = Backbone.View.extend({
 
         $(window).resize(true, this.render);  // dowsn't work?!
 
+        // Let's save to local storage periodically
+        //var intervalID = setInterval(this.auto_save, 5000);
+
         // Keyboard bindings.
         var model = this.model;
         Mousetrap.bind("-", this.zoom_out);
@@ -34,6 +37,8 @@ OldPaint.DrawingView = Backbone.View.extend({
         Mousetrap.bind("y", this.model.redo);
 
         Mousetrap.bind("r", this.model.redraw);
+        Mousetrap.bind("0", this.auto_save);
+        Mousetrap.bind("9", this.model.load_from_storage);
 
         // Layer key actions
         Mousetrap.bind("l a", function () {model.add_layer(true);});
@@ -129,7 +134,6 @@ OldPaint.DrawingView = Backbone.View.extend({
         $('#files').on('change', this.handle_file_select);
 
         $("#convert_image").on("click", this.on_convert_image);
-
     },
 
     handle_file_select: function (evt) {
@@ -150,11 +154,11 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     load_png_file: function (e) {
         //Util.load_base64_png(e.target.result.slice(22), this.model.load);
-        this.model.load(e.target.result.slice(22), Util.load_png);
+        this.model.load(Util.load_png, {layers: [e.target.result.slice(22)]});
     },
 
     load_ora_file: function (e) {
-        this.model.load(e.target.result, Util.load_ora);
+        this.model.load(Util.load_ora, e.target.result);
     },
 
     on_load: function () {
@@ -164,6 +168,16 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     update_scale: function() {
         this.window.scale = Math.pow(2, this.zoom);
+    },
+
+    // Save the image to the browser's internal storage. Let's not do that
+    // while the user is actually drawing though, since it will cause stutter.
+    auto_save: function () {
+        if (this.stroke) {
+            setTimeout(this.save_to_storage, 1000);
+        } else {
+            this.model.save_to_storage();
+        }
     },
 
     // Center the drawing on screen

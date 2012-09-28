@@ -4,7 +4,7 @@
 OldPaint.Drawing = Backbone.Model.extend({
 
     selection: null,
-    name: "Untitled",
+    name: "untitled",
 
     defaults: {
         width: 0,
@@ -22,7 +22,7 @@ OldPaint.Drawing = Backbone.Model.extend({
     },
 
     // Load image data
-    load: function (data, loader) {
+    load: function (loader, data) {
         // TODO: guess it should be possible to undo loading..?
         while (this.layers.models.length > 0) {
             this.layers.remove(this.layers.at(0), {silent: true});
@@ -86,6 +86,42 @@ OldPaint.Drawing = Backbone.Model.extend({
             blob = this.flatten_visible_layers().make_png(true);
         }
         saveAs(blob, Util.change_extension(this.name, "png"));
+    },
+
+    // save to internal browser storage
+    save_to_storage: function () {
+        //LocalStorage.request("", "Untitled", null, LocalStorage.rm);
+        var spec = {
+            title: this.name,
+            current_layer_number: this.layers.number,
+            layers: [],
+            palette: this.palette.colors
+        };
+        this.layers.each(function (layer, index) {
+            var name = "layer" + layer.id;
+            spec.layers.push(name);
+            LocalStorage.request(LocalStorage.write,
+                                {path: this.name + "/data", 
+                                 name: name, 
+                                 blob: layer.image.get_raw()});
+        }, this);
+        LocalStorage.request(LocalStorage.write,
+                            {path: this.name, name: "spec",
+                             blob: new Blob([JSON.stringify(spec)], 
+                                            {type: 'text/plain'})});
+    },
+
+    load_from_storage: function () {
+        var model = this;
+        var read_spec = function (e) {
+            console.log(e.target.result);
+            var spec = JSON.parse(e.target.result);
+            var data = [];
+            LocalStorage.read_images(spec, _.bind(model.load, this, Util.load_raw));
+        };
+        LocalStorage.request(LocalStorage.read_txt, 
+                             {path: this.name, name: "spec",
+                              on_load: read_spec});
     },
 
     // Convert the whole drawing from Indexed to RGB format.

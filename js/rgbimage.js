@@ -196,4 +196,6 @@ OldPaint.RGBImage = function (data) {
         }
     };
 
+    // Return a representation that can be saved
+    this.get_raw = _.bind(this.make_png, this, true);
 };

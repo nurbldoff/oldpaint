@@ -59,6 +59,16 @@ OldPaint.IndexedImage = function (data) {
         return this.icanvas;
     };
 
+    this.put_data = function (data) {
+        var pixbuf = this.icontext.getImageData(
+            0, 0, this.icanvas.width, this.icanvas.height);
+        for (var i=0; i<data.length; i++) {
+            pixbuf.data[i] = data[i];
+        }
+        this.icontext.putImageData(pixbuf, 0, 0);
+    };
+
+
     this.drawbrush = function (pt, brush, color) {
         var width = brush.image.canvas.width, height = brush.image.canvas.height,
             rect = this.blit(brush.image.icanvas,
@@ -290,5 +300,10 @@ OldPaint.IndexedImage = function (data) {
         } else {
             return p.getBase64();
         }
+    };
+
+    // Return an internal representation that can be saved 
+    this.get_raw = function () {
+        return Util.convertDataURIToBlob(this.icanvas.toDataURL());
     };
 };

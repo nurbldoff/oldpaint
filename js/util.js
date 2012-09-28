@@ -189,6 +189,7 @@ Util.convertDataURIToBlob = function (dataURI) {
         arrayview[i] = raw.charCodeAt(i) & 0xff;
     }
 
+    // TODO: This should be changed to not use the BlobBuilder interface
     var BlobBuilder = window.MozBlobBuilder || window.WebKitBlobBuilder || window.BlobBuilder;
     var bb = new BlobBuilder();
     bb.append(arrayview);
@@ -201,10 +202,12 @@ Util.load_base64_png = function (data) {
     // Let's take a look at the file first
     var image = new PNG(data);
     var deferred = $.Deferred();
+    console.log("Loading PNG of type:", image.colorType);
     // Use browser to decode non-palette types
     if (image.colorType != 3) {
-        var img = new Image;
+        var img = new Image();
         img.onload = function() {
+            console.log(img.width, img.height);
             var canvas = Util.copy_canvas(img);
             var result = {layers: [canvas.getContext('2d').getImageData(
                 0, 0, img.width, img.height).data],
@@ -215,7 +218,8 @@ Util.load_base64_png = function (data) {
             console.log("Done loading PNG...");
             deferred.resolve(result);
         };
-        img.src = event.target.result;
+        //img.src = event.target.result;
+        img.src = "data:image/png;base64," + data;
     } else {
         // Convert the data into oldpaint formats
         var line, pixels = [];
@@ -276,17 +280,43 @@ Util.mkXML = function (text) //turns xml string into XMLDOM
     }
 };
 
-// Loads a PNG image into a drawing
+// Loads indexed PNG images into a drawing
 Util.load_png = function (data, drawing) {
-    Util.load_base64_png(data).done(function (result) {
-        drawing.set("height", result.height);
-        drawing.set("width", result.width);
-        drawing.add_layer(true, result.layers[0]);
-        if (result.palette.length > 0) {
-            drawing.palette.set_colors(result.palette);
-        }
+    _.each(data.layers, function (image, index) {
+        Util.load_base64_png(image).done(function (result) {
+            drawing.set("height", result.height);
+            drawing.set("width", result.width);
+            console.log(result.layers[0]);
+            drawing.add_layer(true, result.layers[0]);
+            if (data.palette) {
+                drawing.palette.set_colors(data.palette);
+            } else if (result.palette.length > 0) {
+                drawing.palette.set_colors(result.palette);
+            } 
+        });
     });
-}
+};
+
+// Loads PNG images directly into a drawing
+Util.load_raw = function (data, drawing) {
+    _.each(data.layers, function (image, index) {
+        // TODO: Should be possible to bypass this whole thing since it's a raw
+        // icanvas we're loading here... probably a lot faster.
+        Util.load_base64_png(image).done(function (result) {
+            drawing.set("height", result.height);
+            drawing.set("width", result.width);
+            var layer = drawing.add_layer(false);
+            console.log(result.layers[0]);
+            layer.image.put_data(result.layers[0]);
+            
+            if (data.palette) {
+                drawing.palette.set_colors(data.palette);
+            } else if (result.palette.length > 0) {
+                drawing.palette.set_colors(result.palette);
+            } 
+        });
+    });
+};
 
 
 // Routines for parsing and creating OpenRaster (ORA) files
@@ -344,5 +374,4 @@ Util.create_ora = function (drawing) {
     zip.file("mimetype", "image/openraster");
     return "data:application/zip;base64,"+ zip.generate();
 };
-
 
