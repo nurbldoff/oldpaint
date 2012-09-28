@@ -178,7 +178,8 @@ Util.convertDataURIToBlob = function (dataURI) {
 
     var MIMETYPE_MARKER = 'data:';
     var mimetypeIndex = dataURI.indexOf(MIMETYPE_MARKER) + MIMETYPE_MARKER.length;
-    var mimetype = dataURI.substring(mimetypeIndex, dataURI.indexOf(BASE64_MARKER));
+    //var mimetype = dataURI.substring(mimetypeIndex, dataURI.indexOf(BASE64_MARKER));
+    var mimetype = "image/png";
 
     var raw = window.atob(base64);
     var rawLength = raw.length;
@@ -300,15 +301,15 @@ Util.load_png = function (data, drawing) {
 // Loads PNG images directly into a drawing
 Util.load_raw = function (data, drawing) {
     _.each(data.layers, function (image, index) {
-        // TODO: Should be possible to bypass this whole thing since it's a raw
-        // icanvas we're loading here... probably a lot faster.
+        // TODO: Should be easier to bypass this whole thing and load
+        // the canvas directly into the image. Faster too.
         Util.load_base64_png(image).done(function (result) {
             drawing.set("height", result.height);
             drawing.set("width", result.width);
-            var layer = drawing.add_layer(false);
+            var layer = drawing.add_layer(true);
             console.log(result.layers[0]);
             layer.image.put_data(result.layers[0]);
-            
+            layer.cleanup();
             if (data.palette) {
                 drawing.palette.set_colors(data.palette);
             } else if (result.palette.length > 0) {

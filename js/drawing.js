@@ -4,9 +4,9 @@
 OldPaint.Drawing = Backbone.Model.extend({
 
     selection: null,
-    name: "untitled",
 
     defaults: {
+        title: "Untitled",
         width: 0,
         height: 0
     },
@@ -74,7 +74,7 @@ OldPaint.Drawing = Backbone.Model.extend({
     save_ora_local: function () {
         var ora = Util.create_ora(this);
         saveAs(Util.convertDataURIToBlob(ora),
-               Util.change_extension(this.name, "ora"));
+               Util.change_extension(this.get("title"), "ora"));
     },
 
     // Save locally as PNG file. By default flattens all layers into one.
@@ -85,14 +85,14 @@ OldPaint.Drawing = Backbone.Model.extend({
         } else {
             blob = this.flatten_visible_layers().make_png(true);
         }
-        saveAs(blob, Util.change_extension(this.name, "png"));
+        saveAs(blob, Util.change_extension(this.get("title"), "png"));
     },
 
     // save to internal browser storage
     save_to_storage: function () {
         //LocalStorage.request("", "Untitled", null, LocalStorage.rm);
         var spec = {
-            title: this.name,
+            title: this.get("title"),
             current_layer_number: this.layers.number,
             layers: [],
             palette: this.palette.colors
@@ -101,17 +101,20 @@ OldPaint.Drawing = Backbone.Model.extend({
             var name = "layer" + layer.id;
             spec.layers.push(name);
             LocalStorage.request(LocalStorage.write,
-                                {path: this.name + "/data", 
+                                {path: this.get("title") + "/data", 
                                  name: name, 
                                  blob: layer.image.get_raw()});
         }, this);
         LocalStorage.request(LocalStorage.write,
-                            {path: this.name, name: "spec",
+                            {path: this.get("title"), name: "spec",
                              blob: new Blob([JSON.stringify(spec)], 
                                             {type: 'text/plain'})});
     },
 
-    load_from_storage: function () {
+    load_from_storage: function (title) {
+        if (title) {
+            this.set("title", title);
+        }
         var model = this;
         var read_spec = function (e) {
             console.log(e.target.result);
@@ -120,7 +123,7 @@ OldPaint.Drawing = Backbone.Model.extend({
             LocalStorage.read_images(spec, _.bind(model.load, this, Util.load_raw));
         };
         LocalStorage.request(LocalStorage.read_txt, 
-                             {path: this.name, name: "spec",
+                             {path: this.get("title"), name: "spec",
                               on_load: read_spec});
     },
 

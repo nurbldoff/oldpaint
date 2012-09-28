@@ -21,6 +21,11 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     initialize: function (options) {
         _.bindAll(this);
+
+        LocalStorage.request(LocalStorage.read_txt, 
+                             {path: "", name: "settings.json",
+                              on_load: this.load_settings});
+        
         this.topleft = this.$el.offset();
         this.center();
 
@@ -38,7 +43,8 @@ OldPaint.DrawingView = Backbone.View.extend({
 
         Mousetrap.bind("r", this.model.redraw);
         Mousetrap.bind("0", this.auto_save);
-        Mousetrap.bind("9", this.model.load_from_storage);
+        Mousetrap.bind("9", this.auto_load);
+        Mousetrap.bind("8", this.save_settings);
 
         // Layer key actions
         Mousetrap.bind("l a", function () {model.add_layer(true);});
@@ -121,6 +127,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.model.palette.on("change", this.on_palette_changed);
         //this.model.layers.on("stroke", this.on_stroke);
 
+        $("#rename_drawing").on("click", this.on_rename);
         $("#resize_image").on("click", this.on_resize_image);
         $("#load_image").on("click", this.load_popup);
         $("#save_image").on("click", this.save_popup);
@@ -134,6 +141,24 @@ OldPaint.DrawingView = Backbone.View.extend({
         $('#files').on('change', this.handle_file_select);
 
         $("#convert_image").on("click", this.on_convert_image);
+    },
+
+    load_settings: function (e) {
+        var settings = JSON.parse(e.target.result);
+        console.log("settings:", settings);
+        if (settings.last_drawing) {
+            this.model.load_from_storage(settings.last_drawing);
+        }
+    },
+
+    save_settings: function () {
+        var settings = {
+            last_drawing: this.model.get("title")
+        };
+        LocalStorage.request(LocalStorage.write,
+                             {path: "", name: "settings.json",
+                              blob: new Blob([JSON.stringify(settings)], 
+                                             {type: 'text/plain'})});
     },
 
     handle_file_select: function (evt) {
@@ -161,6 +186,11 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.model.load(Util.load_ora, e.target.result);
     },
 
+    on_rename: function () {
+        var name = prompt("What do you want to call the drawing?");
+        this.model.set("title", name);
+    },
+
     on_load: function () {
         this.render(true);
         this.center();
@@ -178,6 +208,10 @@ OldPaint.DrawingView = Backbone.View.extend({
         } else {
             this.model.save_to_storage();
         }
+    },
+
+    auto_load: function (evt) {
+        this.model.load_from_storage();
     },
 
     // Center the drawing on screen
