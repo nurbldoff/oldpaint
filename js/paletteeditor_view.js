@@ -69,9 +69,9 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
     },
 
     update_rgb_values: function (color) {
-        $("#color_value_r").attr("value", color.r);
-        $("#color_value_g").attr("value", color.g);
-        $("#color_value_b").attr("value", color.b);
+        $("#color_value_r").text(color.r);
+        $("#color_value_g").text(color.g);
+        $("#color_value_b").text(color.b);
     },
 
     update_from_rgb_sliders: function (event, ui) {

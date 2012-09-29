@@ -53,13 +53,26 @@ table tr td {
     font-size: 12pt;
 }
 
+.header.action {
+    width: 0px;
+}
+
 .header.table {
     width: 100%;
 }
 
-.cell.header {
+.header.logo {
+    color: white;
+    text-shadow: #000 1px 1px;
+    min-width: 10%;
+    text-align: center;
+}
+
+#title {
     width: 100%;
     text-align: left;
+    background-color: #808080;
+    font-size: 12pt;
 }
 
 

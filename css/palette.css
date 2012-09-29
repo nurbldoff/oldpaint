@@ -61,10 +61,12 @@ table.palette_editor {
     position: relative;
 }
 
-input.color_value {
+div.color_value {
+    color: white;
     width: 50;
-    border: 1px solid #444;
-    background: #AAA;
+    padding: 2px;
+    /* border: 1px solid #444; */
+    /* background: #AAA; */
     text-align: center;
     font-family : topaz, "Lucida Console", monospace, Monaco;
 }
@@ -76,7 +78,7 @@ input.color_value {
 #color_slider_b .ui-slider-range { background: #00f; width: 256px; }
 #color_slider_b .ui-slider-handle { opacity: 0.5; border-color: #000; }
 
-.ui-slider {border-color: #000; background: black;}
+.ui-slider {border-color: #000; background: #555;}
 .ui-corner-all {background: #000; -webkit-border-radius: 0;}
 
 td.color_slider {

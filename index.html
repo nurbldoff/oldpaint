@@ -28,10 +28,13 @@
         <td colspan="3" class="fg">
           <div class="header table">
             <div class="header row">
-              <div class="cell header">
+              <div class="cell header logo">
                 OldPaint
               </div>
-              <div class="cell header action">
+              <div class="cell" id="title">
+                Untitled [800x600]
+              </div>
+              <div class="cell header actions">
                 <button id="rename_drawing" class="tool">Rename</button>
               </div>
               <div class="cell header action">
@@ -181,18 +184,18 @@
           <td>
             <table id="color_sliders">
               <tr>
-                <td><input id="color_value_r" class="color_value"
-                           size="3"></input></td>
+                <td><div id="color_value_r" class="color_value"
+                           size="3"></div></td>
                 <td class="color_slider">
                 <div id="color_slider_r" class="color_slider cell"></div></td>
                 </tr><tr>
-                <td ><input id="color_value_g" class="color_value"
-                            size="3"></input></td>
+                <td ><div id="color_value_g" class="color_value"
+                            size="3"></div></td>
                 <td class="color_slider">
                 <div id="color_slider_g" class="color_slider cell"></div></td>
                 </tr><tr>
-                <td><input id="color_value_b" class="color_value"
-                           size="3"></input></td>
+                <td><div id="color_value_b" class="color_value"
+                           size="3"></div></td>
                 <td class="color_slider">
                 <div id="color_slider_b" class="color_slider cell"></div></td>
               </tr>
