@@ -41,17 +41,18 @@ OldPaint.IndexedImage = function (data) {
         this.icontext.putImageData(pixbuf, 0, 0);
     };
 
-    this.flip = {x: 1, y: 1};
+    this.flip = {x: false, y: false};
 
     this.get_pos = function (pos) {
-        return {x: pos.x * this.flip.x, y: pos.y * this.flip.y};
+        return {x: this.flip.x ? this.canvas.width - pos.x : pos.x,
+                y: this.flip.y ? this.canvas.height - pos.y : pos.y};
     };
 
     this.get_rect = function (rect) {
-        return {left: rect.left >= 0 ?
-                    rect.left * this.flip.x : rect.left * this.flip.x - rect.width,
-                top: rect.top >= 0 ?
-                    rect.top * this.flip.y : rect.top * this.flip.y - rect.height,
+        return {left: this.flip.x ?
+                    this.canvas.width - (rect.left + rect.width) : rect.left,
+                top: this.flip.y ?
+                    this.canvas.height - (rect.top + rect.height) : rect.top,
                 width: rect.width, height: rect.height};
     };
 
@@ -80,14 +81,15 @@ OldPaint.IndexedImage = function (data) {
     };
 
     this.drawline = function (startPt, endPt, brush, color) {
-        var rect = this.get_rect(Draw.drawLineWithBrush(
-            this.icontext, this.get_pos(startPt), this.get_pos(endPt),
-            brush.image.icanvas));
-        this.updateCanvas(rect);
-        return rect;
+        startPt = this.get_pos(startPt);
+        endPt = this.get_pos(endPt);
+        var rect = Draw.drawLineWithBrush(this.icontext, startPt, endPt,
+                                          brush.image.icanvas);
+        return this.updateCanvas(rect);
     };
 
     this.drawrectangle = function (startpt, size, brush, color) {
+        startPt = this.get_pos(startPt);
         var rect1 = Draw.drawLineWithBrush(this.icontext, startpt,
                                            {x:startpt.x+size.x, y:startpt.y},
                                            brush.image.icanvas);
@@ -106,6 +108,7 @@ OldPaint.IndexedImage = function (data) {
     };
 
     this.drawfilledrectangle = function (startpt, size, color) {
+        startpt = this.get_pos(startpt);
         this.icontext.fillStyle = "rgb("+color+",0,0)";
         var x0 = Math.min(startpt.x, startpt.x+size.x);
         var y0 = Math.min(startpt.y, startpt.y+size.y);
@@ -135,18 +138,17 @@ OldPaint.IndexedImage = function (data) {
     };
 
     this.blit = function(canvas, fromrect, torect, clear) {
+        var torect2 = this.get_rect(torect);
         if (clear) {
             this.clear(torect);
         }
         this.icontext.drawImage(canvas,
                                fromrect.left, fromrect.top,
                                fromrect.width, fromrect.height,
-                               torect.left, torect.top,
-                               torect.width, torect.height);
-        this.updateCanvas(torect);
-        return torect;
+                               torect2.left, torect2.top,
+                               torect2.width, torect2.height);
+        return this.updateCanvas(torect);
     };
-
 
     this.bucketfill = function (pt, color) {
         color = [color, 0, 0, this.palette.colors[color][3]];
@@ -171,31 +173,23 @@ OldPaint.IndexedImage = function (data) {
     };
 
     this.flipx = function() {
-        var can = Util.copy_canvas(this.icanvas);
-        this.icontext.scale(-1, 1);
-        this.flip.x = -this.flip.x;
-        var rect = {left: 0, top: 0,
-                    width: this.canvas.width, height: this.canvas.height};
-        this.blit(can, rect, rect, true);
+        this.flip.x = !this.flip.x;
+        this.context.clearRect(0, 0,
+                               this.canvas.width, this.canvas.height);
         //this.context.scale(-1, 1);
-
-        // this.icontext.clearRect(0, 0,
-        //                         this.icanvas.width, this.icanvas.height);
-
-        // this.icontext.drawImage(this.icanvas, 0, 0, -this.icanvas.width,
-        //                         this.icanvas.height);
-        // this.icontext.restore();
         this.updateCanvas();
-        return {left: 0, top: 0,
-                width: this.canvas.width, height: this.canvas.height};
+        return rect = {left: 0, top: 0,
+                    width: this.canvas.width, height: this.canvas.height};
     };
 
-    this.clear = function(rect) {
+    this.clear = function(rect, color) {
+        console.log(rect.left, rect.top, rect.height, rect.width);
+        var torect = this.get_rect(rect);
         if (rect) {
             this.icontext.clearRect(rect.left, rect.top,
                                     rect.width, rect.height);
-            this.context.clearRect(rect.left, rect.top,
-                                   rect.width, rect.height);
+            this.context.clearRect(torect.left, torect.top,
+                                   torect.width, torect.height);
         } else {
             this.icontext.clearRect(0, 0, this.canvas.width, this.canvas.height);
             this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -215,28 +209,34 @@ OldPaint.IndexedImage = function (data) {
     };
 
     this.updateCanvas = function (rect) {
-        rect = Util.intersect(rect, this.get_rect({left:0, top:0,
-                                                   width: this.canvas.width,
-                                                   height: this.canvas.height}));
+        rect = Util.intersect(rect, {left:0, top:0,
+                                     width: this.canvas.width,
+                                     height: this.canvas.height});
+        //console.log("updateCanvas", rect.left, rect.top, rect.height, rect.width);
         if (rect) {
-            var correct = this.get_rect(rect);
-            var indpix = this.icontext.getImageData(rect.left, rect.top,
-                                                    rect.width, rect.height).data;
-            var pixbuf = this.context.createImageData(rect.width, rect.height);
-            var color;
-            var data = pixbuf.data;
-            for (var i=0, ilen=indpix.length; i<ilen; i+=4) {
+            var torect = this.get_rect(rect);
+            console.log(rect, torect);
+            var tmp = Util.copy_canvas(this.icanvas, rect, this.flip).getContext('2d');
+            var indpix = tmp.getImageData(0, 0,
+                                          torect.width, torect.height).data;
+            var pixbuf = this.context.createImageData(torect.width, torect.height),
+                color, data = pixbuf.data, index, yinc = rect.width * 4, x, y;
 
-                color = this.palette.colors[indpix[i]];
-                //if (!color) {console.log(color, i, indpix[i]);}
-                //console.log(pbp[i]);
-                data[i] = color[0];
-                data[i+1] = color[1];
-                data[i+2] = color[2];
-                data[i+3] = color[3];
+            for (y=0; y<rect.height*rect.width*4; y+=yinc) {
+                for (x=y; x<y+yinc; x+=4) {
+                    color = this.palette.colors[indpix[x]];
+                    //if (!color) {console.log(color, i, indpix[i]);}
+                    //console.log(pbp[i]);
+                    data[x] = color[0];
+                    data[x+1] = color[1];
+                    data[x+2] = color[2];
+                    data[x+3] = color[3];
+                }
             }
-            this.context.putImageData(pixbuf, rect.left, rect.top);
+            this.context.putImageData(pixbuf, torect.left, torect.top);
+            return torect;
         }
+        return rect;
     };
 
     // make sure the alpha channel reflects the actual drawn parts.
@@ -302,7 +302,7 @@ OldPaint.IndexedImage = function (data) {
         }
     };
 
-    // Return an internal representation that can be saved 
+    // Return an internal representation that can be saved
     this.get_raw = function () {
         return Util.convertDataURIToBlob(this.icanvas.toDataURL());
     };

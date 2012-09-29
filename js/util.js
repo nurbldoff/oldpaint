@@ -19,6 +19,10 @@ Util.colorToHex = function (c) {
     }
 };
 
+Util.sign = function (x) {
+    return x >= 0 ? 1 : -1;
+};
+
 Util.subtract = function (v1, v2) {
     return {x: v1.x - v2.x, y: v1.y - v2.y};
 };
@@ -118,17 +122,36 @@ Util.canvas_coords = function (image_coords, offset, scale) {
 };
 
 // Returns a canvas containing a copy of the input canvas,
-// optionally only the part contained by rect.
-Util.copy_canvas = function (canvas, rect) {
-    var new_canvas = document.createElement('canvas');
-    new_canvas.width = canvas.width;
-    new_canvas.height = canvas.height;
+// optionally only the part contained by rect, and optionally flipped.
+Util.copy_canvas = function (canvas, rect, flip) {
+    var new_canvas = document.createElement('canvas'),
+        context = new_canvas.getContext('2d'), left = 0, top = 0;
     if (rect) {
-        new_canvas.getContext('2d').drawImage(canvas, rect.left, rect.top,
-                                              rect.width, rect.height,
-                                              0, 0, rect.width, rect.height);
+        new_canvas.width = rect.width;
+        new_canvas.height = rect.height;
+        if (flip && flip.x) {
+            context.scale(-1, 1);
+            left = -rect.width;
+        }
+        if (flip && flip.y) {
+            context.scale(1, -1);
+            top = -rect.height;
+        }
+        context.drawImage(canvas, rect.left, rect.top,
+                          rect.width, rect.height,
+                          left, top, rect.width, rect.height);
     } else {
-        new_canvas.getContext('2d').drawImage(canvas, 0, 0);
+        new_canvas.width = canvas.width;
+        new_canvas.height = canvas.height;
+        if (flip && flip.x) {
+            context.scale(-1, 1);
+            left = -canvas.width;
+        }
+        if (flip && flip.y) {
+            context.scale(1, -1);
+            top = -canvas.height;
+        }
+        context.drawImage(canvas, left, top);
     }
     return new_canvas;
 };
@@ -138,7 +161,7 @@ Util.draw_canvas = function (from_canvas, to_canvas) {
     to_canvas.getContext('2d').drawImage(
         from_canvas, 0, 0, from_canvas.width, from_canvas.height,
         0, 0, to_canvas.width, to_canvas.height);
-}
+};
 
 Util.split_path = function (path) {
     var sp = path.split('/');
@@ -293,7 +316,7 @@ Util.load_png = function (data, drawing) {
                 drawing.palette.set_colors(data.palette);
             } else if (result.palette.length > 0) {
                 drawing.palette.set_colors(result.palette);
-            } 
+            }
         });
     });
 };
@@ -314,7 +337,7 @@ Util.load_raw = function (data, drawing) {
                 drawing.palette.set_colors(data.palette);
             } else if (result.palette.length > 0) {
                 drawing.palette.set_colors(result.palette);
-            } 
+            }
         });
     });
 };
@@ -375,4 +398,3 @@ Util.create_ora = function (drawing) {
     zip.file("mimetype", "image/openraster");
     return "data:application/zip;base64,"+ zip.generate();
 };
-
