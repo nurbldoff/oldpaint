@@ -8,3 +8,10 @@ Draw with the left mousebutton, erase with the right and pan/zoom the image with
 Note: this is not a "webapp"; everything happens locally in your browser and you load/save files from your harddive. It does not require network access.
 
 Currently should work in Chrome 22, and partially in FF 15. It is very much a work in progress, so don't use it for anything.
+
+Acknowledgements
+================
+
+The "Topaz New" font is created by Al Tinsley 1997.
+
+TODO: lots more
