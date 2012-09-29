@@ -72,7 +72,7 @@ table tr td {
     width: 100%;
     text-align: left;
     background-color: #808080;
-    font-size: 12pt;
+    font-size: 11pt;
 }
 
 
@@ -365,4 +365,5 @@ canvas.minilayer {
 .cell {
     display: table-cell;
 }
+
 

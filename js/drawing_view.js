@@ -125,12 +125,13 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.model.on("selection", this.make_selection);
         this.model.on("selection_done", this.edit_selection);
         this.model.on("load", this.on_load);
+        this.model.on("change:title", this.on_rename);
 
         this.model.palette.on("foreground", this.update_brush);
         this.model.palette.on("change", this.on_palette_changed);
         //this.model.layers.on("stroke", this.on_stroke);
 
-        $("#rename_drawing").on("click", this.on_rename);
+        $("#rename_drawing").on("click", this.rename);
         $("#resize_image").on("click", this.on_resize_image);
         $("#load_image").on("click", this.load_internal);
         $("#save_image").on("click", this.save_popup);
@@ -189,9 +190,13 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.model.load(Util.load_ora, e.target.result);
     },
 
-    on_rename: function () {
+    rename: function () {
         var name = prompt("What do you want to call the drawing?");
         this.model.set("title", name);
+    },
+
+    on_rename: function (model, value) {
+        $("#title").text(value);  // Probably better to make a view for this 
     },
 
     on_load: function () {
