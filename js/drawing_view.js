@@ -101,6 +101,18 @@ OldPaint.DrawingView = Backbone.View.extend({
             model.flip_layer_vertical(model.layers.active);
         });
 
+        Mousetrap.bind("b h", function () {
+            var brush = OldPaint.active_brushes.active;
+            brush.flip_x();
+            brush.make_backup();
+        });
+
+        Mousetrap.bind("b v", function () {
+            var brush = OldPaint.active_brushes.active;
+            brush.flip_y();
+            brush.make_backup();
+        });
+
         // Keep track of whether space is held down.
         this.scroll_mode = false;
         var scroll_key = " ".charCodeAt(0);
@@ -466,15 +478,15 @@ OldPaint.DrawingView = Backbone.View.extend({
     },
 
     begin_scroll: function (event) {
-        if (event.which == 2) {this.begin_stroke(event);};
+        if (event.which == 2) {this.begin_stroke(event);}
     },
 
     scroll: function (event) {
-        if (event.which == 2) {this.update_stroke(event);};
+        if (event.which == 2) {this.update_stroke(event);}
     },
 
     end_scroll: function (event) {
-        if (event.which == 2) {this.end_stroke(event);};
+        if (event.which == 2) {this.end_stroke(event);}
     },
 
     resize_selection: function (event) {
@@ -601,7 +613,7 @@ OldPaint.DrawingView = Backbone.View.extend({
             Modal.list(names, load);
         };
         var drawings = LocalStorage.list({callback: callback});
-    },
+    }
 
     // // Show the file selector for loading an image
     // load_popup: function (event) {
