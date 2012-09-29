@@ -136,7 +136,7 @@ OldPaint.DrawingView = Backbone.View.extend({
 
         $("#rename_drawing").on("click", this.rename);
         $("#resize_image").on("click", this.on_resize_image);
-        $("#load_image").on("click", this.load_internal);
+        $("#load_image").on("click", this.load_popup);
         $("#save_image").on("click", this.save_popup);
 
         $("#save_ora_local").on("click", this.model.save_ora_local);
@@ -589,23 +589,27 @@ OldPaint.DrawingView = Backbone.View.extend({
         }
     },
 
-    load_internal: function (event) {
+    load_popup: function (event) {
+        var load = _.bind(function (title) {
+            this.model.save_to_storage();
+            this.model.load_from_storage(title);
+        }, this);   
         var callback = function (result) {
             var dirs = _.filter(result, function (item) {return item.isDirectory;});
             var names = _.map(dirs, function (item) {return item.name;});
-            Modal.list(names, function (filename) {console.log(filename);});
+            Modal.list(names, load);
         };
-        var drawings = LocalStorage.request(LocalStorage.ls, {callback: callback});
+        var drawings = LocalStorage.list({callback: callback});
     },
 
-    // Show the file selector for loading an image
-    load_popup: function (event) {
-        modalPopup( Util.clean_path("list/" + current_dir), this.model );
-    },
+    // // Show the file selector for loading an image
+    // load_popup: function (event) {
+    //     modalPopup( Util.clean_path("list/" + current_dir), this.model );
+    // },
 
-    // Show the file selector for saving an image
-    save_popup: function (event) {
-        modalPopup( Util.clean_path("list/" + current_dir), this.model, true );
-    },
+    // // Show the file selector for saving an image
+    // save_popup: function (event) {
+    //     modalPopup( Util.clean_path("list/" + current_dir), this.model, true );
+    // },
 
 });

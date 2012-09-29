@@ -7,7 +7,8 @@ Modal.list = function (items, callback) {
     var template = _.template( $("#modal_selection_template").html(), {items: items});
     $(document.body).append(template);
     $("#popup_block").click(Modal.close);
-    $(".fileitem").click(function (event) {callback(event.target.id);});
+    $(".fileitem").click(function (event) {Modal.close();
+                                           callback(event.target.id);});
 };
 
 Modal.close = function(fadeOutTime) {
