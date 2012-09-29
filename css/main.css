@@ -1,3 +1,9 @@
+@font-face 
+{
+  font-family: topaz;
+  src: url(../images/TopazPlus_a1200_v1.0.ttf);
+}
+
 html, body {
     margin: 0px;
     height: 100%;
@@ -7,7 +13,6 @@ html, body {
     -o-user-select: none;
     user-select: none;
     background: #505050;
-    font-family: sans-serif;
     overflow: hidden;
 }
 
@@ -26,6 +31,9 @@ html, body {
     pointer-events: none;
     border-collapse: collapse;
     border-width: 0;
+    font-family : topaz, "Lucida Console", monospace, Monaco;
+    font-size : 10pt;
+    font-weight : normal;
 }
 
 .fg {
@@ -42,6 +50,7 @@ table tr td {
     width: 10%;
     text-align: center;
     background-color: #808080;
+    font-size: 12pt;
 }
 
 .header.table {
@@ -73,9 +82,11 @@ table tr td {
 }
 
 .tool {
-    border: solid rgba(0,0,0,0.4) 1px;
+    border: solid rgba(0,0,0,0.4) 2px;
     background-color: rgba(255,255,255,0.3);
     padding: 3px;
+    font-family : topaz, "Lucida Console", monospace, Monaco;
+    color: rgb(50,50,50);
 }
 
 #brushes {
@@ -304,101 +315,14 @@ canvas.minilayer {
 
 .tool:hover, .brush:hover {
     background-color: rgba(255,255,255,0.5);
+    font-family : topaz, "Lucida Console", monospace, Monaco;
+    font-size : 10pt;
+    font-weight : normal;
 }
 
 .tool.active, .brush.active {
     border: solid white 1px;
     background-color: #d0d0d0;
-}
-
-.colors.cell {
-    position: relative;
-    width: 3.125%;
-    padding: 2px;
-    border: 0;
-}
-
-.color {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    background-color: inherit;
-}
-
-.color.active {
-    box-sizing: border-box;
-    z-index: 10;
-    height: 100%;
-    background-image: url(../images/striped.png) !important;
-}
-
-td.palette {
-    width: 100%;
-}
-
-div.table.palette.colors {
-    width: 100%;
-    height: 100px;
-    position: relative;
-}
-
-div.colors.row {
-}
-
-#palette {
-    vertical-align: middle;
-}
-
-
-#palette_editor {
-    position: relative;
-    background: #606060;
-    width: 100%;
-    align: center;
-    align: center;
-    padding-left: 10%;
-    padding-right: 10%;
-}
-
-table.palette_editor {
-    width: 100%;
-}
-
-
-#colorpicker {
-    height: 50px;
-}
-
-#color_sliders {
-    height: 90px;
-    align: top;
-    width: 320px;
-    position: relative;
-}
-
-input.color_value {
-    width: 3;
-    border: 1px solid #444;
-    background: #AAA;
-    text-align: center;
-}
-
-#color_slider_r .ui-slider-range { background: #f00; width: 256px; }
-#color_slider_r .ui-slider-handle { opacity: 0.5; border-color: #000; }
-#color_slider_g .ui-slider-range { background: #0f0; width: 256px; }
-#color_slider_g .ui-slider-handle { opacity: 0.5; border-color: #000; }
-#color_slider_b .ui-slider-range { background: #00f; width: 256px; }
-#color_slider_b .ui-slider-handle { opacity: 0.5; border-color: #000; }
-
-.ui-slider {border-color: #000; background: black;}
-.ui-corner-all {background: #000; -webkit-border-radius: 0;}
-
-td.color_slider {
-}
-
-.color_slider {
-    position: relative;
-    width: 256px;
 }
 
 #bottom {
