@@ -6,6 +6,18 @@
     border: 0;
 }
 
+.colors.cell.foreground {
+    outline: 2px ridge #d0d0d0;
+    z-index: 20;
+    
+}
+
+.colors.cell.background {
+    outline: 2px groove #909090;
+    z-index: 10;
+    /* background-image: url(../images/striped.png) !important; */
+}
+
 .color {
     width: 100%;
     height: 100%;
@@ -13,10 +25,10 @@
     background-color: inherit;
 }
 
-.color.active {
-    box-sizing: border-box;
-    z-index: 10;
-    /* background-image: url(../images/striped.png) !important; */
+.color.transparent {
+    z-index: 100;
+    background-color: orange;
+    background-image: url(../images/striped.png) !important;
 }
 
 td.palette {

@@ -15,7 +15,8 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
     initialize: function (spec) {
         _.bindAll(this);
         this.size = spec.size;
-        this.model.on("foreground", this.activate);
+        this.model.on("foreground", this.on_foreground);
+        this.model.on("background", this.on_background);
         this.model.on("change", this.update);
 
         //$("#color_spread").on("click")
@@ -58,7 +59,8 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
         } else {
             this.render();
         }
-        this.activate(this.model.foreground);
+        this.on_foreground(this.model.foreground);
+        this.on_background(this.model.background);
     },
 
     update_rgb_sliders: function (color) {
@@ -171,25 +173,34 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
         console.log("range end:", index);
     },
 
+    // Switch the active color between transparent and opaque
     on_set_transparent: function (event) {
         if (event.which == 1) {
-            if (this.model.colors[this.model.foreground][3] === 0) {
-                this.model.change_color(this.model.foreground, {a: 255});
+            var index = this.model.foreground;
+            if (this.model.colors[index][3] === 0) {
+                this.model.change_color(index, {a: 255});
+                $("#color" + index).removeClass("transparent");
             } else {
-                this.model.change_color(this.model.foreground, {a: 0});
+                this.model.change_color(index, {a: 0});
+                $("#color" + index).addClass("transparent");
             }
         }
         this.model.trigger("change");
     },
 
-    activate: function (index) {
-        console.log("activate:", index);
-        $(".color.active").removeClass("active");
-        $("#color" + index).addClass("active");
+    on_foreground: function (index) {
+        $(".colors.cell.foreground").removeClass("foreground");
+        $("#color" + index).parent().addClass("foreground");
         var color = this.model.colors[index];
         var rgb = {r: color[0], g: color[1], b: color[2]};
         $("#colorpicker").ColorPickerSetColor(rgb);
         this.update_rgb_sliders(rgb);
+    },
+
+    on_background: function (index) {
+        console.log("background color:", index);
+        $(".colors.cell.background").removeClass("background");
+        $("#color" + index).parent().addClass("background");
     }
 
 });
