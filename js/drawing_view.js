@@ -575,6 +575,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         var image_pos = Util.image_coords(center_pos, this.window.offset,
                                           this.window.scale);
         this.zoom = Math.max(-3, Math.min(5, zoom));
+        this.model.layers.active.clear_temporary();
         this.update_scale();
         this.center_on_image_pos(image_pos, center_pos);
         this.render();
