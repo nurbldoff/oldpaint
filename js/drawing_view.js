@@ -32,86 +32,91 @@ OldPaint.DrawingView = Backbone.View.extend({
         $(window).resize(true, this.render);  // dowsn't work?!
 
         // Let's save to local storage periodically
-        //var intervalID = setInterval(this.auto_save, 5000);
+        var intervalID = setInterval(this.save_internal, 60000);
 
         // Keyboard bindings.
         var model = this.model;
-        Mousetrap.bind("-", this.zoom_out);
-        Mousetrap.bind("+", this.zoom_in);
-        Mousetrap.bind("z", this.model.undo);
-        Mousetrap.bind("y", this.model.redo);
+        var keybindings = [
+            ["-", this.zoom_out, "Zoom out."],
+            ["+", this.zoom_in, "Zoom in."],
+            ["z", this.model.undo, "Undo last change."],
+            ["y", this.model.redo, "Redo last undo."],
+            
+            ["r", this.model.redraw, "Redraw the screen."],
 
-        Mousetrap.bind("r", this.model.redraw);
+            // Experimental save to internal storage
+            ["i s", this.save_internal, "Save drawing to browser's local storage."],
+            ["i l", this.load_internal, "Load drawing from browser's local storage."],
+            ["i d", this.delete_internal, "Delete drawing from browser's local storage."],
+            ["i i", this.save_settings, "Save settings to browser's local storage."],
 
-        // Experimental save to internal storage
-        Mousetrap.bind("i s", this.save_internal);
-        Mousetrap.bind("i l", this.load_internal);
-        Mousetrap.bind("i d", this.delete_internal);
-        Mousetrap.bind("i i", this.save_settings);
+            // Layer key actions
+            ["l a", function () {model.add_layer(true);}, "Add a new layer."],
+            ["l d", function () {
+                model.remove_layer(model.layers.active);
+            }, "Delete the current layer."],
 
-        // Layer key actions
-        Mousetrap.bind("l a", function () {model.add_layer(true);});
-        Mousetrap.bind("l d", function () {
-            model.remove_layer(model.layers.active);
-        });
+            ["del", function () {
+                model.clear_layer(model.layers.active, model.palette.background2);
+            }, "Clear the current layer."],
+            ["v", function () {
+                model.layers.active.set(
+                    "visible", !model.layers.active.get("visible"));
+            }, "Toggle the current layer's visibility flag."],
+            ["a", function () {
+                model.layers.active.set(
+                    "animated", !model.layers.active.get("animated"));
+            }, "Toggle the current layer's animation flag."],
+            ["x", function () {  // previous layer
+                var index = model.layers.indexOf(model.layers.active);
+                var new_index = index === 0 ? model.layers.length - 1 : index - 1;
+                model.layers.at(new_index).activate();
+            }, "Jump to the layer below the current."],
+            ["c", function () {  // next animation frame
+                var index = model.layers.indexOf(model.layers.active);
+                var new_index = index == model.layers.length - 1 ? 0 : index + 1;
+                model.layers.at(new_index).activate();
+            }, "Jump to the layer above the current."],
+            ["s", function () {  // previous animation frame
+                var frames = model.layers.get_animated();
+                if (frames.length > 1) {
+                    var index = _.indexOf(frames, model.layers.active);
+                    var new_index = index === 0 ? frames.length - 1 : index - 1;
+                    (frames[new_index]).activate();
+                }
+            }, "Jump to previous animation frame."],
+            ["d", function () {  // next animation frame
+                var frames = model.layers.get_animated();
+                if (frames.length > 1) {
+                    var index = _.indexOf(frames, model.layers.active);
+                    var new_index = index == frames.length - 1 ? 0 : index + 1;
+                    (frames[new_index]).activate();
+                }
+            }, "Jump to next animation frame."],
 
-        Mousetrap.bind("del", function () {
-            model.clear_layer(model.layers.active, model.palette.background2);
-        });
-        Mousetrap.bind("v", function () {
-            model.layers.active.set(
-                "visible", !model.layers.active.get("visible"));
-        });
-        Mousetrap.bind("a", function () {
-            model.layers.active.set(
-                "animated", !model.layers.active.get("animated"));
-        });
-        Mousetrap.bind("x", function () {  // previous layer
-            var index = model.layers.indexOf(model.layers.active);
-            var new_index = index === 0 ? model.layers.length - 1 : index - 1;
-            model.layers.at(new_index).activate();
-        });
-        Mousetrap.bind("c", function () {  // next animation frame
-            var index = model.layers.indexOf(model.layers.active);
-            var new_index = index == model.layers.length - 1 ? 0 : index + 1;
-            model.layers.at(new_index).activate();
-        });
-        Mousetrap.bind("s", function () {  // previous animation frame
-            var frames = model.layers.get_animated();
-            if (frames.length > 1) {
-                var index = _.indexOf(frames, model.layers.active);
-                var new_index = index === 0 ? frames.length - 1 : index - 1;
-                (frames[new_index]).activate();
-            }
-        });
-        Mousetrap.bind("d", function () {  // next animation frame
-            var frames = model.layers.get_animated();
-            if (frames.length > 1) {
-                var index = _.indexOf(frames, model.layers.active);
-                var new_index = index == frames.length - 1 ? 0 : index + 1;
-                (frames[new_index]).activate();
-            }
-        });
+            ["f h", function () {
+                model.flip_layer_horizontal(model.layers.active);
+            }, "Flip the current layer horizontally."],
 
-        Mousetrap.bind("f h", function () {
-            model.flip_layer_horizontal(model.layers.active);
-        });
+            ["f v", function () {
+                model.flip_layer_vertical(model.layers.active);
+            }, "Flip the current layer vertically."],
 
-        Mousetrap.bind("f v", function () {
-            model.flip_layer_vertical(model.layers.active);
-        });
+            ["b h", function () {
+                var brush = OldPaint.active_brushes.active;
+                brush.flip_x();
+                brush.make_backup();
+            }, "Flip the current brush horizontally."],
 
-        Mousetrap.bind("b h", function () {
-            var brush = OldPaint.active_brushes.active;
-            brush.flip_x();
-            brush.make_backup();
-        });
+            ["b v", function () {
+                var brush = OldPaint.active_brushes.active;
+                brush.flip_y();
+                brush.make_backup();
+            }, "Flip the current brush vertically"],
 
-        Mousetrap.bind("b v", function () {
-            var brush = OldPaint.active_brushes.active;
-            brush.flip_y();
-            brush.make_backup();
-        });
+            ["0", this.center, "Center the view."]
+        ];
+        _.each(keybindings, function (binding) {Mousetrap.bind(binding[0], binding[1]);});
 
         // Keep track of whether space is held down.
         this.scroll_mode = false;
