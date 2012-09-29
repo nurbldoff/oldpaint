@@ -9,6 +9,7 @@
     position: absolute;
     z-index: 200;
     border: solid grey 1px;
+    font-family: topaz;
 }
 
 #popup_list {

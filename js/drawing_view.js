@@ -128,6 +128,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.model.on("selection", this.make_selection);
         this.model.on("selection_done", this.edit_selection);
         this.model.on("load", this.on_load);
+        this.model.on("save", this.save_internal);
         this.model.on("change:title", this.on_rename);
 
         this.model.palette.on("foreground", this.update_brush);
