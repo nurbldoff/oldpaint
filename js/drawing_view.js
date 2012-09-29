@@ -32,7 +32,9 @@ OldPaint.DrawingView = Backbone.View.extend({
         $(window).resize(true, this.render);  // dowsn't work?!
 
         // Let's save to local storage periodically
-        var intervalID = setInterval(this.save_internal, 60000);
+        // TODO: the save system should be smart enough to e.g. only save layers that
+        // have been changed since last save.
+        //var intervalID = setInterval(this.save_internal, 60000);
 
         // Keyboard bindings.
         var model = this.model;
