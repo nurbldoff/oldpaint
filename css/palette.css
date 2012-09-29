@@ -7,15 +7,15 @@
 }
 
 .colors.cell.foreground {
-    outline: 2px ridge #d0d0d0;
+    outline: 2px solid #d0d0d0;
     z-index: 20;
-    
+    box-shadow: 0px 0px 3px 3px #000;
 }
 
 .colors.cell.background {
-    outline: 2px groove #909090;
+    outline: 2px solid #333;
     z-index: 10;
-    /* background-image: url(../images/striped.png) !important; */
+    box-shadow: 0px 0px 3px 3px #fff;
 }
 
 .color {
@@ -75,6 +75,7 @@ table.palette_editor {
 
 div.color_value {
     color: white;
+    text-shadow: #000 1px 1px;
     width: 30px;
     padding: 2px;
     /* border: 1px solid #444; */
