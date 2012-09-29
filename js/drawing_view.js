@@ -90,10 +90,13 @@ OldPaint.DrawingView = Backbone.View.extend({
             }
         });
 
-        Mousetrap.bind("h", function () {
-            model.flip_x();
+        Mousetrap.bind("f h", function () {
+            model.flip_layer_horizontal(model.layers.active);
         });
 
+        Mousetrap.bind("f v", function () {
+            model.flip_layer_vertical(model.layers.active);
+        });
 
         // Keep track of whether space is held down.
         this.scroll_mode = false;
@@ -317,9 +320,8 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     // Update the position and draw brush preview
     update_cursor: function (event, stroke) {
-        var coords = Util.image_coords(
-            Util.event_coords(event, this.topleft),
-            this.window.offset, this.window.scale);
+        var coords = Util.image_coords(Util.event_coords(event, this.topleft),
+                                       this.window.offset, this.window.scale);
         if (this.stroke && this.stroke.start) {
             coords.x = Math.abs(coords.x - this.stroke.start.x) + 1;
             coords.y = Math.abs(coords.y - this.stroke.start.y) + 1;

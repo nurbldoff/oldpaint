@@ -91,10 +91,15 @@ OldPaint.Layer = OldPaint.Image.extend ({
     },
 
     flip_x: function () {
-        this.trigger_update(
-            OldPaint.Layer.__super__.flip_x.apply(this),
-            true);
+        this.clear_temporary();
+        this.trigger_update(OldPaint.Layer.__super__.flip_x.apply(this), true);
     },
+
+    flip_y: function () {
+        this.clear_temporary();
+        this.trigger_update(OldPaint.Layer.__super__.flip_y.apply(this), true);
+    },
+
 
     swap_patch: function (patch) {
         var oldpatch = this.make_patch(patch.rect);

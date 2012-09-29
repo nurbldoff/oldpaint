@@ -100,6 +100,7 @@ OldPaint.Drawing = Backbone.Model.extend({
         this.layers.each(function (layer, index) {
             var name = "layer" + layer.id;
             spec.layers.push(name);
+            layer.clear_temporary();
             LocalStorage.request(LocalStorage.write,
                                 {path: this.get("title") + "/data", 
                                  name: name, 
@@ -181,6 +182,21 @@ OldPaint.Drawing = Backbone.Model.extend({
         layer.trigger("redraw_preview");
     },
 
+
+    flip_layer_horizontal: function(layer) {
+        layer.flip_x();
+        this.push_undo(this.make_action("flip", {horizontal: true, 
+                                                 layer: layer}));
+        layer.cleanup();
+    },
+
+    flip_layer_vertical: function(layer) {
+        layer.flip_y();
+        this.push_undo(this.make_action("flip", {horizontal: false, 
+                                                 layer: layer}));
+        layer.cleanup();
+    },
+
     // Combine two layers into one, in order of appearance.
     merge_layers: function (from_layer, to_layer, no_undo) {
         var from_index = this.layers.indexOf(from_layer);
@@ -222,10 +238,6 @@ OldPaint.Drawing = Backbone.Model.extend({
         this.layers.active.redraw();
     },
 
-    flip_x: function() {
-        this.layers.active.flip_x();
-    },
-
     // Things to do when the user starts making a "stroke" with a tool
     before_draw: function(tool, stroke) {
         var layer = this.layers.active;
@@ -264,7 +276,7 @@ OldPaint.Drawing = Backbone.Model.extend({
 
     // An "action" represents an undoable change. It is a function
     // that, when invoked, undoes the change and returns its own inverse,
-    // i.e. a new action that undoes the undo.
+    // i.e. a new action that undoes the undo. Does this make sense?
     make_action: function (type, data, invert) {
         var drawing = this;
         // The different types of actions available
@@ -294,6 +306,11 @@ OldPaint.Drawing = Backbone.Model.extend({
                     data.patch = lower.swap_patch(data.patch);
                 }
                 return data;
+            },
+            flip: function (data, invert) {
+                if (data.horizontal) data.layer.flip_x();
+                else data.layer.flip_y();
+                return data;
             }
         };
         var action = types[type];
@@ -316,16 +333,20 @@ OldPaint.Drawing = Backbone.Model.extend({
 
     undo: function () {
         var action = this.undos.pop();
-        this.layers.active.clear_temporary();
-        if (action) this.push_redo(action());
-        else this.msg("Nothing more to undo!");
+        console.log("BEFORE: undos:", this.undos.length, "redos:", this.redos.length);
+        if (action) {
+            this.layers.active.clear_temporary();
+            this.push_redo(action());
+            console.log("AFTER: undos:", this.undos.length, "redos:", this.redos.length);
+        } else this.msg("Nothing more to undo!");
     },
 
     redo: function () {
         var action = this.redos.pop();
-        this.layers.active.clear_temporary();
-        if (action) this.push_undo(action());
-        else this.msg("Nothing more to redo!");
+        if (action) {
+            this.layers.active.clear_temporary();
+            this.push_undo(action());
+        } else this.msg("Nothing more to redo!");
     },
 
     // // restore part of the image

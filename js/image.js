@@ -6,7 +6,6 @@ OldPaint.Image = Backbone.Model.extend ({
         this.image = new spec.image_type(
             {width: spec.width, height: spec.height,
              palette: this.palette, image: spec.image});
-        this.canvas = this.image.canvas;
         if (!spec.data && spec.background) this.clear(spec.background);
         if (spec.patch) {
             this.draw_patch(spec.patch, {left: 0, top:0});
@@ -105,6 +104,10 @@ OldPaint.Image = Backbone.Model.extend ({
 
     flip_x: function () {
         return this.image.flipx();
+    },
+
+    flip_y: function () {
+        return this.image.flipy();
     },
 
     trim_rect: function (rect) {
