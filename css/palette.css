@@ -88,3 +88,32 @@ td.color_slider {
     width: 256px;
 }
 
+.colors.range.start {
+    /*border-width: 2px 0 2px 2px;*/
+    padding: 2px 0 2px 2px;
+    /* background-color: transparent !important; */
+    background-image: url(../images/sunken_left.png) !important;
+    background-size: 100% 100% !important;
+}
+
+.colors.range.end {
+    /* border-width: 2px 2px 2px 0; */
+    /* padding: 0 0 0 2px; */
+    padding: 2px 2px 2px 0;
+    /* background: url(../images/sunken.png) no-repeat -43px 0 scroll !important; */
+    background-image: url(../images/sunken_right.png) !important;
+    background-size: 100% 100% !important;
+}
+
+.colors.range {
+    /*border: solid black 1px;
+    /* border-width: 2px 0 2px 0; */
+    padding: 2px 0 2px 0;
+    /*background: transparent !important;*/
+    /* background-image: url(../images/sunken.png) !important; */
+    /* background-position: right 0 bottom 0; */
+    /* background-repeat: no-repeat; */
+    background-image: url(../images/sunken_middle.png) !important;
+    background-size: 100% 100% !important;
+    background-repeat: no-repeat;
+}
