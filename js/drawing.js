@@ -28,7 +28,7 @@ OldPaint.Drawing = Backbone.Model.extend({
             this.layers.remove(this.layers.at(0), {silent: true});
         }
         loader(data, this);
-        this.trigger("load");
+        this.trigger("load");  // I think this must be done in a callback!
         this.trigger("update");
         this.undos = [];
         this.redos = [];

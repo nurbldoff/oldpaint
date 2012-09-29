@@ -200,7 +200,7 @@ OldPaint.DrawingView = Backbone.View.extend({
                 reader.onload = this.load_ora_file;
             }
             reader.readAsDataURL(f);
-            this.model.name = f.name;
+            this.model.set("title", f.name.split(".")[0]);
         }
     },
 
