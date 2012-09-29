@@ -95,7 +95,7 @@ table tr td {
 }
 
 .tool {
-    border: solid rgba(0,0,0,0.4) 2px;
+    border: solid rgba(0,0,0,0.5) 2px;
     background-color: rgba(255,255,255,0.3);
     padding: 3px;
     font-family : topaz, "Lucida Console", monospace, Monaco;
@@ -146,6 +146,7 @@ table tr td {
     background-attachment: fixed;
     background: #D0D0D0 url("../images/chequered_transp.png");
     pointer-events: none;
+    outline: 2px solid black;
     /* -webkit-transform: rotate(45deg); */
 
 }

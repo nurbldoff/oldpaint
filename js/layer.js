@@ -22,10 +22,10 @@ OldPaint.Layer = OldPaint.Image.extend ({
         animated: false
     },
 
-    clear_temporary: function () {
+    clear_temporary: function (silent) {
         if (this.temporary_rect) {
-            this.restore_backup(this.temporary_rect);
-            this.temporary_rect = null;
+            this.restore_backup(this.temporary_rect, this.temporary_rect, silent);
+            if (!silent) this.temporary_rect = null;
         }
         this.dirty_rect = null;
     },

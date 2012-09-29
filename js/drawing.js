@@ -100,7 +100,7 @@ OldPaint.Drawing = Backbone.Model.extend({
         this.layers.each(function (layer, index) {
             var name = "layer" + layer.id;
             spec.layers.push(name);
-            layer.clear_temporary();
+            layer.clear_temporary(true);
             LocalStorage.save({path: this.get("title") + "/data", 
                                name: name, 
                                blob: layer.image.get_raw()});

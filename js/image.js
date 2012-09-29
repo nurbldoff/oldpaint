@@ -27,21 +27,21 @@ OldPaint.Image = Backbone.Model.extend ({
         this.backup = Util.copy_canvas(this.image.get_data());
     },
 
-    restore_backup: function (rect, dest_rect) {
+    restore_backup: function (rect, dest_rect, silent) {
         if (rect) {
             if (dest_rect) {
                 this.image.blit(this.backup, rect, dest_rect, true);
-                this.trigger_update(dest_rect, true);
+                if (!silent) this.trigger_update(dest_rect, true);
             } else {
                 this.image.blit(this.backup, rect, rect, true);
-                this.trigger_update(rect, true);
+                if (!silent) this.trigger_update(rect, true);
             }
         } else {
             var size = this.get_size();
             var all_rect = {left: 0, top: 0,
                             width: size.width, height: size.height};
             this.image.blit(this.backup, all_rect, all_rect, true);
-            this.trigger_update(all_rect, true);
+            if (!silent) this.trigger_update(all_rect, true);
         }
     },
 
