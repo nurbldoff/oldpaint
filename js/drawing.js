@@ -101,15 +101,13 @@ OldPaint.Drawing = Backbone.Model.extend({
             var name = "layer" + layer.id;
             spec.layers.push(name);
             layer.clear_temporary();
-            LocalStorage.request(LocalStorage.write,
-                                {path: this.get("title") + "/data", 
-                                 name: name, 
-                                 blob: layer.image.get_raw()});
+            LocalStorage.save({path: this.get("title") + "/data", 
+                               name: name, 
+                               blob: layer.image.get_raw()});
         }, this);
-        LocalStorage.request(LocalStorage.write,
-                            {path: this.get("title"), name: "spec",
-                             blob: new Blob([JSON.stringify(spec)], 
-                                            {type: 'text/plain'})});
+        LocalStorage.save({path: this.get("title"), name: "spec",
+                           blob: new Blob([JSON.stringify(spec)], 
+                                          {type: 'text/plain'})});
     },
 
     load_from_storage: function (title) {
@@ -118,16 +116,18 @@ OldPaint.Drawing = Backbone.Model.extend({
         }
         var model = this;
         var read_spec = function (e) {
-            console.log(e.target.result);
             var spec = JSON.parse(e.target.result);
             var data = [];
             LocalStorage.read_images(spec, _.bind(model.load, this, Util.load_raw));
         };
-        LocalStorage.request(LocalStorage.read_txt, 
-                             {path: this.get("title"), name: "spec",
-                              on_load: read_spec});
+        LocalStorage.load_txt({path: this.get("title"), name: "spec",
+                               on_load: read_spec});
     },
 
+    remove_from_storage: function (title) {
+        LocalStorage.remove_dir({path: this.get("title")});
+    },
+    
     // Convert the whole drawing from Indexed to RGB format.
     convert_to_rgb_type: function () {
         if (this.image_type == OldPaint.IndexedImage) {

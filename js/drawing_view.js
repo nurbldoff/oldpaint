@@ -42,9 +42,12 @@ OldPaint.DrawingView = Backbone.View.extend({
         Mousetrap.bind("y", this.model.redo);
 
         Mousetrap.bind("r", this.model.redraw);
-        Mousetrap.bind("0", this.auto_save);
-        Mousetrap.bind("9", this.auto_load);
-        Mousetrap.bind("8", this.save_settings);
+
+        // Experimental save to internal storage
+        Mousetrap.bind("i s", this.save_internal);
+        Mousetrap.bind("i l", this.load_internal);
+        Mousetrap.bind("i d", this.delete_internal);
+        Mousetrap.bind("i i", this.save_settings);
 
         // Layer key actions
         Mousetrap.bind("l a", function () {model.add_layer(true);});
@@ -210,7 +213,7 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     // Save the image to the browser's internal storage. Let's not do that
     // while the user is actually drawing though, since it will cause stutter.
-    auto_save: function () {
+    save_internal: function () {
         if (this.stroke) {
             setTimeout(this.save_to_storage, 1000);
         } else {
@@ -218,7 +221,15 @@ OldPaint.DrawingView = Backbone.View.extend({
         }
     },
 
-    auto_load: function (evt) {
+    delete_internal: function () {
+        if (this.stroke) {
+            setTimeout(this.save_to_storage, 1000);
+        } else {
+            this.model.remove_from_storage();
+        }
+    },
+
+    load_internal: function (evt) {
         this.model.load_from_storage();
     },
 

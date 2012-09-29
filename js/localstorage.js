@@ -1,3 +1,5 @@
+/* Functionaity to store files in the browser's local storage */
+
 var LocalStorage = LocalStorage || {};
 
 LocalStorage.quota = 100 * 1024 * 1024;
@@ -33,8 +35,8 @@ LocalStorage.request = function (on_success, args) {
     on_success = _.bind(on_success, this, args);
     window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
     window.webkitStorageInfo.requestQuota(
-        TEMPORARY, LocalStorage.quota, function(grantedBytes) {
-            window.requestFileSystem(TEMPORARY, grantedBytes, on_success, 
+        PERSISTENT, LocalStorage.quota, function(grantedBytes) {
+            window.requestFileSystem(PERSISTENT, grantedBytes, on_success, 
                                      LocalStorage.error_handler);
         }, LocalStorage.error_handler
     );
@@ -51,7 +53,6 @@ LocalStorage.rm = function (args, fs) {
 
 LocalStorage.mkdir = function (rootDirEntry, folders) {
     // Seems like this fails the first time on a new dir... why?
-    console.log(folders);
     rootDirEntry.getDirectory(folders[0], {create: true}, function(dirEntry) {
         // Recursively add the new subfolder (if we still have another to create).
         if (folders.length) {
@@ -66,12 +67,10 @@ LocalStorage.write = function (args, fs) {
     LocalStorage.mkdir(fs.root, args.path.split("/"));
 
     var filename = (args.path ? args.path + "/" : "") + args.name;
-    console.log("writing", filename);
     // ..then write the file, overwriting if it's there.
     fs.root.getFile(filename, {create: true}, function(fileEntry) {
         fileEntry.createWriter(function(fileWriter) {
             fileWriter.onwriteend = function(e) {
-                console.log("blob size", args.blob.size);
                 fileWriter.onwriteend = null;
                 fileWriter.truncate(args.blob.size);  // get rid of the rest, if any
             };
@@ -85,7 +84,6 @@ LocalStorage.write = function (args, fs) {
 
 LocalStorage.read = function (args, fs) {
     var filename = (args.path ? args.path + "/" : "") + args.name;
-    console.log(filename);
     fs.root.getFile(filename, {}, function(fileEntry) {
         // Get a File object representing the file,
         // then use FileReader to read its contents.
@@ -102,7 +100,6 @@ LocalStorage.read = function (args, fs) {
 
 LocalStorage.read_txt = function (args, fs) {
     var filename = (args.path ? args.path + "/" : "") + args.name;
-    console.log(filename);
     fs.root.getFile(filename, {}, function(fileEntry) {
         
         // Get a File object representing the file,
@@ -128,14 +125,12 @@ LocalStorage.read_images = function () {
              name: spec.layers[index-1],
              on_load: function (e) {
                  var data = e.target.result.slice(13); // remove the header
-                 console.log("Put", spec.layers[index-1], "at", index-1);
                  spec.layers[index-1] = data;  // put them in the right order
                  callBackCounter();
              }});
         function callBackCounter() {
             if (index === spec.layers.length) {
                 index = 0;
-                console.log(spec.layers[0].slice(0, 30));
                 callback(spec);
             } else {
                 LocalStorage.read_images(spec, callback);
@@ -145,14 +140,11 @@ LocalStorage.read_images = function () {
 }();
 
 LocalStorage.ls = function (args, fs) {
-
     var dirReader = fs.root.createReader();
     var entries = [];
-    
     function toArray(list) {
         return Array.prototype.slice.call(list || [], 0);
     }
-
     // Call the reader.readEntries() until no more results are returned.
     var readEntries = function() {
         dirReader.readEntries (function(results) {
@@ -166,3 +158,27 @@ LocalStorage.ls = function (args, fs) {
     };  
     readEntries(); // Start reading dirs.
 };
+
+LocalStorage.rm = function(args, fs) {
+    var filename = (args.path ? args.path + "/" : "") + args.name;
+    fs.root.getFile(filename, {create: false}, function(fileEntry) {
+        fileEntry.remove(args.callback, 
+                         LocalStorage.error_handler);
+    }, LocalStorage.error_handler);
+};
+
+LocalStorage.rmdir = function(args, fs) {
+    console.log("rmdir", args);
+    fs.root.getDirectory(args.path, {}, function(dirEntry) {
+        dirEntry.removeRecursively(function() {
+            console.log('Directory', + args.path + 'removed.');
+        }, LocalStorage.error_handler);
+    }, LocalStorage.error_handler);
+};
+
+LocalStorage.load_txt = _.bind(LocalStorage.request, window, LocalStorage.read_txt);
+LocalStorage.load_bin = _.bind(LocalStorage.request, window, LocalStorage.read);
+LocalStorage.list = _.bind(LocalStorage.request, window, LocalStorage.ls);
+LocalStorage.remove = _.bind(LocalStorage.request, window, LocalStorage.rm);
+LocalStorage.remove_dir = _.bind(LocalStorage.request, window, LocalStorage.rmdir);
+LocalStorage.save = _.bind(LocalStorage.request, window, LocalStorage.write);
