@@ -283,17 +283,17 @@ div.minilayer {
 
 canvas.minilayer {
     background: #D0D0D0 url("../images/chequered_transp.png");
-    border: solid #505050 1px;
+    border: solid #505050 2px;
     padding: 0;
 }
 
 .minilayer.animated {
-    border: dashed #505050 1px;
+    border: dashed #505050 2px;
 }
 
 
 .minilayer.active {
-    border: solid white 1px;
+    border: solid white 2px;
 }
 
 .minilayer.invisible {
