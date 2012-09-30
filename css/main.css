@@ -117,7 +117,7 @@ table tr td {
 #drawing_window {
     position: relative;
     height: 100%;
-    width: 80%;
+    width: 90%;
     margin: auto;
     vertical-align: middle;
     horizontal-align: center;
@@ -245,13 +245,13 @@ canvas.rgbLayer {
     cursor: se-resize;
 }
 
-td.minilayers {
+#sidebar {
     width: 10%;
-    text-align: center;
+
     background: #777;
 }
 
-.minilayers.table, .minilayers.row {
+.sidebar.table, .minilayers.row {
     height: 100%;
     width: 100%;
 }
@@ -346,16 +346,13 @@ canvas.minilayer {
 
 #message {
     display: table-cell;
-    padding: 3px;
-    width: 100%;
+    width: 80%;
     font-size: 10pt;
 }
 
 #coordinates {
-    display: table-cell;
     text-align: center;
-    padding: 3px;
-    width: 1%;
+    width: 10%;
     font-size: 10pt;
 }
 

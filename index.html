@@ -25,7 +25,7 @@
 
     <table class="main">
       <tr class="fg">
-        <td colspan="3" class="fg">
+        <td colspan="2" class="fg">
           <div class="header table">
             <div class="header row">
               <div class="cell header logo">
@@ -63,16 +63,18 @@
         </td>
       </tr>
       <tr class="layout">
-        <td class="toolbar fg">
-          <div id="tools"></div>
-          <div id="brushes"></div>
-          <div id="user_brushes"></div>
-        </td>
         <td id="drawing_window">
 
         </td>
-        <td class="minilayers fg">
-          <div class="minilayers table">
+        <td id="sidebar" class="fg">
+          <div class="sidebar table">
+            <div class="row">
+              <div class="cell toolbar">
+                <div id="tools"></div>
+                <div id="brushes"></div>
+                <div id="user_brushes"></div>
+              </div>
+            </div>
             <div class="minilayers row">
               <div class="cell">
                 <div id="minilayers_container">
@@ -96,12 +98,18 @@
         </td>
       </tr>
       <tr class="fg">
-        <td id="palette_editor" colspan="3">
+        <td id="palette_editor" colspan="2">
         </td>
       </tr>
       <tr id="bottom">
-        <td colspan="2" id="message">Message</td>
-        <td id="coordinates">x:-&nbsp;y:-</td>
+        <td colspan="2">
+          <table id="bottom">
+            <tr>
+              <td  id="message">Message</td>
+              <td  id="coordinates">x:- y:-</td>
+            </tr>
+          </table>
+        </td>
       </tr>
     </table>
 
@@ -179,7 +187,9 @@
     <script id="paletteeditor_template" type="text/template">
       <table class="palette_editor">
         <tr>
-          <td class="palette"></td>
+          <td class="palette">
+            <!-- Palette goes here -->
+          </td>
 
           <td>
             <table id="color_sliders">
