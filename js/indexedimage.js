@@ -210,8 +210,8 @@ OldPaint.IndexedImage = function (data) {
         //console.log("updateCanvas", rect.left, rect.top, rect.height, rect.width);
         if (rect) {
             //var torect = this.get_rect(rect);
-            var tmp = Util.copy_canvas(this.icanvas, rect, this.flip).getContext('2d');
-            var indpix = tmp.getImageData(0, 0,
+            //var tmp = Util.copy_canvas(this.icanvas, rect, this.flip).getContext('2d');
+            var indpix = this.icontext.getImageData(rect.left, rect.top,
                                           rect.width, rect.height).data;
             var pixbuf = this.context.createImageData(rect.width, rect.height),
                 color, data = pixbuf.data, index, yinc = rect.width * 4, x, y;

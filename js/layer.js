@@ -167,7 +167,7 @@ OldPaint.Layer = OldPaint.Image.extend ({
                 this.last_change = rect;
                 this.dirty_rect = Util.union(rect, this.dirty_rect);
             }
-            this.trigger("update", rect, clear);
+            this.update(rect, clear);
         }
     }
 });
