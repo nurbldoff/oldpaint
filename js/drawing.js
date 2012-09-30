@@ -98,15 +98,16 @@ OldPaint.Drawing = Backbone.Model.extend({
             palette: this.palette.colors
         };
         this.layers.each(function (layer, index) {
+            console.log("Saving", this.get("title"), layer.id);
             var name = "layer" + layer.id;
             spec.layers.push(name);
             layer.clear_temporary(true);
-            LocalStorage.save({path: this.get("title") + "/data", 
-                               name: name, 
+            LocalStorage.save({path: this.get("title") + "/data",
+                               name: name,
                                blob: layer.image.get_raw()});
         }, this);
         LocalStorage.save({path: this.get("title"), name: "spec",
-                           blob: new Blob([JSON.stringify(spec)], 
+                           blob: new Blob([JSON.stringify(spec)],
                                           {type: 'text/plain'})});
     },
 
@@ -125,9 +126,10 @@ OldPaint.Drawing = Backbone.Model.extend({
     },
 
     remove_from_storage: function (title) {
-        LocalStorage.remove_dir({path: this.get("title")});
+        if (!title) title =  this.get("title");
+        LocalStorage.remove_dir({path: title});
     },
-    
+
     // Convert the whole drawing from Indexed to RGB format.
     convert_to_rgb_type: function () {
         if (this.image_type == OldPaint.IndexedImage) {
@@ -185,14 +187,14 @@ OldPaint.Drawing = Backbone.Model.extend({
 
     flip_layer_horizontal: function(layer) {
         layer.flip_x();
-        this.push_undo(this.make_action("flip", {horizontal: true, 
+        this.push_undo(this.make_action("flip", {horizontal: true,
                                                  layer: layer}));
         layer.cleanup();
     },
 
     flip_layer_vertical: function(layer) {
         layer.flip_y();
-        this.push_undo(this.make_action("flip", {horizontal: false, 
+        this.push_undo(this.make_action("flip", {horizontal: false,
                                                  layer: layer}));
         layer.cleanup();
     },

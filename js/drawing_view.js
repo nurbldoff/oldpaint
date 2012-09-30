@@ -151,7 +151,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.model.on("selection", this.make_selection);
         this.model.on("selection_done", this.edit_selection);
         this.model.on("load", this.on_load);
-        this.model.on("save", this.save_internal);
+        //this.model.on("save", this.save_internal);
         this.model.on("change:title", this.on_rename);
 
         this.model.palette.on("foreground", this.update_brush);
@@ -161,7 +161,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         $("#rename_drawing").on("click", this.rename);
         $("#resize_image").on("click", this.on_resize_image);
         $("#load_image").on("click", this.load_popup);
-        $("#save_image").on("click", this.save_popup);
+        $("#save_image").on("click", this.save_internal);
 
         $("#save_ora_local").on("click", this.model.save_ora_local);
         $("#save_png_local").on("click", this.model.save_png_local);
