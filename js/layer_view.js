@@ -75,8 +75,8 @@ OldPaint.LayerView = Backbone.View.extend({
         // some trickery to get window resize to work
         //$(vlayer.canvas).hide();
         //$("div.drawing").css({width: 0, height: 0});
-        this.el.width = $("#drawing_container").width();
-        this.el.height = $("#drawing_container").height();
+        this.el.width = $("#drawing").width();
+        this.el.height = $("#drawing").height();
         this.context = this.el.getContext('2d');
         if (this.window.scale >= 1) {
             this.context.mozImageSmoothingEnabled = false;
@@ -87,9 +87,9 @@ OldPaint.LayerView = Backbone.View.extend({
             this.context.webkitImageSmoothingEnabled = true;
             this.context.imageSmoothingEnabled = true;
         }
-        $(".drawing_container").css({width: this.el.width,
+        $(".drawing").css({width: this.el.width,
                                      height: this.el.height});
-        this.topleft = $("#drawing_container").offset();
+        this.topleft = $("#drawing").offset();
         console.log("topleft", this.topleft);
     },
 

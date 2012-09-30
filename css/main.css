@@ -16,12 +16,8 @@ html, body {
     overflow: hidden;
 }
 
-.layout {
-    height: 100%;
-    width: 100%;
-}
 
-.main {
+#overlay {
     position: relative;
     border-width: 0px;
     background: #909090;
@@ -40,240 +36,120 @@ html, body {
     pointer-events: auto;
 }
 
-table tr td {
-    border-collapse: collapse;
-    border: 0;
+/* === Defaults === */
+
+* {
     padding: 0;
 }
 
-.header {
-    width: 10%;
-    text-align: center;
-    background-color: #808080;
-    font-size: 12pt;
+div.buttons {
+    list-style-type: none;
+    margin: 0px;
+    overflow:hidden;
 }
 
-.header.action {
-    width: 0px;
+div.buttons button {
+    float: left;
 }
 
-.header.table {
+/* === Main components === */
+
+/* Header */
+
+td.header {
+    background: grey;
+    padding: 1px;
+}
+
+table.header {
     width: 100%;
+    border-collapse: collapse;
 }
 
-.header.logo {
-    color: white;
+#logo {
+    padding: 3px;
+    color: #fff;
     text-shadow: #000 1px 1px;
-    min-width: 10%;
-    text-align: center;
 }
 
 #title {
     width: 100%;
-    text-align: left;
-    background-color: #808080;
-    font-size: 11pt;
+    padding: 3px;
 }
 
+/* Main part */
 
-#files { width:0; height:0; position: absolute;}
+table.main {
+    width: 100%;
+    height: 100%;
+    border-collapse: collapse;
+}
 
+/* Drawing window */
 
-#toolbar {
-    width: 10%;
-    vertical-align: top;
-    align: right;
-    text-align: right;
-    background: #777;
+#drawing_window {
+    height: 100%;
+    background: transparent;
+    pointer-events: none;
+}
+
+/* Palette */
+
+/* Sidebar */
+
+td.sidebar {
+    width: 120px;
+    height: 100%;
+}
+
+table.sidebar {
+    width: 100%;
+    height: 100%;
+    border-collapse: collapse;
+}
+
+/* Tools */
+
+td.toolbar {
+    height: 0%;
+    background: #888;
     padding: 5px;
 }
 
 #tools {
-    pointer-events: auto;
-    align: right;
-    clear: left;
+
 }
 
-button {
-    border-width: 2px 0 0 2px;
-    padding: 2px 3px 3px 2px;
-    border-color: #ddd;
+/* Brushes */
+
+.brushes {
+    margin: 5px 0;
+    clear: both;
 }
 
-.tool {
-    outline: solid rgba(0,0,0,0.5) 2px;
-    background-color: rgba(255,255,255,0.3);
-    margin: 1px;
-    font-family : topaz, "Lucida Console", monospace, Monaco;
-    color: rgb(0,0,0);
+.brush {
+    border-width: 1px;
+    background-color: #a0a0a0;
+    padding: 0 3px 0 3px;
+    height: 22px;
+    float: left;
 }
 
-.tool:hover, .brush:hover {
-    background-color: rgba(255,255,255,0.5);
-    font-family : topaz, "Lucida Console", monospace, Monaco;
-    font-size : 10pt;
-    font-weight : normal;
+.brush:hover {
+    background-color: #ccc;
 }
 
-.tool.active, .brush.active {
-    border-color: #999;
+.brush.active {
+    border-color: #fff;
     background-color: #d0d0d0;
 }
 
-#brushes {
-    align: center;
-    clear:left;
-    margin-top: 5px;
-}
+/* Minilayers */
 
-#user_brushes {
-    padding-top: 5px;
-    align: center;
-    clear:left;
-}
-
-#drawing_window {
-    position: relative;
+td.minilayers {
     height: 100%;
-    width: 90%;
-    margin: auto;
-    vertical-align: middle;
-    horizontal-align: center;
-    background: transparent;
-    border-width: 0;
+    vertical-align: bottom;
 }
-
-#drawing_container {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    border-width: 0;
-    margin: 0;
-    cursor: url("../images/cursor.gif") 10 10,auto;
-
-}
-
-#layers_container {
-    position: relative;
-    pointer-events: none;
-}
-
-#drawing_frame {
-    position: absolute;
-    background-attachment: fixed;
-    background: #D0D0D0 url("../images/chequered_transp.png");
-    pointer-events: none;
-    outline: 2px solid black;
-    /* -webkit-transform: rotate(45deg); */
-
-}
-
-canvas.layer {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    /* image-rendering: -moz-crisp-edges; */
-    /* image-rendering: -o-crisp-edges; */
-    /* image-rendering: -webkit-optimize-contrast; */
-    /* -ms-interpolation-mode: nearest-neighbor; */
-    /* image-rendering: optimize-contrast; */
-    pointer-events: none;
-    /* -webkit-transform: rotate(45deg); */
-}
-
-canvas.active {
-    //pointer-events: auto;
-}
-
-canvas.rgbLayer {
-    width: 100%;
-}
-
-.layer.invisible {
-    visibility: hidden;
-}
-
-.layer.animated {
-    visibility: hidden;
-}
-
-.layer.animated.active {
-    visibility: visible;
-}
-
-#selection_block {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    visibility: hidden;
-    cursor: default;
-}
-
-#selection_main  {
-    position: absolute;
-    pointer-events: none;
-}
-
-#selection_center {
-    position: relative;
-    pointer-events: none;
-}
-
-#selection_frame1 {
-    position: absolute;
-    border: solid white 1px;
-    opacity: 0.7;
-    pointer-events: none;
-}
-
-#selection_frame2 {
-    position: absolute;
-    opacity: 0.7;
-    border: dashed black 1px;
-    pointer-events: none;
-}
-
-#selection_topleft, #selection_topright, #selection_botleft, #selection_botright {
-    position: relative;
-    width: 7px;
-    height: 7px;
-    border: solid black 1px;
-    background-color: red;
-    opacity: 0.7;
-    visibility: hidden;
-    cursor: pointer;
-}
-
-#selection_topleft {
-    cursor: nw-resize;
-}
-
-#selection_topright {
-    cursor: ne-resize;
-}
-
-#selection_botleft {
-    cursor: sw-resize;
-}
-
-#selection_botright {
-    cursor: se-resize;
-}
-
-#sidebar {
-    width: 10%;
-
-    background: transparent;
-}
-
-.sidebar.table, .minilayers.row {
-    height: 100%;
-    width: 100%;
-}
-
 
 #minilayers_container {
     position: relative;
@@ -290,10 +166,6 @@ canvas.rgbLayer {
     right: 0px;
     max-height:100%;
     padding: 5px;
-    background-color: #808080;
-}
-
-#layertools {
     background-color: #808080;
 }
 
@@ -339,35 +211,105 @@ canvas.minilayer {
     top: 20px;
 }
 
-.brush {
-    display: table-cell;
-    border: solid transparent 1px;
-    background-color: #a0a0a0;
-    padding: 0 3px 0 3px;
-    height: 22px;
-    float: left;
+#layer_actions {
+    margin: 1px;
+    display: table-row;
 }
 
 
-#bottom {
+/* Footer */
+
+td.bottom {
+    background: #aaa;
+}
+
+td.bottom table {
     width: 100%;
-    background-color: #808080;
 }
 
 #message {
-    display: table-cell;
-    width: 80%;
+    width: 100%;
     font-size: 10pt;
 }
 
 #coordinates {
-    text-align: center;
-    width: 10%;
+    text-align: right;
     font-size: 10pt;
 }
 
+
+/* === Drawing and layer stuff === */
+
+#drawing {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    border-width: 0;
+    background: #606060;
+    margin: 0;
+    cursor: url("../images/cursor.gif") 10 10,auto;
+}
+
+#drawing_frame {
+    position: absolute;
+    background-attachment: fixed;
+    background: #D0D0D0 url("../images/chequered_transp.png");
+    pointer-events: none;
+    outline: 2px solid black;
+    /* -webkit-transform: rotate(45deg); */
+}
+
+#layers_container {
+    position: relative;
+    pointer-events: none;
+}
+
+.layer.invisible {
+    visibility: hidden;
+}
+
+.layer.animated {
+    visibility: hidden;
+}
+
+.layer.animated.active {
+    visibility: visible;
+}
+
+
+/* === Buttons === */
+
+button {
+    border-width: 2px 0 0 2px;
+    padding: 2px 3px 3px 2px;
+    border-color: #ddd;
+    outline: solid #000 2px;
+    background-color: #aaa;
+    margin: 1px;
+    font-family : topaz, "Lucida Console", monospace, Monaco;
+    color: #000;
+}
+
+button:hover, .brush:hover {
+    background-color: #ddd;
+    font-family : topaz, "Lucida Console", monospace, Monaco;
+    font-size : 10pt;
+    font-weight : normal;
+}
+
+button.active, .brush.active {
+    border-color: #999;
+    background-color: #d0d0d0;
+}
+
+
+
+.span { width:100%; }
+
 .table {
     display: table;
+
 }
 
 .row {

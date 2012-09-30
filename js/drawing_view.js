@@ -3,7 +3,7 @@
 
 OldPaint.DrawingView = Backbone.View.extend({
 
-    el: $("#drawing_container"),
+    el: $("#drawing"),
     active_layer: null,
     zoom: 0,
     window: {scale: 1,
@@ -32,7 +32,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         $(window).resize(true, this.render);  // dowsn't work?!
 
         // Bind the time critical mousemove directly instead of using Backbone
-        var el = document.getElementById('drawing_container');
+        var el = document.getElementById('drawing');
         el.onmousemove = this.update_stroke;
 
         // Let's save to local storage periodically
