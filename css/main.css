@@ -79,19 +79,19 @@ table tr td {
 #files { width:0; height:0; position: absolute;}
 
 
-.toolbar {
+#toolbar {
     width: 10%;
     vertical-align: top;
     align: right;
     text-align: right;
     background: #777;
+    padding: 5px;
 }
 
 #tools {
     pointer-events: auto;
-    margin: 5px;
     align: right;
-    clear:left;
+    clear: left;
 }
 
 .tool {
@@ -103,13 +103,13 @@ table tr td {
 }
 
 #brushes {
-    margin: 5px;
     align: center;
     clear:left;
+    margin-top: 5px;
 }
 
 #user_brushes {
-    margin: 5px;
+    padding-top: 5px;
     align: center;
     clear:left;
 }
@@ -248,7 +248,7 @@ canvas.rgbLayer {
 #sidebar {
     width: 10%;
 
-    background: #777;
+    background: transparent;
 }
 
 .sidebar.table, .minilayers.row {
@@ -275,6 +275,9 @@ canvas.rgbLayer {
     background-color: #808080;
 }
 
+#layertools {
+    background-color: #808080;
+}
 
 div.minilayer {
     position: relative;
