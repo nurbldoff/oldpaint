@@ -353,6 +353,7 @@ canvas.minilayer {
 
 #coordinates {
     display: table-cell;
+    text-align: center;
     padding: 3px;
     width: 1%;
     font-size: 10pt;
