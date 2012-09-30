@@ -1,4 +1,4 @@
-@font-face 
+@font-face
 {
   font-family: topaz;
   src: url(../images/Topaznew.ttf);
@@ -342,17 +342,20 @@ canvas.minilayer {
 #bottom {
     width: 100%;
     background-color: #808080;
-    font-size: small;
 }
 
 #message {
     display: table-cell;
+    padding: 3px;
     width: 100%;
+    font-size: 10pt;
 }
 
 #coordinates {
     display: table-cell;
+    padding: 3px;
     width: 1%;
+    font-size: 10pt;
 }
 
 .table {
@@ -366,5 +369,3 @@ canvas.minilayer {
 .cell {
     display: table-cell;
 }
-
-
