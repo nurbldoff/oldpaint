@@ -47,7 +47,7 @@ $(function () {
                                                stroke.shift);
                         }, help: "Hold SHIFT key to make a filled ellipse."}));
 
-    tools.add(new Tool({name: "floodfill",
+    tools.add(new Tool({name: "floodfill", oneshot: true, preview: false,
                         draw: function (drawing, stroke) {
                             drawing.layers.active.draw_fill(stroke.pos, stroke.color);
                         }}));
@@ -58,7 +58,7 @@ $(function () {
     //                             stroke.pos, drawing.palette.range);
     //                     }}));
 
-    tools.add(new Tool({name: "brush",
+    tools.add(new Tool({name: "brush", preview: false,
                         help: "Drag the corner handles to resize selection, and click anywhere else to finish.",
                         before: function (drawing, stroke) {
                             var layer = drawing.layers.active;
@@ -89,14 +89,15 @@ $(function () {
                             drawing.trigger("selection_done");
                         }}));
 
-    tools.add(new Tool({name: "picker",
+    tools.add(new Tool({name: "picker", preview: false,
                         draw: function (drawing, stroke) {
                             var rgb, color=0;
                             drawing.layers.each(function (layer) {
                                 color = layer.get_pixel(stroke.pos);
                                 if (color[0] != undefined) color = color[0];
                             });
-                            drawing.palette.set_foreground(color);
+                            if (color != drawing.palette.foreground)
+                                drawing.palette.set_foreground(color);
                         }}));
 
     var tools_view = new OldPaint.ToolsView({collection: tools});

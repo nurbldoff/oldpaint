@@ -14,7 +14,7 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     events: {
         "mousedown": "begin_stroke",
-        "mousemove": "update_stroke",
+        //"mousemove": "update_stroke",
         "mouseup": "end_stroke",
         "mousewheel": "wheel_zoom"
     },
@@ -22,14 +22,18 @@ OldPaint.DrawingView = Backbone.View.extend({
     initialize: function (options) {
         _.bindAll(this);
 
-        LocalStorage.request(LocalStorage.read_txt, 
+        LocalStorage.request(LocalStorage.read_txt,
                              {path: "", name: "settings.json",
                               on_load: this.load_settings});
-        
+
         this.topleft = this.$el.offset();
         this.center();
 
         $(window).resize(true, this.render);  // dowsn't work?!
+
+        // Bind the time critical mousemove directly instead of using Backbone
+        var el = document.getElementById('drawing_container');
+        el.onmousemove = this.update_stroke;
 
         // Let's save to local storage periodically
         // TODO: the save system should be smart enough to e.g. only save layers that
@@ -43,7 +47,7 @@ OldPaint.DrawingView = Backbone.View.extend({
             ["+", this.zoom_in, "Zoom in."],
             ["z", this.model.undo, "Undo last change."],
             ["y", this.model.redo, "Redo last undo."],
-            
+
             ["r", this.model.redraw, "Redraw the screen."],
 
             // Experimental save to internal storage
@@ -184,7 +188,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         };
         LocalStorage.request(LocalStorage.write,
                              {path: "", name: "settings.json",
-                              blob: new Blob([JSON.stringify(settings)], 
+                              blob: new Blob([JSON.stringify(settings)],
                                              {type: 'text/plain'})});
     },
 
@@ -219,7 +223,7 @@ OldPaint.DrawingView = Backbone.View.extend({
     },
 
     on_rename: function (model, value) {
-        $("#title").text(value);  // Probably better to make a view for this 
+        $("#title").text(value);  // Probably better to make a view for this
     },
 
     on_load: function () {
@@ -355,7 +359,7 @@ OldPaint.DrawingView = Backbone.View.extend({
     },
 
     // Update the position and draw brush preview
-    update_cursor: function (event, stroke) {
+    update_cursor: _.throttle(function (event, stroke) {
         var coords = Util.image_coords(Util.event_coords(event, this.topleft),
                                        this.window.offset, this.window.scale);
         if (this.stroke && this.stroke.start) {
@@ -369,7 +373,7 @@ OldPaint.DrawingView = Backbone.View.extend({
             }
         }
         this.model.update_coords(coords);
-    },
+    }, 20),
 
     // Callback for when the user presses a mouse button on the canvas
     begin_stroke: function (event) {
@@ -412,12 +416,13 @@ OldPaint.DrawingView = Backbone.View.extend({
     update_stroke: function (event) {
         //console.log(this.stroke.draw);
         this.update_cursor(event);
-        if (this.stroke && !_.include(["floodfill"], OldPaint.tools.active)) {
+        if (this.stroke) {
             var cpos = Util.event_coords(event, this.topleft);
             this.stroke.pos = Util.image_coords(cpos, this.window.offset,
                                                 this.window.scale);
             if (this.stroke.draw) {
-                this.model.draw(OldPaint.tools.active, this.stroke);
+                if (!OldPaint.tools.active.oneshot)
+                    this.model.draw(OldPaint.tools.active, this.stroke);
             } else {
                 this.update_offset({
                     x: this.base_offset.x + cpos.x - this.stroke.offset.x,
@@ -614,7 +619,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         var load = _.bind(function (title) {
             this.model.save_to_storage();
             this.model.load_from_storage(title);
-        }, this);   
+        }, this);
         var callback = function (result) {
             var dirs = _.filter(result, function (item) {return item.isDirectory;});
             var names = _.map(dirs, function (item) {return item.name;});

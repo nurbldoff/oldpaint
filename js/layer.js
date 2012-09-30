@@ -155,6 +155,9 @@ OldPaint.Layer = OldPaint.Image.extend ({
         this.trigger("activate", this);
     },
 
+    // This should be overridden with the function to update the view.
+    update: function () {console.log("Update function missing!");},
+
     trigger_update: function (rect, clear, temporary) {
         if (!rect) return;
         // add 1 pixel padding
