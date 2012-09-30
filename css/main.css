@@ -94,12 +94,30 @@ table tr td {
     clear: left;
 }
 
+button {
+    border-width: 2px 0 0 2px;
+    padding: 2px 3px 3px 2px;
+    border-color: #ddd;
+}
+
 .tool {
-    border: solid rgba(0,0,0,0.5) 2px;
+    outline: solid rgba(0,0,0,0.5) 2px;
     background-color: rgba(255,255,255,0.3);
-    padding: 3px;
+    margin: 1px;
     font-family : topaz, "Lucida Console", monospace, Monaco;
     color: rgb(50,50,50);
+}
+
+.tool:hover, .brush:hover {
+    background-color: rgba(255,255,255,0.5);
+    font-family : topaz, "Lucida Console", monospace, Monaco;
+    font-size : 10pt;
+    font-weight : normal;
+}
+
+.tool.active, .brush.active {
+    border-color: #999;
+    background-color: #d0d0d0;
 }
 
 #brushes {
@@ -330,17 +348,6 @@ canvas.minilayer {
     float: left;
 }
 
-.tool:hover, .brush:hover {
-    background-color: rgba(255,255,255,0.5);
-    font-family : topaz, "Lucida Console", monospace, Monaco;
-    font-size : 10pt;
-    font-weight : normal;
-}
-
-.tool.active, .brush.active {
-    border: solid white 1px;
-    background-color: #d0d0d0;
-}
 
 #bottom {
     width: 100%;
