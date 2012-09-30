@@ -74,9 +74,7 @@ LocalStorage.mkdir = function (rootDirEntry, path, callback) {
 };
 
 LocalStorage.write = function (args, fs) {
-
     function write_file () {
-        console.log("Writing", args.name);
         var filename = (args.path ? args.path + "/" : "") + args.name;
         fs.root.getFile(filename, {create: true}, function(fileEntry) {
             fileEntry.createWriter(function(fileWriter) {
@@ -128,15 +126,14 @@ LocalStorage.read_txt = function (args, fs) {
 
 };
 
+// Loads a number of files in specified order, in a convoluted way
 LocalStorage.read_images = function () {
     var index = 0;
     return function (spec, callback) {
         index += 1;
         //LocalStorage(files[index - 1], index, data, callBackCounter);
-        LocalStorage.request(
-            LocalStorage.read,
-            {path: spec.title + "/data",
-             name: spec.layers[index-1],
+        LocalStorage.load_bin(
+            {path: spec.title + "/data", name: spec.layers[index-1],
              on_load: function (e) {
                  var data = e.target.result.slice(13); // remove the header
                  spec.layers[index-1] = data;  // put them in the right order
@@ -182,7 +179,6 @@ LocalStorage.rm = function(args, fs) {
 };
 
 LocalStorage.rmdir = function(args, fs) {
-    console.log("rmdir", args);
     fs.root.getDirectory(args.path, {}, function(dirEntry) {
         dirEntry.removeRecursively(function(hej) {
             console.log('Directory removed.');
