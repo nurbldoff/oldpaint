@@ -9,7 +9,7 @@ Note: this is not a "webapp"; everything happens locally in your browser and you
 
 Currently should work in Chrome 22, and partially in FF 15. It is very much a work in progress, so don't use it for anything.
 
-Try it at http://nurbldoff.github.com/oldpaint
+Try it at http://nurbldoff.github.com/oldpaint or just clone it and open index.html locally. In the latter case, Chrome may give some sequrity warnings that you need to disable in order to use OldPaint fully.
 
 Acknowledgements
 ================

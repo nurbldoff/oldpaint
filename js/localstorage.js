@@ -34,18 +34,19 @@ LocalStorage.error_handler = function errorHandler(e) {
 LocalStorage.request = function (on_success, args) {
     on_success = _.bind(on_success, this, args);
     window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
-    window.webkitStorageInfo.requestQuota(
-        PERSISTENT, LocalStorage.quota, function(grantedBytes) {
-            window.requestFileSystem(PERSISTENT, grantedBytes, on_success, 
-                                     LocalStorage.error_handler);
-        }, LocalStorage.error_handler
-    );
+    if (window.requestFileSystem) {
+        window.webkitStorageInfo.requestQuota(
+            PERSISTENT, LocalStorage.quota, function(grantedBytes) {
+                window.requestFileSystem(PERSISTENT, grantedBytes, on_success, 
+                                         LocalStorage.error_handler);
+            }, LocalStorage.error_handler
+        );
+    }
 };
 
 LocalStorage.rm = function (args, fs) {
     fs.root.getFile(args.path + "/" + args.name, {create: false}, function(fileEntry) {
         fileEntry.remove(function() {
-            console.log('File removed.');
         }, LocalStorage.error_handler);
         
     }, LocalStorage.errorHandler);
