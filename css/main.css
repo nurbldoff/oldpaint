@@ -277,6 +277,23 @@ td.bottom table {
     pointer-events: none;
 }
 
+canvas.layer {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    /* image-rendering: -moz-crisp-edges; */
+    /* image-rendering: -o-crisp-edges; */
+    /* image-rendering: -webkit-optimize-contrast; */
+    /* -ms-interpolation-mode: nearest-neighbor; */
+    /* image-rendering: optimize-contrast; */
+    pointer-events: none;
+}
+
+/* canvas.rgbLayer { */
+/*     width: 100%; */
+/* } */
+
+
 .layer.invisible {
     visibility: hidden;
 }
