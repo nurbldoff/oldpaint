@@ -17,6 +17,8 @@
   </head>
   <body oncontextmenu="return false;">
 
+    <form><input id="files" class="action" type="file" name="files[]" /></form>
+
     <div id="drawing">
       <div id="drawing_frame"></div>
       <div id="layers_container"></div>
@@ -68,19 +70,28 @@
           <table class="sidebar">
             <tr>
               <td class="toolbar fg">
-
                 <div id="tools">Tools</div>
-                <div id="brushes"  class="brushes">Brushes</div>
-                <div id="user_brushes"  class="brushes">User brushes</div>
 
+                <div class="brushes">Brushes</div>
+                <div id="brushes" class="brushes">Brushes</div>
+                <div style="clear: both"></div>
+
+                <div class="brushes">User brushes</div>
+                <div id="user_brushes"  class="brushes">User brushes</div>
               </td>
             </tr>
             <tr>
               <td class="minilayers">
                 <div id="minilayers_container">
-                  <div id="minilayers" class="fg"></div>
+                  <div class="minilayers_container">
+                    <div id="minilayers" class="fg"></div>
+                  </div>
                 </div>
-                <div id="layer_actions" class="fg">
+              </td>
+            </tr>
+            <tr>
+              <td class="layer_actions fg">
+                <div class="layer_actions">
                   <button id="layer_add"> + </button>
                   <button id="layer_delete"> - </button>
                   <button id="layer_merge"> Merge </button>
