@@ -133,11 +133,12 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
 
     on_range_start: function (event) {
         var el = event.currentTarget;
+        this.range.editing = true;
         this.range.start = parseInt($(el).attr("data"));
     },
 
     on_range: function (event) {
-        if (event.which === 1) {
+        if (this.range.editing && event.which === 1) {
             var el = event.currentTarget;
             var index = parseInt($(el).attr("data"));
             this.range.end = index;
@@ -149,7 +150,7 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
     on_range_finish: function (event) {
         var el = event.currentTarget;
         var index = parseInt($(el).attr("data"));
-        if (this.range) {
+        if (this.range.editing) {
             if (index === this.range.start) {
                 if (event.which == 1) {
                     this.model.set_foreground(index);
@@ -165,6 +166,7 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
                 this.model.range = _.range(this.range.start, this.range.end+1);
             }
             this.update_range();
+            this.range.editing = false;
         }
     },
 
