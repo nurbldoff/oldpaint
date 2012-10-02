@@ -149,22 +149,23 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
     on_range_finish: function (event) {
         var el = event.currentTarget;
         var index = parseInt($(el).attr("data"));
-        if (index === this.range.start) {
-            if (event.which == 1) {
-                this.model.set_foreground(index);
+        if (this.range) {
+            if (index === this.range.start) {
+                if (event.which == 1) {
+                    this.model.set_foreground(index);
+                } else {
+                    this.model.set_background(index);
+                }
+                this.range = {};
             } else {
-                this.model.set_background(index);
+                var start = Math.min(this.range.start, this.range.end);
+                var end = Math.max(this.range.start, this.range.end);
+                this.range.start = start;
+                this.range.end = end;
+                this.model.range = _.range(this.range.start, this.range.end+1);
             }
-            this.range = {};
-        } else {
-            var start = Math.min(this.range.start, this.range.end);
-            var end = Math.max(this.range.start, this.range.end);
-            this.range.start = start;
-            this.range.end = end;
-            this.model.range = _.range(this.range.start, this.range.end+1);
+            this.update_range();
         }
-        this.update_range();
-        console.log("range end:", index);
     },
 
     // Switch the active color between transparent and opaque
