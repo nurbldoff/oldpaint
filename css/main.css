@@ -133,6 +133,7 @@ td.toolbar {
 div.brushes {
     color: #fff;
     text-shadow: #000 1px 1px;
+    clear: both;
 }
 
 .brush {
@@ -179,7 +180,7 @@ td.minilayers {
 
 .minilayer {
     position: relative;
-    width: 80px;
+    width: 90px;
 }
 
 canvas.minilayer {
@@ -208,14 +209,14 @@ canvas.minilayer {
 .layerVisibleCheck {
     z-index: 100;
     position: absolute;
-    right: -20px;
+    right: -5px;
     top: 0px;
 }
 
 .layerAnimatedCheck {
     z-index: 100;
     position: absolute;
-    right: -20px;
+    right: -5px;
     top: 20px;
 }
 
@@ -322,9 +323,6 @@ button {
 
 button:hover, .brush:hover {
     background-color: #ddd;
-    font-family : topaz, "Lucida Console", monospace, Monaco;
-    font-size : 10pt;
-    font-weight : normal;
 }
 
 button.active, .brush.active {
@@ -348,3 +346,4 @@ button.active, .brush.active {
 .cell {
     display: table-cell;
 }
+

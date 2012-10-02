@@ -231,7 +231,6 @@ Util.load_base64_png = function (data) {
     if (image.colorType != 3) {
         var img = new Image();
         img.onload = function() {
-            console.log(img.width, img.height);
             var canvas = Util.copy_canvas(img);
             var result = {layers: [canvas.getContext('2d').getImageData(
                 0, 0, img.width, img.height).data],
@@ -239,10 +238,8 @@ Util.load_base64_png = function (data) {
                           width: img.width,
                           height: img.height};
             //callback(result);
-            console.log("Done loading PNG...");
             deferred.resolve(result);
         };
-        //img.src = event.target.result;
         img.src = "data:image/png;base64," + data;
     } else {
         // Convert the data into oldpaint formats
@@ -304,13 +301,13 @@ Util.mkXML = function (text) //turns xml string into XMLDOM
     }
 };
 
-// Loads indexed PNG images into a drawing
+// Parses and loads PNG images into a drawing
+// TODO: This is really too tied to the Drawing model. Should it be moved there?
 Util.load_png = function (data, drawing) {
     _.each(data.layers, function (image, index) {
         Util.load_base64_png(image).done(function (result) {
             drawing.set("height", result.height);
             drawing.set("width", result.width);
-            console.log(result.layers[0]);
             drawing.add_layer(true, result.layers[0]);
             if (data.palette) {
                 drawing.palette.set_colors(data.palette);
@@ -330,7 +327,6 @@ Util.load_raw = function (data, drawing) {
             drawing.set("height", result.height);
             drawing.set("width", result.width);
             var layer = drawing.add_layer(true);
-            console.log(result.layers[0]);
             layer.image.put_data(result.layers[0]);
             layer.cleanup();
             if (data.palette) {
@@ -351,16 +347,14 @@ Util.load_ora = function (data, drawing) {
     //Need to do some more checking here, seems like the mimetype can
     //be confused. Here we assume it's "image/openraster"
     zip.load(data.slice(29), {base64: true});
-    var stack_file = zip.file("stack.xml");
-    var xml = Util.mkXML(stack_file.data);
-    var layer_nodes = xml.getElementsByTagName("layer");
-    var layers = [], folder = zip.folder("data");
+    var stack_file = zip.file("stack.xml"),
+        xml = Util.mkXML(stack_file.data),
+        layer_nodes = xml.getElementsByTagName("layer"),
+        layers = [], folder = zip.folder("data");
     drawing.set("width", xml.getElementsByTagName("image")[0].getAttribute("w"));
     drawing.set("height", xml.getElementsByTagName("image")[0].getAttribute("h"));
     _.each(layer_nodes, function (node, index) {
-        var filename = node.getAttribute("src");
-        var image = zip.file(filename);
-
+        var filename = node.getAttribute("src"), image = zip.file(filename);
         Util.load_base64_png(btoa(image.data)).done(function (data) {
             drawing.add_layer(true, data.layers[0]);
             // TODO: this isn't a pretty way of loading the palette...
@@ -376,9 +370,8 @@ Util.load_ora = function (data, drawing) {
 // Create an ORA file as a data URI. Doesn't deflate, because that results in bad
 // zip files for some reason.
 Util.create_ora = function (drawing) {
-    var zip = new JSZip();
+    var zip = new JSZip(), xw = new XMLWriter( 'UTF-8', '1.0' );
     zip.folder("data");
-    var xw = new XMLWriter( 'UTF-8', '1.0' );
     xw.writeStartDocument();
     xw.writeStartElement("image");
     xw.writeAttributeString("w", drawing.get("width"));
