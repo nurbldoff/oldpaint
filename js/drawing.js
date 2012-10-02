@@ -189,14 +189,12 @@ OldPaint.Drawing = Backbone.Model.extend({
         layer.flip_x();
         this.push_undo(this.make_action("flip", {horizontal: true,
                                                  layer: layer}));
-        layer.cleanup();
     },
 
     flip_layer_vertical: function(layer) {
         layer.flip_y();
         this.push_undo(this.make_action("flip", {horizontal: false,
                                                  layer: layer}));
-        layer.cleanup();
     },
 
     // Combine two layers into one, in order of appearance.
@@ -236,7 +234,6 @@ OldPaint.Drawing = Backbone.Model.extend({
     },
 
     redraw: function() {
-        console.log("redraw!");
         this.layers.active.redraw();
     },
 

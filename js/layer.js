@@ -72,6 +72,7 @@ OldPaint.Layer = OldPaint.Image.extend ({
         this.temporary_rect = null;
         this.trigger_update(
             OldPaint.Layer.__super__.draw_clear.apply(this), true);
+        this.cleanup();
     },
 
     draw_patch: function (patch, position) {
@@ -93,11 +94,13 @@ OldPaint.Layer = OldPaint.Image.extend ({
     flip_x: function () {
         this.clear_temporary();
         this.trigger_update(OldPaint.Layer.__super__.flip_x.apply(this), true);
+        this.cleanup();
     },
 
     flip_y: function () {
         this.clear_temporary();
         this.trigger_update(OldPaint.Layer.__super__.flip_y.apply(this), true);
+        this.cleanup();
     },
 
 
