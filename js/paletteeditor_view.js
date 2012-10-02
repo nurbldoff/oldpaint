@@ -33,12 +33,6 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
             size: this.size
         });
         $("td.palette").html(palette_template);
-
-        // $("#colorpicker").ColorPicker({
-        //     flat: true,
-	//     onChange: this.set_color
-        // });
-
         $("div.color_slider").slider({
             range: "min", min: 0, max: 255, value: 60,
             slide: this.update_from_rgb_sliders
@@ -193,7 +187,6 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
         $("#color" + index).parent().addClass("foreground");
         var color = this.model.colors[index];
         var rgb = {r: color[0], g: color[1], b: color[2]};
-        $("#colorpicker").ColorPickerSetColor(rgb);
         this.update_rgb_sliders(rgb);
     },
 
