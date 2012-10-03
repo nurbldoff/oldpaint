@@ -1,3 +1,18 @@
+
+#palette_editor {
+    position: relative;
+    background: #888;
+    width: 100%;
+    align: center;
+    align: center;
+    border-top: 2px solid black;
+    padding: 3px;
+}
+
+table.palette_editor {
+    width: 100%;
+}
+
 .palette.table {
     border-collapse: collapse;
 }
@@ -52,17 +67,6 @@ div.colors.row {
 }
 
 
-#palette_editor {
-    position: relative;
-    background: #888;
-    width: 100%;
-    align: center;
-    align: center;
-}
-
-table.palette_editor {
-    width: 100%;
-}
 
 
 #colorpicker {
@@ -72,6 +76,7 @@ table.palette_editor {
 #palette_tools {
     position: relative;
     height: 100%;
+    border-spacing: 4px;
 }
 
 div.color_value {
@@ -93,7 +98,7 @@ div.color_value {
 #color_slider_b .ui-slider-handle { opacity: 0.5; border-color: #000; }
 
 .ui-slider {border-color: #000; background: #555; border-width: 2px;}
-.ui-slider-handle {width: 8px !important; 
+.ui-slider-handle {width: 8px !important;
                    top: -4px !important;
                    background: #aaa !important;
                    opacity: 1 !important;
@@ -150,4 +155,3 @@ div.color_value {
     padding: 1px;
     display: table-row;
 }
-

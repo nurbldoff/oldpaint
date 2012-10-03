@@ -29,7 +29,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.topleft = this.$el.offset();
         this.center();
 
-        $(window).resize(true, this.render);  // dowsn't work?!
+        $(window).resize({redraw: true}, this.render);  // dowsn't work?!
 
         // Bind the time critical mousemove directly instead of using Backbone
         var el = document.getElementById('drawing');
@@ -120,6 +120,8 @@ OldPaint.DrawingView = Backbone.View.extend({
                 brush.make_backup();
             }, "Flip the current brush vertically"],
 
+
+
             ["0", this.center, "Center the view."]
         ];
         _.each(keybindings, function (binding) {Mousetrap.bind(binding[0], binding[1]);});
@@ -147,7 +149,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.model.layers.on("add", this.on_layer_added);
         this.model.layers.on("move", this.on_layer_reordered);
 
-        this.model.on("resize", this.render);
+        this.model.on("resize", this.on_resize);
         this.model.on("selection", this.make_selection);
         this.model.on("selection_done", this.edit_selection);
         this.model.on("load", this.on_load);
@@ -159,7 +161,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         //this.model.layers.on("stroke", this.on_stroke);
 
         $("#rename_drawing").on("click", this.rename);
-        $("#resize_image").on("click", this.on_resize_image);
+        $("#resize_image").on("click", this.resize_image);
         $("#load_image").on("click", this.load_popup);
         $("#save_image").on("click", this.save_internal);
 
@@ -172,6 +174,42 @@ OldPaint.DrawingView = Backbone.View.extend({
         $('#files').on('change', this.handle_file_select);
 
         $("#convert_image").on("click", this.on_convert_image);
+    },
+
+    render: function (update_image) {
+        console.log("redraw");
+        this.topleft = this.$el.offset();
+        this.model.layers.each(function (layer, index) {
+            if (update_image) {
+                layer.image.updateCanvas();
+            }
+            layer.trigger("redraw", false);
+        });
+        // Position the "frame"
+        var negoffset = {x: Math.min(0, this.window.offset.x),
+                         y: Math.min(0, this.window.offset.y)};
+        var posoffset = {x: Math.max(0, this.window.offset.x),
+                         y: Math.max(0, this.window.offset.y)};
+
+        var left = Math.max(0, this.window.offset.x);
+        var top = Math.max(0, this.window.offset.y);
+        var width = this.model.get("width") * this.window.scale + negoffset.x;
+        var height = this.model.get("height") * this.window.scale + negoffset.y;
+
+        $("#drawing_frame").css({
+            left: left, top: top,
+            width: Math.max(
+                0, Math.min(this.$el.width() - posoffset.x, width)),
+            height: Math.max(
+                0, Math.min(this.$el.height() - posoffset.y, height))
+        });
+        $("#drawing_frame").css("background-position",
+                                negoffset.x + "px " + negoffset.y + "px");
+
+        if (this.model.selection) {
+            this.make_selection(this.model.selection);
+            this.edit_selection();
+        }
     },
 
     load_settings: function (e) {
@@ -217,6 +255,11 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.model.load(Util.load_ora, e.target.result);
     },
 
+    on_load: function () {
+        this.render(true);
+        this.center();
+    },
+
     rename: function () {
         var name = prompt("What do you want to call the drawing?");
         this.model.set("title", name);
@@ -226,10 +269,6 @@ OldPaint.DrawingView = Backbone.View.extend({
         $("#title").text(value);  // Probably better to make a view for this
     },
 
-    on_load: function () {
-        this.render(true);
-        this.center();
-    },
 
     update_scale: function() {
         this.window.scale = Math.pow(2, this.zoom);
@@ -268,41 +307,6 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.render();
     },
 
-    render: function (update_image) {
-        this.topleft = this.$el.offset();
-        this.model.layers.each(function (layer, index) {
-            if (update_image) {
-                layer.image.updateCanvas();
-            }
-            layer.trigger("redraw", false);
-        });
-        // Position the "frame"
-        var negoffset = {x: Math.min(0, this.window.offset.x),
-                         y: Math.min(0, this.window.offset.y)};
-        var posoffset = {x: Math.max(0, this.window.offset.x),
-                         y: Math.max(0, this.window.offset.y)};
-
-        var left = Math.max(0, this.window.offset.x);
-        var top = Math.max(0, this.window.offset.y);
-        var width = this.model.get("width") * this.window.scale + negoffset.x;
-        var height = this.model.get("height") * this.window.scale + negoffset.y;
-
-        $("#drawing_frame").css({
-            left: left, top: top,
-            width: Math.max(
-                0, Math.min(this.$el.width() - posoffset.x, width)),
-            height: Math.max(
-                0, Math.min(this.$el.height() - posoffset.y, height))
-        });
-        $("#drawing_frame").css("background-position",
-                                negoffset.x + "px " + negoffset.y + "px");
-
-        if (this.model.selection) {
-            this.make_selection(this.model.selection);
-            this.edit_selection();
-        }
-    },
-
     // Callback for when the user changes the palette
     on_palette_changed: function (colors) {
         // Here might be some logic to only update layers that use the
@@ -333,7 +337,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         }
     },
 
-    on_resize_image: function () {
+    resize_image: function () {
         var resize = function () {
             this.model.resize(this.model.selection);
             this.model.msg("Resized to (" + this.model.selection.width + ", " +
@@ -348,6 +352,11 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.edit_selection();
         this.model.msg("Resize the image by dragging the corner handles. " +
                        "Click anywhere to finish.");
+    },
+
+    on_resize: function () {
+        this.render();
+        this.center();
     },
 
     on_convert_image: function (event) {

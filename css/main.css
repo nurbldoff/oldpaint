@@ -4,6 +4,20 @@
   src: url(../images/Topaznew.ttf);
 }
 
+
+/* === Defaults === */
+
+* {
+
+}
+
+html,body,p,div,img,h1,h2,h3,h4,li,ul,ol,dl,dd,dt,form,table,td,tr{
+    margin:0px; padding:0px; border:0px; border-collapse:separate; border-spacing:0px;
+}
+input,select { margin:0; padding:0; }
+
+
+
 html, body {
     margin: 0px;
     height: 100%;
@@ -29,7 +43,7 @@ form {
     background: transparent;
     pointer-events: none;
     border-collapse: collapse;
-    border-width: 0;
+
     font-family : topaz, "Lucida Console", monospace, Monaco;
     font-size : 10pt;
     font-weight : normal;
@@ -39,35 +53,28 @@ form {
     pointer-events: auto;
 }
 
-/* === Defaults === */
-
-* {
-    padding: 0;
-}
-
-div.buttons {
-    list-style-type: none;
-    margin: 0px;
-    overflow:hidden;
-}
-
-div.buttons button {
-    float: left;
-}
-
 /* === Main components === */
 
 /* Header */
 
-td.header {
-    background: grey;
-    padding: 1px;
-}
-
 table.header {
+
     width: 100%;
     border-collapse: collapse;
+    outline: 2px solid black;
 }
+
+tr.header {
+    background: grey;
+    padding-right: 1px;
+}
+
+table.header td {
+    padding: 0;
+    margin: 0;
+    padding-top: 1px;
+}
+
 
 #logo {
     padding: 3px;
@@ -113,11 +120,13 @@ table.sidebar {
 
 /* Tools */
 
-td.toolbar {
+div.toolbar {
     height: 0%;
     background: #888;
     padding: 5px;
-
+    border-width: 0 0 2px 2px;
+    border-style: solid;
+    border-color: black;
 }
 
 #tools {
@@ -165,6 +174,7 @@ td.minilayers {
     width: 100%;
     overflow-y: auto;
     overflow-x: hidden;
+    margin: 0;
 }
 
 #minilayers {
@@ -176,6 +186,9 @@ td.minilayers {
     padding: 5px;
     background-color: #808080;
 
+    border-width: 2px 0 0 2px;
+    border-style: solid;
+    border-color: black;
 }
 
 .minilayer {
@@ -225,8 +238,11 @@ td.layer_actions {
 }
 
 div.layer_actions {
-    margin: 1px 5px 5px 5px;
-    display: inline-table;
+    padding: 1px 5px 5px 5px;
+    border-width: 0 0 0 2px;
+    border-style: solid;
+    border-color: black;
+    display: block;
 }
 
 
@@ -234,6 +250,7 @@ div.layer_actions {
 
 td.bottom {
     background: #aaa;
+    padding: 2px;
 }
 
 td.bottom table {
@@ -261,7 +278,7 @@ td.bottom table {
     border-width: 0;
     background: #606060;
     margin: 0;
-    cursor: url("../images/cursor.gif") 10 10,auto;
+    cursor: url("../images/cursor_inv.gif") 10 10,auto;
 }
 
 #drawing_frame {
@@ -346,4 +363,3 @@ button.active, .brush.active {
 .cell {
     display: table-cell;
 }
-

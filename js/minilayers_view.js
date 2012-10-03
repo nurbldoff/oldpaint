@@ -32,7 +32,7 @@ OldPaint.MiniLayerView = Backbone.View.extend({
         var canvas = this.model.image.canvas;
         this.canvas = document.createElement('canvas');
         $(this.canvas).addClass('minilayer');
-        var size = Util.restrict_size(canvas.width, canvas.height, 80);
+        var size = Util.restrict_size(canvas.width, canvas.height, 90);
         this.canvas.width = size.x;
         this.canvas.height = size.y;
         this.redraw();
