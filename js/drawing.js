@@ -34,51 +34,15 @@ OldPaint.Drawing = Backbone.Model.extend({
         this.redos = [];
     },
 
-    // Save drawing to the server
-    save: function (path) {
-        var layers = [];
-        var image, imagedata, imagelist;
-        for (var i=0; i < this.layers.length; i++) {
-            image = this.layers.at(i).image;
-            imagedata = image.context.getImageData(
-                0, 0, image.canvas.width, image.canvas.height);
-            imagelist = [];
-            for (var j=0; j < imagedata.data.length; j+=4) {
-                imagelist.push(imagedata.data[j]);
-            }
-            layers.push(imagelist);
-        }
-
-        var split_path = Util.split_path(path);
-        this.filename = split_path[1];
-
-        var postdata = {
-            layers: layers,
-            palette: image.palette.colors,
-            width: image.canvas.width,
-            height: image.canvas.height
-        };
-        $.ajax ({
-            type: "POST",
-            url: Util.clean_path("save/" + path),
-            contentType: "application/json",
-            async: false,
-            data: JSON.stringify(postdata),
-            error: function () {
-                alert("There was an error, image may not have been saved!");
-            }
-        });
-    },
-
     // Save an ORA file locally.
-    save_ora_local: function () {
+    export_ora: function () {
         var ora = Util.create_ora(this);
         saveAs(Util.convertDataURIToBlob(ora),
                Util.change_extension(this.get("title"), "ora"));
     },
 
     // Save locally as PNG file. By default flattens all layers into one.
-    save_png_local: function (name, single) {
+    export_png: function (name, single) {
         var blob;
         if (!!single) {
             blob = this.layers.active.image.make_png(true);

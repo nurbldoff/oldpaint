@@ -165,8 +165,8 @@ OldPaint.DrawingView = Backbone.View.extend({
         $("#load_image").on("click", this.load_popup);
         $("#save_image").on("click", this.save_internal);
 
-        $("#save_ora_local").on("click", this.model.save_ora_local);
-        $("#save_png_local").on("click", this.model.save_png_local);
+        $("#save_ora_local").on("click", this.model.export_ora);
+        $("#save_png_local").on("click", this.model.export_png);
         $("#load_local").on("click", function (e) {
             e.preventDefault();
             $('#files').click();
