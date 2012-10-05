@@ -193,7 +193,6 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
         $("#color" + index).parent().addClass("foreground");
         var color = this.model.colors[index];
         var rgb = {r: color[0], g: color[1], b: color[2]};
-        $("#colorpicker").ColorPickerSetColor(rgb);
         this.update_rgb_sliders(rgb);
     },
 
