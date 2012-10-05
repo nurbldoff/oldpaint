@@ -225,12 +225,16 @@ OldPaint.Drawing = Backbone.Model.extend({
             layer: layer}));
         layer.cleanup();
         this.redos = [];
-        stroke.brush.restore_backup();
+        //stroke.brush.restore_backup();
     },
 
     preview_brush: function(brush, color, pos) {
         var layer = this.layers.active;
-        if (pos.x != layer.last_brush_position.x ||
+        if (!pos) {
+            pos = layer.last_brush_position;
+            layer.clear_temporary();  // remove old
+            layer.draw_brush(pos, brush, color, true);
+        } else if (pos.x != layer.last_brush_position.x ||
             pos.y != layer.last_brush_position.y) {
             layer.clear_temporary();  // remove old
             layer.draw_brush(pos, brush, color, true);

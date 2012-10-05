@@ -83,7 +83,11 @@ OldPaint.BrushesView = Backbone.View.extend({
     select: function (event) {
         var el = event.currentTarget;
         brush = this.collection.getByCid($(el).attr("data"));
-        this.collection.set_active(brush);
+        if (brush == this.collection.active) {
+            brush.restore_backup();
+        } else {
+            this.collection.set_active(brush);
+        }
     }
 });
 

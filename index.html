@@ -76,14 +76,18 @@
                     <!-- Tools go here -->
                   </div>
 
-                  <div class="brushes">Brushes</div>
-                  <div id="brushes" class="brushes">
-                    <!-- Here be Brushes -->
+                  <div class="brushes">
+                    <p>Brushes</p>
+                    <div id="brushes">
+                      <!-- Here be Brushes -->
+                    </div>
                   </div>
 
-                  <div class="brushes">User brushes</div>
-                  <div id="user_brushes" class="brushes">
-                    <!-- User brushes here -->
+                  <div class="brushes">
+                    <p>User brushes</p>
+                    <div id="user_brushes">
+                      <!-- User brushes here -->
+                    </div>
                   </div>
                 </td>
               </td>
@@ -95,11 +99,8 @@
                     <!-- Layer mini previews -->
                   </div>
                 </div>
-              </td>
-            </tr>
-            <tr>
-              <td class="layer_actions fg">
-                <div class="layer_actions">
+
+                <div class="layer_actions fg">
                   <button id="layer_add"> + </button>
                   <button id="layer_delete"> - </button>
                   <button id="layer_merge"> Merge </button>
@@ -180,6 +181,7 @@
            <% var brush = brushes.at(i); %>
            <div data="<%= brush.cid %>" class="brush"> </div>
         <% } %>
+        <div style="clear: both"></div>
     </script>
 
     <script id="palette_template" type="text/template">

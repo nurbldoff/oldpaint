@@ -41,7 +41,6 @@ OldPaint.DrawingView = Backbone.View.extend({
         //var intervalID = setInterval(this.save_internal, 60000);
 
         // Keyboard bindings.
-        var model = this.model;
         var keybindings = [
             ["-", this.zoom_out, "Zoom out."],
             ["+", this.zoom_in, "Zoom in."],
@@ -57,74 +56,87 @@ OldPaint.DrawingView = Backbone.View.extend({
             ["i i", this.save_settings, "Save settings to browser's local storage."],
 
             // Layer key actions
-            ["l a", function () {model.add_layer(true);}, "Add a new layer."],
+            ["l a", function () {this.model.add_layer(true);}, "Add a new layer."],
+
             ["l d", function () {
-                model.remove_layer(model.layers.active);
+                this.model.remove_layer(this.model.layers.active);
             }, "Delete the current layer."],
 
             ["del", function () {
-                model.clear_layer(model.layers.active, model.palette.background2);
+                this.model.clear_layer(this.model.layers.active,
+                                       this.model.palette.background2);
             }, "Clear the current layer."],
+
             ["v", function () {
-                model.layers.active.set(
-                    "visible", !model.layers.active.get("visible"));
+                this.model.layers.active.set(
+                    "visible", !this.model.layers.active.get("visible"));
             }, "Toggle the current layer's visibility flag."],
+
             ["a", function () {
-                model.layers.active.set(
-                    "animated", !model.layers.active.get("animated"));
+                this.model.layers.active.set(
+                    "animated", !this.model.layers.active.get("animated"));
             }, "Toggle the current layer's animation flag."],
+
             ["x", function () {  // previous layer
-                var index = model.layers.indexOf(model.layers.active);
-                var new_index = index === 0 ? model.layers.length - 1 : index - 1;
-                model.layers.at(new_index).activate();
+                var index = this.model.layers.indexOf(this.model.layers.active);
+                var new_index = index === 0 ? this.model.layers.length - 1 : index - 1;
+                this.model.layers.at(new_index).activate();
             }, "Jump to the layer below the current."],
+
             ["c", function () {  // next animation frame
-                var index = model.layers.indexOf(model.layers.active);
-                var new_index = index == model.layers.length - 1 ? 0 : index + 1;
-                model.layers.at(new_index).activate();
+                var index = this.model.layers.indexOf(this.model.layers.active);
+                var new_index = index == this.model.layers.length - 1 ? 0 : index + 1;
+                this.model.layers.at(new_index).activate();
             }, "Jump to the layer above the current."],
+
             ["s", function () {  // previous animation frame
-                var frames = model.layers.get_animated();
+                var frames = this.model.layers.get_animated();
                 if (frames.length > 1) {
-                    var index = _.indexOf(frames, model.layers.active);
+                    var index = _.indexOf(frames, this.model.layers.active);
                     var new_index = index === 0 ? frames.length - 1 : index - 1;
                     (frames[new_index]).activate();
                 }
             }, "Jump to previous animation frame."],
+
             ["d", function () {  // next animation frame
-                var frames = model.layers.get_animated();
+                var frames = this.model.layers.get_animated();
                 if (frames.length > 1) {
-                    var index = _.indexOf(frames, model.layers.active);
+                    var index = _.indexOf(frames, this.model.layers.active);
                     var new_index = index == frames.length - 1 ? 0 : index + 1;
                     (frames[new_index]).activate();
                 }
             }, "Jump to next animation frame."],
 
             ["f h", function () {
-                model.flip_layer_horizontal(model.layers.active);
+                this.model.flip_layer_horizontal(this.model.layers.active);
             }, "Flip the current layer horizontally."],
 
             ["f v", function () {
-                model.flip_layer_vertical(model.layers.active);
+                this.model.flip_layer_vertical(this.model.layers.active);
             }, "Flip the current layer vertically."],
 
             ["b h", function () {
                 var brush = OldPaint.active_brushes.active;
                 brush.flip_x();
-                brush.make_backup();
+                this.model.preview_brush(brush, this.model.palette.foreground);
             }, "Flip the current brush horizontally."],
 
             ["b v", function () {
                 var brush = OldPaint.active_brushes.active;
                 brush.flip_y();
-                brush.make_backup();
+                this.model.preview_brush(brush, this.model.palette.foreground);
             }, "Flip the current brush vertically"],
 
-
+            ["b c", function () {
+                var brush = OldPaint.active_brushes.active;
+                brush.set_color(this.model.palette.foreground, true);
+                this.model.preview_brush(brush, this.model.palette.foreground);
+            }, "Flip the current brush vertically"],
 
             ["0", this.center, "Center the view."]
         ];
-        _.each(keybindings, function (binding) {Mousetrap.bind(binding[0], binding[1]);});
+        _.each(keybindings, function (binding) {
+            Mousetrap.bind(binding[0], _.bind(binding[1], this));}, this);
 
         // Keep track of whether space is held down.
         this.scroll_mode = false;
