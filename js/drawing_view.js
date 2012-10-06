@@ -41,8 +41,49 @@ OldPaint.DrawingView = Backbone.View.extend({
         // have been changed since last save.
         //var intervalID = setInterval(this.save_internal, 60000);
 
+        // === Menu ===
+        // Items are defined by name and function
+        // Keyboard shortcut is the first Uppercase letter in the name,
+        // don't put overlapping keybindings in the same level!
+        var menu = {
+            Drawing: {
+                reName: this.rename,
+                Load: this.load_popup,
+                Save: this.save_internal,
+                Import:  function () {$('#files').click();},
+                Export: {
+                    PNG: this.model.export_png,
+                    ORA: this.model.export_ora
+                },
+                Resize: this.resize_image
+            },
+            Layer: {
+                Add: function () {this.model.add_layer(true);},
+                Delete: function () {
+                    this.model.remove_layer(this.model.layers.active);
+                },
+                Flip: {
+                    "Horizontally": this.model.flip_layer_horizontal,
+                    "Vertically": this.model.flip_layer_vertical
+                }
+            },
+            Brush: {
+                Flip: {
+                    "Horizontally": this.brush_flip_x,
+                    "Vertically": this.brush_flip_y
+                },
+                Colorize: this.brush_colorize
+            }
+        };
+
         // Keyboard bindings.
+        var model = this.model;
         var keybindings = [
+            ["return", _.bind(function () {
+                this.model.msg("Menu mode. Select with keyboard or mouse. Leave with Esc.")
+                $("#title").linearMenu(menu, this);
+            }, this)],
+
             ["-", this.zoom_out, "Zoom out."],
             ["+", this.zoom_in, "Zoom in."],
             ["z", this.model.undo, "Undo last change."],
@@ -60,6 +101,7 @@ OldPaint.DrawingView = Backbone.View.extend({
             ["l a", function () {this.model.add_layer(true);}, "Add a new layer."],
 
             ["l d", function () {
+                console.log("removeong layer");
                 this.model.remove_layer(this.model.layers.active);
             }, "Delete the current layer."],
 
@@ -172,19 +214,21 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.model.palette.on("foreground", this.update_brush);
         this.model.palette.on("change", this.on_palette_changed);
 
-        $("#rename_drawing").on("click", this.rename);
-        $("#resize_image").on("click", this.resize_image);
-        $("#load_image").on("click", this.load_popup);
-        $("#save_image").on("click", this.save_internal);
+        // $("#rename_drawing").on("click", this.rename);
+        // $("#resize_image").on("click", this.resize_image);
+        // $("#load_image").on("click", this.load_popup);
+        // $("#save_image").on("click", this.save_internal);
 
-        $("#save_ora_local").on("click", this.model.export_ora);
-        $("#save_png_local").on("click", this.model.export_png);
-        $("#load_local").on("click", function (e) {
-            e.preventDefault();
-            $('#files').click();
-        });
+        // $("#save_ora_local").on("click", this.model.export_ora);
+        // $("#save_png_local").on("click", this.model.export_png);
+        // $("#load_local").on("click", function (e) {
+        //     e.preventDefault();
+        //     $('#files').click();
+        // });
+        // $("#convert_image").on("click", this.convert_image);
         $('#files').on('change', this.handle_file_select);
-        $("#convert_image").on("click", this.convert_image);
+
+        $("#logo").click(function () {$("#title").linearMenu(menu);});
     },
 
     render: function (update_image) {
@@ -377,6 +421,24 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     update_brush: function (color) {
         OldPaint.active_brushes.active.set_color(color);
+    },
+
+    brush_flip_x: function () {
+        var brush = OldPaint.active_brushes.active;
+        brush.flip_x();
+        this.model.preview_brush(brush, this.model.palette.foreground);
+    },
+
+    brush_flip_y: function () {
+        var brush = OldPaint.active_brushes.active;
+        brush.flip_y();
+        this.model.preview_brush(brush, this.model.palette.foreground);
+    },
+
+    brush_colorize: function () {
+        var brush = OldPaint.active_brushes.active;
+        brush.set_color(this.model.palette.foreground, true);
+        this.model.preview_brush(brush, this.model.palette.foreground);
     },
 
     // Update the cursor position and draw brush preview

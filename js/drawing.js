@@ -149,12 +149,14 @@ OldPaint.Drawing = Backbone.Model.extend({
 
 
     flip_layer_horizontal: function(layer) {
+        layer = layer || this.layers.active;
         layer.flip_x();
         this.push_undo(this.make_action("flip", {horizontal: true,
                                                  layer: layer}));
     },
 
     flip_layer_vertical: function(layer) {
+        layer = layer || this.layers.active;
         layer.flip_y();
         this.push_undo(this.make_action("flip", {horizontal: false,
                                                  layer: layer}));

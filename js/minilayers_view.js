@@ -157,8 +157,8 @@ OldPaint.MiniLayersView = Backbone.View.extend({
         if ($(target).hasClass("minilayer")) {
             var parent = $(target).parent()[0];
             var layer = this.model.layers.getByCid($(parent).attr("data"));
-            var index = this.model.layers.length - 1
-                    - this.$el.children().index(parent);
+            var index = this.model.layers.length - 1 -
+                    this.$el.children().index(parent);
             this.model.layers.set_active(layer);
         }
     },
