@@ -1,6 +1,5 @@
 // The main Model, representing the whole drawing.
-// Keeps track of the Layers, the Palette, editing, undos/redos,
-//   load/save, etc.
+// Keeps track of the editing, undos/redos, load/save, etc.
 OldPaint.Drawing = Backbone.Model.extend({
 
     selection: null,
@@ -197,9 +196,12 @@ OldPaint.Drawing = Backbone.Model.extend({
         this.layers.trigger("resize");
     },
 
-    redraw: function() {
-        this.layers.active.redraw();
+    redraw: function(layer) {
+        layer = layer || this.layers.active;
+        layer.redraw();
     },
+
+    // === Draw related stuff ===
 
     // Things to do when the user starts making a "stroke" with a tool
     before_draw: function(tool, stroke) {
@@ -240,6 +242,8 @@ OldPaint.Drawing = Backbone.Model.extend({
             layer.draw_brush(pos, brush, color, true);
         }
     },
+
+    // === Undo system ===
 
     // An "action" represents an undoable change. It is a function
     // that, when invoked, undoes the change and returns its own inverse,
@@ -316,11 +320,7 @@ OldPaint.Drawing = Backbone.Model.extend({
         } else this.msg("Nothing more to redo!");
     },
 
-    // // restore part of the image
-    // restore_patch: function (patch) {
-    //     var layer = this.layers.getByCid(patch.layerid);
-    //     return layer.swap_patch(patch);
-    // },
+    // === Misc functions ===
 
     set_selection: function (rect, action) {
         if (rect) {
@@ -339,6 +339,7 @@ OldPaint.Drawing = Backbone.Model.extend({
         }
     },
 
+    // Send a message to the info area
     msg: function (message) {
         this.trigger("message", message);
     },
