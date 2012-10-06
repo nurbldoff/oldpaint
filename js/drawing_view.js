@@ -595,7 +595,7 @@ OldPaint.DrawingView = Backbone.View.extend({
     make_selection: function (begin) {
         if (this.model.selection) {
             if (begin) {
-                var template = _.template( $("#selection_template").html(), {});
+                var template = Ashe.parse( $("#selection_template").html(), {});
                 $("#selection").html(template);
             }
             var rect = this.model.selection;

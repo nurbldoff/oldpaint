@@ -24,9 +24,7 @@ OldPaint.MiniLayerView = Backbone.View.extend({
     },
 
     render: function () {
-        var template = _(_.template( $("#minilayer_template").html(), {
-            layer: this.model
-        })).clone();
+        var template = _(Ashe.parse( $("#minilayer_template").html(), {})).clone();
         this.$el.html(template);
         this.$el.data("cid", this.model.cid);
         var canvas = this.model.image.canvas;

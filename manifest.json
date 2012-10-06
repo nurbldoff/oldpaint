@@ -16,7 +16,7 @@
     },
     "permissions": [
         {"fileSystem": ["write"]}
-    ],
+    ]
     // "content_security_policy":
     //     "default-src 'self';
     //      script-src 'self' 'unsafe-eval';"

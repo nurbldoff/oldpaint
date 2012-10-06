@@ -159,48 +159,22 @@
     </script>
 
     <script id="toolbar_template" type="text/template">
-      <div class="table">
-      <% for (var i = 0; i < (tools.length / 3); i+=1) { %>
-         <div class="row">
-           <% for (var j = 0; j < 3; j+=1) { %>
-              <% var tool = tools.at(i*3+j); %>
-              <% if (tool) { %>
-              <div class="cell">
-                <button id="<%= tool.name %>" data="<%= tool.cid %>"
-                        class="tool" title="<%= tool.name %>">
-                  <img src="images/icons/<%= tool.name %>.png"
-                       style="vertical-align: middle"></img>
-                </button>
-              </div>
-              <% } %>
-            <% } %>
-         </div>
-       <% } %>
-       </div>
+      <div class="actions">
+      {% for i, tool in tools %}
+        <button id="{{ tool.name }}" data="{{ tool.cid }}"
+                class="tool" title="{{ tool.name }}">
+          <img src="images/icons/{{ tool.name }}.png"
+                     style="vertical-align: middle"></img>
+        </button>
+      {% endfor %}
+      </div>
     </script>
 
     <script id="brushes_template" type="text/template">
-        <% for (var i = 0; i < brushes.length; i++) { %>
-           <% var brush = brushes.at(i); %>
-           <div data="<%= brush.cid %>" class="brush"> </div>
-        <% } %>
+        {% for brush in brushes %}
+           <div data="{{ brush.cid }}" class="brush"> </div>
+        {% endfor %}
         <div style="clear: both"></div>
-    </script>
-
-    <script id="palette_template" type="text/template">
-      <div class="palette colors table">
-        <% for (var i = 0; i < Math.min(size.x*size.y, colors.length); i+=1) { %>
-           <% if (i % size.x == 0) { %> <div class="colors row"> <% } %>
-             <% var color = colors[i], hex = Util.colorToHex(color); %>
-             <div data="<%= i %>" class="colors cell"
-                  style="background: #<%= hex %>" title="<%= i %>">
-               <div id="color<%= i %>" data="<%= i %>" class="color"
-                    title="<%= i %>">
-               </div>
-             </div>
-           <% if (i % size.x == size.x - 1) { %> </div> <% } %>
-        <% } %>
-      </div>
     </script>
 
     <script id="paletteeditor_template" type="text/template">
@@ -253,9 +227,9 @@
     <script id="modal_selection_template" type="text/template">
       <div id="popup">
         <div id="popup_body">
-          <% for (var i=0; i < items.length; i+=1) { %>
-            <div id="<%= items[i] %>" class="fileitem png"> <%= items[i] %> </div>
-          <% } %>
+          {% for item in items %}
+            <div id="{{ items }}" class="fileitem png"> {{ item }} </div>
+          {% endfor %}
         </div>
       </div>
       <div id="popup_block">
@@ -302,6 +276,7 @@
     <script type="text/javascript" src="js/libs/jszip-load.js"></script>
     <script type="text/javascript" src="js/libs/XMLWriter-1.0.0-min.js"></script>
     <script type="text/javascript" src="js/libs/mousetrap.min.js"></script>
+    <script type="text/javascript" src="js/libs/ashe.js"></script>
 
     <!-- internals -->
     <script src="js/oldpaint.js" type="text/javascript"></script>

@@ -13,8 +13,8 @@ OldPaint.ToolsView = Backbone.View.extend({
     },
 
     render: function () {
-        var template = _.template( $("#toolbar_template").html(), {
-            tools: this.collection
+        var template = Ashe.parse( $("#toolbar_template").html(), {
+            tools: this.collection.models
         });
         this.$el.html(template);
     },
@@ -49,8 +49,8 @@ OldPaint.BrushesView = Backbone.View.extend({
     },
 
     render: function () {
-        var template = _.template( $("#brushes_template").html(), {
-            brushes: this.collection
+        var template = Ashe.parse( $("#brushes_template").html(), {
+            brushes: this.collection.models
         });
         this.$el.html(template);
         _.each($(".brush"), function (btn, index) {

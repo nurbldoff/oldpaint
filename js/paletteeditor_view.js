@@ -25,20 +25,46 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
 
     render: function () {
         console.log("palette render");
-        var editor_template = _.template( $("#paletteeditor_template").html(), {});
+        var editor_template = Ashe.parse( $("#paletteeditor_template").html(), {});
         this.$el.html(editor_template);
 
-        var palette_template = _.template( $("#palette_template").html(), {
-            colors: this.model.colors,
-            size: this.size
-        });
-        $("td.palette").html(palette_template);
+        // var palette_template = _.template( $("#palette_template").html(), {
+        //     colors: this.model.colors,
+        //     size: this.size
+        // });
+        $("td.palette").html(this.build_palette(this.model.colors, this.size));
         $("div.color_slider").slider({
             range: "min", min: 0, max: 255, value: 60,
             slide: this.update_from_rgb_sliders
 	});
         this.update_rgb_sliders(this.model.colors[this.model.foreground]);
         this.update_range();
+    },
+
+    build_palette: function (colors, size) {
+        var table = $("<div>"), row;
+        table.addClass("palette colors table");
+        for (var index=0; index < colors.length; index++) {
+            if (index >= size.x * size.y) break;
+            if (index % size.x === 0) {
+                row = $("<div>");
+                row.addClass("row");
+                table.append(row);
+            }
+            var color = colors[index], outer = $("<div>"), inner = $("<div>"),
+                hex = Util.colorToHex(color);
+            outer.addClass("colors cell");
+            outer.attr("data", index);
+            outer.css({background: "#"+hex});
+            outer.attr("title", index);
+            row.append(outer);
+
+            inner.addClass("color");
+            inner.attr("data", index);
+            inner.attr({id: "color" + index, title: index});
+            outer.append(inner);
+        }
+        return table;
     },
 
     update: function (colors) {
