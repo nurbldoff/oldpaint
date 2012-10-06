@@ -1,0 +1,24 @@
+{
+    "name": "0ldPaint",
+    "description": "Pixel pushing paint program in the old style.",
+    "version": "0.1",
+    "manifest_version": 2,
+    "app": {
+        "background": {
+            "scripts": ["background.js"]
+        }
+        // "launch": {
+        //     "local_path": "index.html"
+        // }
+    },
+    "sandbox": {
+        "pages": ["index.html"]
+    },
+    "permissions": [
+        {"fileSystem": ["write"]}
+    ],
+    // "content_security_policy":
+    //     "default-src 'self';
+    //      script-src 'self' 'unsafe-eval';"
+
+}
