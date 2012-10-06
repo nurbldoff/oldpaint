@@ -134,7 +134,11 @@ table.sidebar {
 
 /* Tools */
 
+td.toolbar {
+}
+
 div.toolbar {
+
     height: 0%;
     background: #888;
     padding: 5px;

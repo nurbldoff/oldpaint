@@ -214,7 +214,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.model.palette.on("foreground", this.update_brush);
         this.model.palette.on("change", this.on_palette_changed);
 
-        // $("#rename_drawing").on("click", this.rename);
+        $("#load").on("click", ChromeApp.fileChooser);
         // $("#resize_image").on("click", this.resize_image);
         // $("#load_image").on("click", this.load_popup);
         // $("#save_image").on("click", this.save_internal);
@@ -225,8 +225,9 @@ OldPaint.DrawingView = Backbone.View.extend({
         //     e.preventDefault();
         //     $('#files').click();
         // });
-        // $("#convert_image").on("click", this.convert_image);
+        //$("#convert_image").on("click", this.convert_image);
         $('#files').on('change', this.handle_file_select);
+
 
         $("#logo").click(function () {$("#title").linearMenu(menu);});
     },
