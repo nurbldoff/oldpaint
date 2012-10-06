@@ -17,7 +17,6 @@ html,body,p,div,img,h1,h2,h3,h4,li,ul,ol,dl,dd,dt,form,table,td,tr{
 input,select { margin:0; padding:0; }
 
 
-
 html, body {
     margin: 0px;
     height: 100%;
@@ -34,6 +33,17 @@ form {
     height: 0;
 }
 
+div.actions {
+    display: table-row;
+}
+
+/* Foreground */
+.fg {
+    pointer-events: auto;
+}
+
+/* === Main components === */
+
 #overlay {
     position: relative;
     border-width: 0px;
@@ -49,19 +59,14 @@ form {
     font-weight : normal;
 }
 
-.fg {
-    pointer-events: auto;
-}
-
-/* === Main components === */
 
 /* Header */
 
 table.header {
-
     width: 100%;
     border-collapse: collapse;
     outline: 2px solid black;
+    background: yellow;
 }
 
 tr.header {
@@ -83,9 +88,17 @@ table.header td {
 }
 
 #title {
-    width: 100%;
     padding: 3px;
+    width: 100%;
 }
+
+#drawing_actions {
+    margin-left: auto;
+    margin-right: auto;
+    background: yellow;
+}
+
+
 
 /* Main part */
 
@@ -240,7 +253,6 @@ td.layer_actions {
 }
 
 div.layer_actions {
-
     width: 100%;
     height: 100&;
     background: #808080;
@@ -249,8 +261,8 @@ div.layer_actions {
     padding: 5px;
     border-style: solid;
     border-color: black;
-    display: block;
 }
+
 
 
 /* Footer */
@@ -343,6 +355,7 @@ button {
     margin: 1px;
     font-family : topaz, "Lucida Console", monospace, Monaco;
     color: #000;
+    display: table-cell;
 }
 
 button:hover, .brush:hover {
