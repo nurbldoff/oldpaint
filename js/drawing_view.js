@@ -278,9 +278,14 @@ OldPaint.DrawingView = Backbone.View.extend({
     },
 
     on_rename: function (model, value) {
-        $("#title").text(value);  // Probably better to make a view for this
+        this.update_title();
     },
 
+    update_title: function () {
+        var text = this.model.get("title") +
+                " [" + this.model.get("width") + "x" + this.model.get("height") + "]";
+        $("#title").text(text);  // Probably better to make a view for this
+    },
 
     update_scale: function() {
         this.window.scale = Math.pow(2, this.zoom);
@@ -369,6 +374,7 @@ OldPaint.DrawingView = Backbone.View.extend({
     on_resize: function () {
         this.render();
         this.center();
+        this.update_title();
     },
 
     on_convert_image: function (event) {

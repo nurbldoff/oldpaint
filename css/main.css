@@ -85,11 +85,13 @@ table.header td {
     padding: 3px;
     color: #fff;
     text-shadow: #000 1px 1px;
+    font-size: 12pt;
 }
 
 #title {
     padding: 3px;
     width: 100%;
+    font-size: 10pt;
 }
 
 #drawing_actions {
