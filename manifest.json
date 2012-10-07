@@ -10,6 +10,7 @@
     },
     "permissions": [
         {"fileSystem": ["write"]},
-        "unlimitedStorage"
+        "unlimitedStorage",
+        "contextMenus"
     ]
 }

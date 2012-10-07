@@ -22,6 +22,15 @@ OldPaint.DrawingView = Backbone.View.extend({
     initialize: function (options) {
         _.bindAll(this);
 
+        // Remove context menu for the drawing part, so we can erase
+        var no_context_menu = function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+        };
+        document.querySelector('#drawing_window').oncontextmenu = no_context_menu;
+        document.querySelector('#drawing').oncontextmenu = no_context_menu;
+
         // Load settings from local storage
         LocalStorage.request(LocalStorage.read_txt,
                              {path: "", name: "settings.json",
@@ -297,14 +306,14 @@ OldPaint.DrawingView = Backbone.View.extend({
     },
 
     chrome_save_as_ora: function () {
-        ChromeApp.fileSaveChooser(this.model.get("title") + ".ora",
+        ChromeApp.fileSaveChooser(Util.change_extension(this.model.get("title"), "ora"),
                                   Util.convertDataURIToBlob(Util.create_ora(this.model)),
                                   "image/ora",
                                   function () {console.log("write done");});
     },
 
     chrome_save_as_png: function () {
-        ChromeApp.fileSaveChooser(this.model.get("title") + ".png",
+        ChromeApp.fileSaveChooser(Util.change_extension(this.model.get("title"), "png"),
                                   this.model.flatten_visible_layers().make_png(true),
                                   "image/png",
                                   function () {console.log("write done");});

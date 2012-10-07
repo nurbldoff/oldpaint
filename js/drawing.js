@@ -36,7 +36,7 @@ OldPaint.Drawing = Backbone.Model.extend({
     // Save an ORA file locally.
     export_ora: function () {
         var ora = Util.create_ora(this);
-        saveAs(Util.convertDataURIToBlob(ora),
+        saveAs(Util.convertDataURIToBlob(ora, "image/ora"),
                Util.change_extension(this.get("title"), "ora"));
     },
 

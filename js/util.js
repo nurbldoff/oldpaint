@@ -197,7 +197,7 @@ Util.strip_data_header = function (data) {
 
 
 // Takes a base64 encoded data URI and returns a binary 'blob'
-Util.convertDataURIToBlob = function (dataURI) {
+Util.convertDataURIToBlob = function (dataURI, mimetype) {
 
     var BASE64_MARKER = ';base64,';
     var base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
@@ -206,7 +206,7 @@ Util.convertDataURIToBlob = function (dataURI) {
     var MIMETYPE_MARKER = 'data:';
     var mimetypeIndex = dataURI.indexOf(MIMETYPE_MARKER) + MIMETYPE_MARKER.length;
     //var mimetype = dataURI.substring(mimetypeIndex, dataURI.indexOf(BASE64_MARKER));
-    var mimetype = "image/png";
+    mimetype = mimetype || "image/png";
 
     var raw = window.atob(base64);
     var rawLength = raw.length;
