@@ -79,10 +79,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         // Keyboard bindings.
         var model = this.model;
         var keybindings = [
-            ["return", _.bind(function () {
-                this.model.msg("Menu mode. Select with keyboard or mouse. Leave with Esc.")
-                $("#title").linearMenu(menu, this);
-            }, this)],
+            ["escape", function () {this.show_menu(menu)}],
 
             ["-", this.zoom_out, "Zoom out."],
             ["+", this.zoom_in, "Zoom in."],
@@ -248,6 +245,17 @@ OldPaint.DrawingView = Backbone.View.extend({
         if (this.model.selection) {
             this.make_selection(this.model.selection);
             this.edit_selection();
+        }
+    },
+
+    show_menu: function (menu_items) {
+        this.model.msg("Menu mode. Select with keyboard or mouse. Leave with Esc.");
+        console.log("menu", this.menu);
+        if (!this.menu) {
+            $("#title").linearMenu(menu_items, this);
+        } else {
+            this.menu.close_menu();
+            this.model.msg("");
         }
     },
 

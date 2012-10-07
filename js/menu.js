@@ -1,8 +1,6 @@
 (function( $ ){
   $.fn.linearMenu = function(items, context) {
-      if ($(this.children()[0]).hasClass("menu")) {
-          return;
-      }
+
       var el = this, backup = this.html(), wrap = $('<div id="menu">');
       var history = $('<div class="history">');
       wrap.append(history);
@@ -30,8 +28,10 @@
           $(document).unbind("keydown");  // remove all the menu keybindings
           $(document).unbind("keyup");
           el.html(backup);
+          context.menu = null;
       }
-      $(document).bind("keyup.Esc", close_menu);
+      //$(document).bind("keyup.Esc", close_menu);
+      this.close_menu = close_menu;
 
       function show_menu (items) {
           var tmp = $('<div>');
@@ -59,5 +59,6 @@
           //el.children().show("slide", { direction: "down" }, 100);
       }
       show_menu(items);
+      context.menu = this;
   };
 })( jQuery );
