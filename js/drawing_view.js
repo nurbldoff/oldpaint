@@ -250,7 +250,6 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     show_menu: function (menu_items) {
         this.model.msg("Menu mode. Select with keyboard or mouse. Leave with Esc.");
-        console.log("menu", this.menu);
         if (!this.menu) {
             $("#title").linearMenu(menu_items, this);
         } else {

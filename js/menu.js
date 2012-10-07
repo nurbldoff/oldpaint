@@ -10,7 +10,6 @@
       var menu = $('<div class="items">');
       wrap.append(menu);
       el.html(wrap);
-      console.log("menu");
 
       function find_shortcut (string) {
           for(var i=0; i<string.length; i++) {
@@ -21,7 +20,6 @@
       }
 
       function markup_letter (string, index) {
-          console.log(string, index);
           var before = string.substr(0, index),
               after = string.substr(index+1);
           return before + "<span class='shortcut'>" + string[index] + "</span>" + after;
