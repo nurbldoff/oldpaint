@@ -7,18 +7,9 @@
         "background": {
             "scripts": ["background.js"]
         }
-        // "launch": {
-        //     "local_path": "index.html"
-        // }
-    },
-    "sandbox": {
-        "pages": ["index.html"]
     },
     "permissions": [
-        {"fileSystem": ["write"]}
+        {"fileSystem": ["write"]},
+        "unlimitedStorage"
     ]
-    // "content_security_policy":
-    //     "default-src 'self';
-    //      script-src 'self' 'unsafe-eval';"
-
 }

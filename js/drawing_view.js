@@ -214,7 +214,9 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.model.palette.on("foreground", this.update_brush);
         this.model.palette.on("change", this.on_palette_changed);
 
-        $("#load").on("click", ChromeApp.fileChooser);
+        $("#load").on("click", this.load);
+        $("#save_png").on("click", this.save_as_png);
+        $("#save_ora").on("click", this.save_as_ora);
         // $("#resize_image").on("click", this.resize_image);
         // $("#load_image").on("click", this.load_popup);
         // $("#save_image").on("click", this.save_internal);
@@ -265,6 +267,21 @@ OldPaint.DrawingView = Backbone.View.extend({
         }
     },
 
+    load: function () {
+        if (chrome.fileSystem) this.chrome_open();
+        else $('#files').click();
+    },
+
+    save_as_png: function () {
+        if (chrome.fileSystem) this.chrome_save_as_png();
+        else this.model.export_png();
+    },
+
+    save_as_ora: function () {
+        if (chrome.fileSystem) this.chrome_save_as_ora();
+        else this.model.export_ora();
+    },
+
     load_settings: function (e) {
         var settings = JSON.parse(e.target.result);
         console.log("settings:", settings);
@@ -281,6 +298,25 @@ OldPaint.DrawingView = Backbone.View.extend({
                              {path: "", name: "settings.json",
                               blob: new Blob([JSON.stringify(settings)],
                                              {type: 'text/plain'})});
+    },
+
+    chrome_open: function () {
+        ChromeApp.fileLoadChooser({"png": this.load_png_file,
+                                   "ora": this.load_ora_file});
+    },
+
+    chrome_save_as_ora: function () {
+        ChromeApp.fileSaveChooser(this.model.get("title") + ".ora",
+                                  Util.convertDataURIToBlob(Util.create_ora(this.model)),
+                                  "image/ora",
+                                  function () {console.log("write done");});
+    },
+
+    chrome_save_as_png: function () {
+        ChromeApp.fileSaveChooser(this.model.get("title") + ".png",
+                                  this.model.flatten_visible_layers().make_png(true),
+                                  "image/png",
+                                  function () {console.log("write done");});
     },
 
     handle_file_select: function (evt) {

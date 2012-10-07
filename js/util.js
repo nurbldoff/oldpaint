@@ -191,6 +191,10 @@ Util.buffer = function(func, wait, scope) {
   };
 };
 
+Util.strip_data_header = function (data) {
+    return data.slice(data.indexOf(","));
+};
+
 
 // Takes a base64 encoded data URI and returns a binary 'blob'
 Util.convertDataURIToBlob = function (dataURI) {
@@ -213,13 +217,8 @@ Util.convertDataURIToBlob = function (dataURI) {
         arrayview[i] = raw.charCodeAt(i) & 0xff;
     }
 
-    // TODO: This should be changed to not use the BlobBuilder interface
-    var BlobBuilder = window.MozBlobBuilder || window.WebKitBlobBuilder || window.BlobBuilder;
-    var bb = new BlobBuilder();
-    bb.append(arrayview);
-
-    return bb.getBlob(mimetype);
-}
+    return new Blob([arrayview], {type: mimetype});
+};
 
 // Read a PNG file and return a deferred, which is resolved when the image is read.
 Util.load_base64_png = function (data) {
@@ -346,7 +345,7 @@ Util.load_ora = function (data, drawing) {
     var zip = new JSZip();
     //Need to do some more checking here, seems like the mimetype can
     //be confused. Here we assume it's "image/openraster"
-    zip.load(data.slice(29), {base64: true});
+    zip.load(Util.strip_data_header(data), {base64: true});
     var stack_file = zip.file("stack.xml"),
         xml = Util.mkXML(stack_file.data),
         layer_nodes = xml.getElementsByTagName("layer"),
