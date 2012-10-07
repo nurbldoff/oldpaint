@@ -381,7 +381,7 @@ Util.create_ora = function (drawing) {
         xw.writeAttributeString("name", "layer" + (index+1));
         xw.writeAttributeString("src", "data/layer" + (index+1) + ".png");
         xw.writeEndElement();
-        zip.file("layer"+ (index+1) + ".png",
+        zip.file("data/layer"+ (index+1) + ".png",
                  layer.image.make_png(), {base64: true});
     });
     var xml = xw.flush();
