@@ -50,10 +50,10 @@ OldPaint.DrawingView = Backbone.View.extend({
                 reName: this.rename,
                 Load: this.load_popup,
                 Save: this.save_internal,
-                Import:  function () {$('#files').click();},
+                Import: this.load,
                 Export: {
-                    PNG: this.model.export_png,
-                    ORA: this.model.export_ora
+                    PNG: this.save_as_png,
+                    ORA: this.save_as_ora
                 },
                 Resize: this.resize_image
             },
@@ -214,23 +214,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.model.palette.on("foreground", this.update_brush);
         this.model.palette.on("change", this.on_palette_changed);
 
-        $("#load").on("click", this.load);
-        $("#save_png").on("click", this.save_as_png);
-        $("#save_ora").on("click", this.save_as_ora);
-        // $("#resize_image").on("click", this.resize_image);
-        // $("#load_image").on("click", this.load_popup);
-        // $("#save_image").on("click", this.save_internal);
-
-        // $("#save_ora_local").on("click", this.model.export_ora);
-        // $("#save_png_local").on("click", this.model.export_png);
-        // $("#load_local").on("click", function (e) {
-        //     e.preventDefault();
-        //     $('#files').click();
-        // });
-        //$("#convert_image").on("click", this.convert_image);
         $('#files').on('change', this.handle_file_select);
-
-
         $("#logo").click(function () {$("#title").linearMenu(menu);});
     },
 
