@@ -1,0 +1,34 @@
+#menu {
+    display: table-row;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+#menu button {
+    outline: 0;
+}
+
+#menu button.menuitem {
+    outline: 2px solid black;
+}
+
+#menu .items {
+    display: table-cell;
+    position: relative;
+}
+
+#menu .history {
+    display: table-cell;
+    position: relative;
+    padding-right: 10px;
+}
+
+#menu .menuitem {
+    position: relative;
+}
+
+.menuitem .shortcut {
+    color: white;
+    text-shadow: #000 1px 1px;
+}
