@@ -79,7 +79,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         // Keyboard bindings.
         var model = this.model;
         var keybindings = [
-            ["escape", function () {this.show_menu(menu)}],
+            ["return", function () {this.show_menu(menu)}],
 
             ["-", this.zoom_out, "Zoom out."],
             ["+", this.zoom_in, "Zoom in."],
