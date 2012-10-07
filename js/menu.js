@@ -1,3 +1,6 @@
+/* A menu that is displayed horizontally in an element,
+ * items can be selected with mouse or keyboard shortcuts */
+
 (function( $ ){
   $.fn.linearMenu = function(items, context) {
 
