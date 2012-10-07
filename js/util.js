@@ -366,8 +366,8 @@ Util.load_ora = function (data, drawing) {
     drawing.palette.set_foreground(1);
 };
 
-// Create an ORA file as a data URI. Doesn't deflate, because that results in bad
-// zip files for some reason.
+// Create an ORA file as a data URI.
+// TODO: Doesn't deflate, because that results in bad zip files for some reason.
 Util.create_ora = function (drawing) {
     var zip = new JSZip(), xw = new XMLWriter( 'UTF-8', '1.0' );
     zip.folder("data");
@@ -381,12 +381,13 @@ Util.create_ora = function (drawing) {
         xw.writeAttributeString("name", "layer" + (index+1));
         xw.writeAttributeString("src", "data/layer" + (index+1) + ".png");
         xw.writeEndElement();
-        zip.file("data/layer"+ (index+1) + ".png",
+        zip.file("layer"+ (index+1) + ".png",
                  layer.image.make_png(), {base64: true});
     });
     var xml = xw.flush();
-    console.log("ora xml", xml);
     zip.file("stack.xml", xml);
     zip.file("mimetype", "image/openraster");
-    return "data:application/zip;base64,"+ zip.generate();
+    //var zipfile = zip.generate({compression: "DEFLATE"});
+    var zipfile = zip.generate();
+    return "data:application/zip;base64,"+ zipfile;
 };
