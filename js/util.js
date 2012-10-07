@@ -370,7 +370,6 @@ Util.load_ora = function (data, drawing) {
 // TODO: Doesn't deflate, because that results in bad zip files for some reason.
 Util.create_ora = function (drawing) {
     var zip = new JSZip(), xw = new XMLWriter( 'UTF-8', '1.0' );
-    zip.folder("data");
     xw.writeStartDocument();
     xw.writeStartElement("image");
     xw.writeAttributeString("w", drawing.get("width"));
