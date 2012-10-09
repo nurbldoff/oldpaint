@@ -14,6 +14,7 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
 
     initialize: function (spec) {
         _.bindAll(this);
+
         this.size = spec.size;
         this.model.on("foreground", this.on_foreground);
         this.model.on("background", this.on_background);
@@ -39,6 +40,14 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
 	});
         this.update_rgb_sliders(this.model.colors[this.model.foreground]);
         this.update_range();
+
+        // Remove context menu for the palette, so we can select with right button
+        var no_context_menu = function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+        };
+        document.querySelector('td.palette').oncontextmenu = no_context_menu;
     },
 
     build_palette: function (colors, size) {
