@@ -170,9 +170,9 @@ $(function () {
     console.log("create drawing");
     var drawing = new OldPaint.Drawing(
         { width: 800, height: 600, palette: palette, image_type: image_type});
-    var drawing_view = new OldPaint.DrawingView({model: drawing});
-    var layers_view = new OldPaint.MiniLayersView({model: drawing});
     var info_view = new OldPaint.InfoView({model: drawing});
+    var layers_view = new OldPaint.MiniLayersView({model: drawing});
+    var drawing_view = new OldPaint.DrawingView({model: drawing});
 
     console.log("adding layer from main");
     drawing.add_layer(true);

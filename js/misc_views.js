@@ -95,8 +95,7 @@ OldPaint.BrushesView = Backbone.View.extend({
 OldPaint.InfoView = Backbone.View.extend({
     el: $("#info"),
 
-    events: {
-    },
+    events: {},
 
     initialize: function (options) {
         _.bindAll(this);
@@ -104,11 +103,11 @@ OldPaint.InfoView = Backbone.View.extend({
         this.model.on("coordinates", this.set_coordinates);
         this.render();
         this.$message = $("#message");
+        this.$zoom = $("#zoom");
         this.$coordinates = $("#coordinates");
     },
 
-    render: function () {
-    },
+    render: function () {},
 
     set_message: function (message) {
         console.log("message;", message);

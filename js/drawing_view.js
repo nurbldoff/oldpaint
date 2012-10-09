@@ -221,7 +221,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.model.palette.on("change", this.on_palette_changed);
 
         $('#files').on('change', this.handle_file_select);
-        $("#logo").click(function () {$("#title").linearMenu(menu);});
+        $("#logo").click(_.bind(this.show_menu, this, menu));
     },
 
     render: function (update_image) {
@@ -358,7 +358,8 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     update_title: function () {
         var text = this.model.get("title") +
-                " [" + this.model.get("width") + "x" + this.model.get("height") + "]";
+                " [" + this.model.get("width") + "x" + this.model.get("height") + "] " +
+                Math.pow(2, this.zoom) + "x";
         $("#title").text(text);  // Probably better to make a view for this
     },
 
@@ -596,6 +597,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.update_scale();
         this.center_on_image_pos(image_pos, center_pos);
         this.render();
+        this.update_title();
     },
 
     zoom_in: function (event, center_mouse) {
