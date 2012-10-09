@@ -127,6 +127,7 @@
 
     <!-- === Templates ==== -->
 
+    <!-- The selection rectangle, used e.g. for picking up brushes -->
     <script id="selection_template" type="text/template">
       <div id="selection_block">
       </div>
@@ -152,6 +153,7 @@
       </div>
     </script>
 
+    <!-- The tool buttons, e.g. pencil, line, etc -->
     <script id="toolbar_template" type="text/template">
       <div class="actions">
       {% for i, tool in tools %}
@@ -164,6 +166,7 @@
       </div>
     </script>
 
+    <!-- Brush preview buttons -->
     <script id="brushes_template" type="text/template">
         {% for brush in brushes %}
            <div data="{{ brush.cid }}" class="brush"> </div>
@@ -171,6 +174,7 @@
         <div style="clear: both"></div>
     </script>
 
+    <!-- Palette editor -->
     <script id="paletteeditor_template" type="text/template">
       <table class="palette_editor">
         <tr>
@@ -213,11 +217,13 @@
       </table>
     </script>
 
+    <!-- Mini layer representations -->
     <script id="minilayer_template" type="text/template">
       <input type="checkbox" class="layerVisibleCheck" title="Layer visibility" checked/>
       <input type="checkbox" class="layerAnimatedCheck" title="Animation frame"/>
     </script>
 
+    <!-- Modal dialog for picking stuff -->
     <script id="modal_selection_template" type="text/template">
       <div id="popup">
         <div id="popup_body">
@@ -249,15 +255,13 @@
       </div>
     </script>
 
-    <!-- <\!-- === DEPENDENCIES === -\-> -->
+    <!--  === DEPENDENCIES === -->
     <script src="js/libs/jquery-1.7.2.js" type="text/javascript"></script>
     <script src="js/libs/underscore.js" type="text/javascript"></script>
     <script src="js/libs/backbone.js" type="text/javascript"></script>
     <script src="js/libs/jquery.mousewheel.js" type="text/javascript"></script>
     <script src="js/libs/jquery-ui-1.8.20.custom.min.js" type="text/javascript"></script>
     <script src="js/libs/jquery.hotkeys.js" type="text/javascript"></script>
-    <!-- <script src="js/libs/colorpicker.js" type="text/javascript"></script> -->
-    <!-- <script src="js/libs/modal.popup.js" type="text/javascript"></script> -->
     <script src="js/libs/Base64.js" type="text/javascript"></script>
     <script src="js/libs/png-deflate.js" type="text/javascript"></script>
     <script src="js/libs/PNG.js" type="text/javascript"></script>
