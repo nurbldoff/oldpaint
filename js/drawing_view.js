@@ -104,12 +104,13 @@ OldPaint.DrawingView = Backbone.View.extend({
             ["i i", this.save_settings, "Save settings to browser's local storage."],
 
             // Layer key actions
-            ["l a", function () {this.model.add_layer(true);}, "Add a new layer."],
+            ["l", function () {this.show_menu(menu.Layer);}],
+            // ["l a", function () {this.model.add_layer(true);}, "Add a new layer."],
 
-            ["l d", function () {
-                console.log("removeong layer");
-                this.model.remove_layer(this.model.layers.active);
-            }, "Delete the current layer."],
+            // ["l d", function () {
+            //     console.log("removeong layer");
+            //     this.model.remove_layer(this.model.layers.active);
+            // }, "Delete the current layer."],
 
             ["del", function () {
                 this.model.clear_layer(this.model.layers.active,

@@ -13,7 +13,7 @@ $(function () {
                              stroke.brush, stroke.color);}}));
 
     tools.add(new Tool(
-        {name: "points", preview: true,
+        {name: "points", key: "d", preview: true,
          draw: function (drawing, stroke) {
              var layer = drawing.layers.active;
              layer.draw_brush(stroke.pos, stroke.brush, stroke.color);
