@@ -39,7 +39,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.topleft = this.$el.offset();
         this.center();
 
-        $(window).resize({redraw: true}, this.render);  // dowsn't work?!
+        $(window).resize(this.on_window_resize);
 
         // Bind the time critical mousemove directly instead of using Backbone
         var el = document.getElementById('drawing');
@@ -258,6 +258,11 @@ OldPaint.DrawingView = Backbone.View.extend({
         }
     },
 
+    on_window_resize: _.throttle(function (ev) {
+        console.log("window resize");
+        this.render(true);
+    }, 250),
+    
     show_menu: function (menu_items) {
         this.model.msg("Menu mode. Select with keyboard or mouse. Leave with Esc.");
         if (!this.menu) {

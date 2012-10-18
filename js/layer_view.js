@@ -29,7 +29,6 @@ OldPaint.LayerView = Backbone.View.extend({
         this.model.on("activate", this.on_activate);
         this.model.on("deactivate", this.on_deactivate);
         this.model.update = this.update;  // don't use events for this, too slow
-        $(window).resize(this.resize);  // dowsn't work?!
 
         this.resize();
         this.render();
