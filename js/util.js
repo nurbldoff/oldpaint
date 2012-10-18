@@ -31,6 +31,12 @@ Util.copy = function (obj) {
     return $.extend({}, obj);
 };
 
+Util.memcpy = function (dst, dstOffset, src, srcOffset, length) {
+  var dstU8 = new Uint8Array(dst, dstOffset, length);
+  var srcU8 = new Uint8Array(src, srcOffset, length);
+  dstU8.set(srcU8);
+};
+
 Util.restrict_size = function (width, height, limit) {
     var ratio = width / height;
     height = Math.min(height, limit);

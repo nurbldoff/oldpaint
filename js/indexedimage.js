@@ -29,6 +29,8 @@ OldPaint.IndexedImage = function (data) {
 
     this.palette = data.palette;
 
+    //this.tmpbuffer = new ArrayBuffer(this.icanvas.width*this.icanvas.height*4);
+    
     if (data.image) {
         //console.log("Loading image data");
         var pixbuf = this.icontext.getImageData(
@@ -203,14 +205,40 @@ OldPaint.IndexedImage = function (data) {
                                   left, top, width, height);
     };
 
+    // This is where the internal representation gets rendered into the 
+    // visible canvas. 
     this.updateCanvas = function (rect) {
         rect = Util.intersect(rect, {left:0, top:0,
                                      width: this.canvas.width,
                                      height: this.canvas.height});
-        //console.log("updateCanvas", rect.left, rect.top, rect.height, rect.width);
         if (rect) {
-            //var torect = this.get_rect(rect);
-            //var tmp = Util.copy_canvas(this.icanvas, rect, this.flip).getContext('2d');
+            var indpix = this.icontext.getImageData(rect.left, rect.top,
+                                                    rect.width, rect.height).data,
+                pixbuf = this.context.createImageData(rect.width, rect.height),
+                buf = new ArrayBuffer(pixbuf.data.length),
+                buf8 = new Uint8ClampedArray(buf, 0, pixbuf.data.length),
+                data = new Uint32Array(buf, 0, pixbuf.data.length/4),
+                colors = this.palette.colors32,
+                yinc = rect.width, ymax = rect.height*rect.width;
+            for (var y=0; y<ymax; y+=yinc) {
+                for (var x=y; x<y+yinc; x++) {
+                    data[x] = colors[indpix[x*4]];
+                }
+            }
+            pixbuf.data.set(buf8);
+            this.context.putImageData(pixbuf, rect.left, rect.top);
+        }
+        return rect;
+    };
+
+    // Older implementation... should do some benchmarking of which
+    // one is actually faster. Using typed arrays should be faster, but it may be
+    // that the added overhead of creating them cancels it out.
+    this.updateCanvasOld = function (rect) {
+        rect = Util.intersect(rect, {left:0, top:0,
+                                     width: this.canvas.width,
+                                     height: this.canvas.height});
+        if (rect) {
             var indpix = this.icontext.getImageData(rect.left, rect.top,
                                           rect.width, rect.height).data;
             var pixbuf = this.context.createImageData(rect.width, rect.height),
@@ -219,8 +247,6 @@ OldPaint.IndexedImage = function (data) {
             for (y=0; y<rect.height*rect.width*4; y+=yinc) {
                 for (x=y; x<y+yinc; x+=4) {
                     color = this.palette.colors[indpix[x]];
-                    //if (!color) {console.log(color, i, indpix[i]);}
-                    //console.log(pbp[i]);
                     data[x] = color[0];
                     data[x+1] = color[1];
                     data[x+2] = color[2];
