@@ -16,7 +16,8 @@ OldPaint.DrawingView = Backbone.View.extend({
         "mousedown": "begin_stroke",
         //"mousemove": "update_stroke",
         "mouseup": "end_stroke",
-        "mousewheel": "wheel_zoom"
+        "mousewheel": "wheel_zoom",
+        "mouseleave": "on_mouse_leave"
     },
 
     initialize: function (options) {
@@ -262,6 +263,11 @@ OldPaint.DrawingView = Backbone.View.extend({
             this.make_selection(this.model.selection);
             this.edit_selection();
         }
+    },
+
+    on_mouse_leave: function (ev) {
+        console.log("mouse leave");
+        this.model.layers.active.clear_temporary();
     },
 
     on_window_resize: _.throttle(function (ev) {

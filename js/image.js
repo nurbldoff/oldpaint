@@ -18,7 +18,6 @@ OldPaint.Image = Backbone.Model.extend ({
                 height: this.image.canvas.height};
     },
 
-
     get_pixel: function (pos) {
         return this.image.getpixel(pos.x, pos.y);
     },
@@ -31,18 +30,19 @@ OldPaint.Image = Backbone.Model.extend ({
         if (rect) {
             if (dest_rect) {
                 this.image.blit(this.backup, rect, dest_rect, true);
-                if (!silent) this.trigger_update(dest_rect, true);
+                if (!silent) return dest_rect;
             } else {
                 this.image.blit(this.backup, rect, rect, true);
-                if (!silent) this.trigger_update(rect, true);
+                if (!silent) return rect;
             }
         } else {
             var size = this.get_size();
             var all_rect = {left: 0, top: 0,
                             width: size.width, height: size.height};
             this.image.blit(this.backup, all_rect, all_rect, true);
-            if (!silent) this.trigger_update(all_rect, true);
+            if (!silent) return all_rect;
         }
+        return null;
     },
 
     // Create a Patch from part of the image
@@ -115,9 +115,7 @@ OldPaint.Image = Backbone.Model.extend ({
         return Util.intersect(rect, {left: 0, top: 0,
                                      width: size.width,
                                      height: size.height});
-    },
-
-    trigger_update: function () {}
+    }
 });
 
 

@@ -23,11 +23,19 @@ OldPaint.Layer = OldPaint.Image.extend ({
     },
 
     clear_temporary: function (silent) {
+        console.log("clear_temporary");
         if (this.temporary_rect) {
             this.restore_backup(this.temporary_rect, this.temporary_rect, silent);
             if (!silent) this.temporary_rect = null;
         }
         this.dirty_rect = null;
+    },
+
+    restore_backup: function (rect, dest_rect, silent) {
+        var update_rect = OldPaint.Layer.__super__.restore_backup.apply(this, arguments);
+        if (update_rect) {
+            this.trigger_update(update_rect, true);
+        }
     },
 
     draw_brush: function (start, brush, color, temporary) {
