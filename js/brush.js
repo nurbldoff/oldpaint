@@ -82,10 +82,10 @@ OldPaint.Brushes = Backbone.Collection.extend ({
     max_n: 3,
 
     initialize: function () {
-        this.on("activate", this._set_active);
+        this.on("activate", this.on_activate);
     },
 
-    _set_active: function (brush) {
+    on_activate: function (brush) {
         console.log("set_active", this.models.length);
         this.previous = this.active;
         this.active = brush;

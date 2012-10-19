@@ -103,7 +103,6 @@ OldPaint.InfoView = Backbone.View.extend({
         this.model.on("coordinates", this.set_coordinates);
         this.render();
         this.$message = $("#message");
-        this.$zoom = $("#zoom");
         this.$coordinates = $("#coordinates");
     },
 
@@ -122,5 +121,4 @@ OldPaint.InfoView = Backbone.View.extend({
             this.$coordinates.text("w:" + coords.width + "\xa0h:" + coords.height);
         }
     }
-
 });
