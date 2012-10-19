@@ -149,7 +149,7 @@
       <div class="actions">
       {% for i, tool in tools %}
         <button id="{{ tool.name }}" data="{{ tool.cid }}"
-                class="tool" title="{{ tool.name }}">
+                class="tool" title="{{ tool.name }} ({{ tool.key }})">
           <img src="images/icons/{{ tool.name }}.png"
                      style="vertical-align: middle"></img>
         </button>

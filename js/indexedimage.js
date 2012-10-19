@@ -30,7 +30,7 @@ OldPaint.IndexedImage = function (data) {
     this.palette = data.palette;
 
     //this.tmpbuffer = new ArrayBuffer(this.icanvas.width*this.icanvas.height*4);
-    
+
     if (data.image) {
         //console.log("Loading image data");
         var pixbuf = this.icontext.getImageData(
@@ -205,8 +205,8 @@ OldPaint.IndexedImage = function (data) {
                                   left, top, width, height);
     };
 
-    // This is where the internal representation gets rendered into the 
-    // visible canvas. 
+    // This is where the internal representation gets rendered into the
+    // visible canvas.
     this.updateCanvas = function (rect) {
         rect = Util.intersect(rect, {left:0, top:0,
                                      width: this.canvas.width,
@@ -278,7 +278,6 @@ OldPaint.IndexedImage = function (data) {
 
     this.colorize = function (color, update) {
         // change the color of all non-transparent pixels
-        console.log("colorize:", color);
         var pixbuf = this.icontext.getImageData(0, 0,
                                                this.canvas.width,
                                                this.canvas.height);

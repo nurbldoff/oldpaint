@@ -21,7 +21,7 @@ $(function () {
          }}));
 
     tools.add(new Tool(
-        {name: "line", preview: true,
+        {name: "line", key: "e", preview: true,
          draw: function (drawing, stroke) {
              var layer = drawing.layers.active;
              layer.restore_backup(layer.last_change);
@@ -30,7 +30,7 @@ $(function () {
          }}));
 
     tools.add(new Tool(
-        {name: "rectangle", preview: true,
+        {name: "rectangle", key: "t", preview: true,
          draw: function (drawing, stroke) {
              var layer = drawing.layers.active;
              var size = {x: stroke.pos.x - stroke.start.x,
@@ -42,7 +42,7 @@ $(function () {
          }, help: "Hold SHIFT key to make a filled rectangle."}));
 
     tools.add(new Tool(
-        {name: "ellipse", preview: true,
+        {name: "ellipse", key: "p", preview: true,
          draw: function (drawing, stroke) {
              var layer = drawing.layers.active;
              var radius = {x: stroke.pos.x - stroke.start.x,
@@ -54,7 +54,7 @@ $(function () {
          }, help: "Hold SHIFT key to make a filled ellipse."}));
 
     tools.add(new Tool(
-        {name: "floodfill", oneshot: true, preview: false,
+        {name: "floodfill", key: "f", oneshot: true, preview: false,
          draw: function (drawing, stroke) {
              drawing.layers.active.draw_fill(stroke.pos, stroke.color);
          }}));
@@ -66,7 +66,7 @@ $(function () {
     //                     }}));
 
     tools.add(new Tool(
-        {name: "brush", preview: false,
+        {name: "brush", key: "r", preview: false,
          help: "Click and drag to select the area you want to copy.",
          before: function (drawing, stroke) {
              var layer = drawing.layers.active;
@@ -94,12 +94,12 @@ $(function () {
                                       y: stroke.pos.y + 1});
              drawing.set_selection(rect);
          },
-         after:function (drawing, stroke) {
+         after: function (drawing, stroke) {
              drawing.trigger("selection_done");
          }}));
 
     tools.add(new Tool(
-        {name: "picker", preview: false,
+        {name: "picker", key: "k", preview: false,
          draw: function (drawing, stroke) {
              var rgb, color=0;
              drawing.layers.each(function (layer) {
@@ -111,7 +111,7 @@ $(function () {
          }}));
 
     var tools_view = new OldPaint.ToolsView({collection: tools});
-    tools.set_active(tools.at(0));
+    tools.at(0).activate();
 
     // Palette
     var colors = [[0, 0, 0, 255]];

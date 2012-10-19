@@ -38,7 +38,6 @@ OldPaint.LayerView = Backbone.View.extend({
     render: function (frame) {
         // Let's not redraw invisible layers, that would be silly
         if (this.visible && (!this.animated || (this.animated && this.active))) {
-            console.log("render layer");
             //var scale = this.get_scale();
             var canvas = this.model.image.canvas;
 

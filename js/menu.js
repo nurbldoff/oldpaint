@@ -2,7 +2,7 @@
  * items can be selected with mouse or keyboard shortcuts */
 
 (function( $ ){
-  $.fn.linearMenu = function(items, context) {
+  $.fn.linearMenu = function(items, context, start) {
 
       var el = this, backup = this.html(), wrap = $('<div id="menu">');
       var history = $('<div class="history">');
@@ -10,6 +10,15 @@
       var menu = $('<div class="items">');
       wrap.append(menu);
       el.html(wrap);
+
+      if (start) {
+          items = items[start];
+          var btn = $("<button>");
+          btn.text(start);
+          history.append(btn);
+      }
+      show_menu(items);
+      context.menu = this;
 
       function find_shortcut (string) {
           for(var i=0; i<string.length; i++) {
@@ -59,7 +68,5 @@
           menu.html(tmp);
           //el.children().show("slide", { direction: "down" }, 100);
       }
-      show_menu(items);
-      context.menu = this;
   };
 })( jQuery );

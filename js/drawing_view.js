@@ -60,7 +60,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         // Items are defined by name and function
         // Keyboard shortcut is the first Uppercase letter in the name,
         // don't put overlapping keybindings in the same level!
-        var menu = {
+        this.menuitems = {
             Drawing: {
                 reName: this.rename,
                 Load: this.load_popup,
@@ -94,7 +94,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         // Keyboard bindings.
         var model = this.model;
         var keybindings = [
-            ["return", function () {this.show_menu(menu);}],
+            ["return", function () {this.show_menu();}],
 
             ["-", this.zoom_out, "Zoom out."],
             ["+", this.zoom_in, "Zoom in."],
@@ -110,7 +110,7 @@ OldPaint.DrawingView = Backbone.View.extend({
             ["i i", this.save_settings, "Save settings to browser's local storage."],
 
             // Layer key actions
-            ["l", function () {this.show_menu(menu.Layer);}],
+            ["l", function () {this.show_menu("Layer");}],
             // ["l a", function () {this.model.add_layer(true);}, "Add a new layer."],
 
             // ["l d", function () {
@@ -128,18 +128,18 @@ OldPaint.DrawingView = Backbone.View.extend({
                     "visible", !this.model.layers.active.get("visible"));
             }, "Toggle the current layer's visibility flag."],
 
-            ["a", function () {
+            ["n", function () {
                 this.model.layers.active.set(
                     "animated", !this.model.layers.active.get("animated"));
             }, "Toggle the current layer's animation flag."],
 
-            ["x", function () {  // previous layer
+            ["a", function () {  // previous layer
                 var index = this.model.layers.indexOf(this.model.layers.active);
                 var new_index = index === 0 ? this.model.layers.length - 1 : index - 1;
                 this.model.layers.at(new_index).activate();
             }, "Jump to the layer below the current."],
 
-            ["c", function () {  // next animation frame
+            ["q", function () {  // next animation frame
                 var index = this.model.layers.indexOf(this.model.layers.active);
                 var new_index = index == this.model.layers.length - 1 ? 0 : index + 1;
                 this.model.layers.at(new_index).activate();
@@ -154,7 +154,7 @@ OldPaint.DrawingView = Backbone.View.extend({
                 }
             }, "Jump to previous animation frame."],
 
-            ["d", function () {  // next animation frame
+            ["w", function () {  // next animation frame
                 var frames = this.model.layers.get_animated();
                 if (frames.length > 1) {
                     var index = _.indexOf(frames, this.model.layers.active);
@@ -163,31 +163,31 @@ OldPaint.DrawingView = Backbone.View.extend({
                 }
             }, "Jump to next animation frame."],
 
-            ["f h", function () {
-                this.model.flip_layer_horizontal(this.model.layers.active);
-            }, "Flip the current layer horizontally."],
+            // ["f h", function () {
+            //     this.model.flip_layer_horizontal(this.model.layers.active);
+            // }, "Flip the current layer horizontally."],
 
-            ["f v", function () {
-                this.model.flip_layer_vertical(this.model.layers.active);
-            }, "Flip the current layer vertically."],
+            // ["f v", function () {
+            //     this.model.flip_layer_vertical(this.model.layers.active);
+            // }, "Flip the current layer vertically."],
+            ["b", function () {this.show_menu("Brush");}],
+            // ["b h", function () {
+            //     var brush = this.brushes.active;
+            //     brush.flip_x();
+            //     this.model.preview_brush(brush, this.model.palette.foreground);
+            // }, "Flip the current brush horizontally."],
 
-            ["b h", function () {
-                var brush = this.brushes.active;
-                brush.flip_x();
-                this.model.preview_brush(brush, this.model.palette.foreground);
-            }, "Flip the current brush horizontally."],
+            // ["b v", function () {
+            //     var brush = this.brushes.active;
+            //     brush.flip_y();
+            //     this.model.preview_brush(brush, this.model.palette.foreground);
+            // }, "Flip the current brush vertically"],
 
-            ["b v", function () {
-                var brush = this.brushes.active;
-                brush.flip_y();
-                this.model.preview_brush(brush, this.model.palette.foreground);
-            }, "Flip the current brush vertically"],
-
-            ["b c", function () {
-                var brush = this.brushes.active;
-                brush.set_color(this.model.palette.foreground, true);
-                this.model.preview_brush(brush, this.model.palette.foreground);
-            }, "Flip the current brush vertically"],
+            // ["b c", function () {
+            //     var brush = this.brushes.active;
+            //     brush.set_color(this.model.palette.foreground, true);
+            //     this.model.preview_brush(brush, this.model.palette.foreground);
+            // }, "Flip the current brush vertically"],
 
             ["0", this.center, "Center the view."]
         ];
@@ -230,7 +230,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.brushes.on("activate", this.brush_colorize);
 
         $('#files').on('change', this.handle_file_select);
-        $("#logo").click(_.bind(this.show_menu, this, menu));
+        $("#logo").click(_.bind(this.show_menu, this));
     },
 
     render: function (update_image) {
@@ -282,10 +282,10 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.render(true);
     }, 250),
 
-    show_menu: function (menu_items) {
+    show_menu: function (start) {
         this.model.msg("Menu mode. Select with keyboard or mouse. Leave with Esc.");
         if (!this.menu) {
-            $("#title").linearMenu(menu_items, this);
+            $("#title").linearMenu(this.menuitems, this, start);
         } else {
             this.menu.close_menu();
             this.model.msg("");

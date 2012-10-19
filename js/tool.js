@@ -20,6 +20,8 @@ OldPaint.Tool = Backbone.Model.extend ({
         this.help = spec.help || "No documentation available.";
     },
 
+    activate: function () {this.trigger("activate", this);},
+
     // Stuff to do before starting a 'stroke'
     before: function (drawing, stroke) {},
 
@@ -32,9 +34,12 @@ OldPaint.Tools = Backbone.Collection.extend ({
     active: null,
     previous: null,
 
-    set_active: function (tool) {
+    initialize: function () {
+        this.on("activate", this._set_active);
+    },
+
+    _set_active: function (tool) {
         this.previous = this.active;
         this.active = tool;
-        tool.trigger("activate", this.indexOf(tool));
     }
 });

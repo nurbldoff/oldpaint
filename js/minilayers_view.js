@@ -102,7 +102,6 @@ OldPaint.MiniLayersView = Backbone.View.extend({
     },
 
     render: function () {
-        console.log("Render layers");
         $("div.minilayer").remove();
         this.model.layers.each(function (layer, index) {
             var container = new OldPaint.MiniLayerView({model: layer});

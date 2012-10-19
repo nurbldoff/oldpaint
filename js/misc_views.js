@@ -10,6 +10,11 @@ OldPaint.ToolsView = Backbone.View.extend({
         _.bindAll(this);
 
         this.collection.on("activate", this.on_activate);
+        this.collection.each(function (tool) {
+            if (tool.key) {
+                Mousetrap.bind(tool.key, _.bind(tool.activate, tool));
+            }
+        }, this);
         this.render();
     },
 
@@ -20,15 +25,14 @@ OldPaint.ToolsView = Backbone.View.extend({
         this.$el.html(template);
     },
 
-    on_activate: function (index) {
-        console.log("activate:", index);
+    on_activate: function (tool) {
         $(".tool.active").removeClass("active");
-        $("#" + this.collection.at(index).name).addClass("active");
+        $("#" + tool.name).addClass("active");
     },
 
     select: function (event) {
         var tool = this.collection.getByCid($(event.currentTarget).attr("data"));
-        this.collection.set_active(tool);
+        tool.activate();
     }
 });
 
