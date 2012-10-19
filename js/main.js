@@ -83,7 +83,7 @@ $(function () {
                  brushes.add(brush);
                  brushes.set_active(brush);
                  drawing.set_selection();
-                 tools.set_active(tools.previous);
+                 tools.previous.activate();
              };
              drawing.set_selection(rect, select_brush);
          },
