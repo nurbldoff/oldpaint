@@ -9,7 +9,6 @@ OldPaint.Tool = Backbone.Model.extend ({
                       // and not on each movement; e.g. floodfill.
 
     initialize: function (spec) {
-        //name, key, preview, before, draw, after, help
         this.name = spec.name;
         this.key = spec.key;
         this.preview_brush = !!spec.preview;  // Show brush preview under cursor?

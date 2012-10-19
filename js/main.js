@@ -125,7 +125,6 @@ $(function () {
         {model: palette, size: {x: 32, y: 8}});
     palette.set_foreground(1);
 
-
     //var image_type = OldPaint.RGBImage;
     var image_type = OldPaint.IndexedImage;
 
@@ -159,12 +158,6 @@ $(function () {
 
     var brushes_view = new OldPaint.BrushesView({collection: brushes});
     brushes.at(0).activate();
-
-    // var user_brushes = new OldPaint.Brushes();
-    // var user_brushes_view = new OldPaint.BrushesView({
-    //     collection: brushes, type: "user", name: "user_brushes"});
-
-    //OldPaint.active_brushes = OldPaint.brushes;
 
     // Drawing
     console.log("create drawing");
