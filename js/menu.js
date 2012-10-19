@@ -10,6 +10,8 @@
       var menu = $('<div class="items">');
       wrap.append(menu);
       el.html(wrap);
+      Mousetrap.push();
+      Mousetrap.bind("escape", close_menu);
 
       if (start) {
           items = items[start];
@@ -35,8 +37,7 @@
       }
 
       function close_menu () {
-          $(document).unbind("keydown");  // remove all the menu keybindings
-          $(document).unbind("keyup");
+          Mousetrap.pop();
           el.html(backup);
           context.menu = null;
       }
@@ -50,7 +51,7 @@
               var action = function (event) {
                   btn.removeClass("menuitem");
                   history.append(btn);
-                  $(document).unbind("keydown");  // remove all the menu keybindings
+                  Mousetrap.reset();
                   if (_.isFunction(item)) {
                       close_menu();
                       _.bind(item, context)();
@@ -59,7 +60,7 @@
                   return false;  // prevents any normal keybindings from firing..?
               };
               var shortcut = find_shortcut(name);
-              $(document).bind("keydown." + shortcut, action);
+              Mousetrap.bind(shortcut, action);
               btn.click(action);
               btn.html(markup_letter(name, name.indexOf(shortcut.toUpperCase())));
               //btn.text(name);
