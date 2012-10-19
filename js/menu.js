@@ -24,8 +24,8 @@
 
       function find_shortcut (string) {
           for(var i=0; i<string.length; i++) {
-              if (string[i] != " " &&
-                  string[i] == string[i].toUpperCase()) return string[i].toLowerCase();
+              if (string[i] != " " && string[i] == string[i].toUpperCase())
+                  return string[i].toLowerCase();
           }
           return null;
       }
@@ -52,6 +52,7 @@
                   btn.removeClass("menuitem");
                   history.append(btn);
                   Mousetrap.reset();
+                  Mousetrap.bind("escape", close_menu);
                   if (_.isFunction(item)) {
                       close_menu();
                       _.bind(item, context)();
@@ -63,7 +64,6 @@
               Mousetrap.bind(shortcut, action);
               btn.click(action);
               btn.html(markup_letter(name, name.indexOf(shortcut.toUpperCase())));
-              //btn.text(name);
               tmp.append(btn);
           });
           menu.html(tmp);
