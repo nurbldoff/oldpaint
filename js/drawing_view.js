@@ -92,7 +92,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         // Keyboard bindings.
         var model = this.model;
         var keybindings = [
-            ["return", function () {this.show_menu(menu)}],
+            ["return", function () {this.show_menu(menu);}],
 
             ["-", this.zoom_out, "Zoom out."],
             ["+", this.zoom_in, "Zoom in."],
@@ -170,19 +170,19 @@ OldPaint.DrawingView = Backbone.View.extend({
             }, "Flip the current layer vertically."],
 
             ["b h", function () {
-                var brush = OldPaint.active_brushes.active;
+                var brush = this.brushes.active;
                 brush.flip_x();
                 this.model.preview_brush(brush, this.model.palette.foreground);
             }, "Flip the current brush horizontally."],
 
             ["b v", function () {
-                var brush = OldPaint.active_brushes.active;
+                var brush = this.brushes.active;
                 brush.flip_y();
                 this.model.preview_brush(brush, this.model.palette.foreground);
             }, "Flip the current brush vertically"],
 
             ["b c", function () {
-                var brush = OldPaint.active_brushes.active;
+                var brush = this.brushes.active;
                 brush.set_color(this.model.palette.foreground, true);
                 this.model.preview_brush(brush, this.model.palette.foreground);
             }, "Flip the current brush vertically"],
@@ -470,17 +470,17 @@ OldPaint.DrawingView = Backbone.View.extend({
     },
 
     update_brush: function (color) {
-        OldPaint.active_brushes.active.set_color(color);
+        this.brushes.active.set_color(color);
     },
 
     brush_flip_x: function () {
-        var brush = OldPaint.active_brushes.active;
+        var brush = this.brushes.active;
         brush.flip_x();
         this.model.preview_brush(brush, this.model.palette.foreground);
     },
 
     brush_flip_y: function () {
-        var brush = OldPaint.active_brushes.active;
+        var brush = this.brushes.active;
         brush.flip_y();
         this.model.preview_brush(brush, this.model.palette.foreground);
     },
