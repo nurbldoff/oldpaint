@@ -73,9 +73,9 @@ OldPaint.BrushesView = Backbone.View.extend({
         }, this);
     },
 
-    activate: function (index) {
-        console.log("activate brush:", index);
+    activate: function (brush) {
         $(".brush.active").removeClass("active");
+        var index = this.collection.indexOf(brush);
         $(this.$el.children(".brush")[index]).addClass("active");
     },
 
@@ -86,7 +86,7 @@ OldPaint.BrushesView = Backbone.View.extend({
         if (brush == this.collection.active) {
             brush.restore_backup();
         } else {
-            this.collection.set_active(brush);
+            brush.activate();
         }
     }
 });

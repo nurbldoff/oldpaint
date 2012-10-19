@@ -9,11 +9,14 @@ OldPaint.Brush = OldPaint.Image.extend ({
         this.color = spec.color;
     },
 
+    activate: function () {this.trigger("activate", this);},
+
     set_color: function (color) {
         this.make_backup();
         this.color = color;
         this.image.colorize(color);
     }
+
 });
 
 // A Brush containing an ellipse of the given radii
@@ -78,11 +81,14 @@ OldPaint.Brushes = Backbone.Collection.extend ({
     previous: null,
     max_n: 3,
 
-    set_active: function (brush) {
+    initialize: function () {
+        this.on("activate", this._set_active);
+    },
+
+    _set_active: function (brush) {
         console.log("set_active", this.models.length);
         this.previous = this.active;
         this.active = brush;
-        this.trigger("activate", this.indexOf(brush));
     },
 
     add: function (brush, type) {

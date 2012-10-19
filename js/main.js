@@ -81,7 +81,7 @@ $(function () {
                      patch: layer.make_patch(drawing.selection),
                      image_type: drawing.image_type});
                  brushes.add(brush);
-                 brushes.set_active(brush);
+                 brush.activate();
                  drawing.set_selection();
                  tools.previous.activate();
              };
@@ -158,7 +158,7 @@ $(function () {
                                              image_type: image_type}));
 
     var brushes_view = new OldPaint.BrushesView({collection: brushes});
-    brushes.set_active(brushes.at(0));
+    brushes.at(0).activate();
 
     // var user_brushes = new OldPaint.Brushes();
     // var user_brushes_view = new OldPaint.BrushesView({
