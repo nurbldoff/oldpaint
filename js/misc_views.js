@@ -87,6 +87,7 @@ OldPaint.BrushesView = Backbone.View.extend({
         console.log("activate:", index);
         $(".brush.active").removeClass("active");
         $(this.$el.children()[index]).addClass("active");
+        OldPaint.eventbus.trigger("brush_activate", this.collection.active);
     },
 
     select: function (event) {

@@ -2,6 +2,12 @@ $(function () {
     if (!window.console) window.console = {};
     if (!window.console.log) window.console.log = function() {};
 
+    // Global eventbus
+    // events: brush_activated
+    OldPaint.eventbus = {};
+    _.extend(OldPaint.eventbus, Backbone.Events);
+    
+
     // Tools
     var tools = OldPaint.tools = new OldPaint.Tools();
     var Tool = OldPaint.Tool;
@@ -158,7 +164,7 @@ $(function () {
     console.log("done adding brushes");
     var brushes_view = new OldPaint.BrushesView({collection: brushes,
                                                  name: "brushes"});
-    brushes.set_active(brushes.at(2));
+    brushes.set_active(brushes.at(0));
 
     var user_brushes = OldPaint.user_brushes = new OldPaint.Brushes();
     var user_brushes_view = new OldPaint.BrushesView({collection: user_brushes,

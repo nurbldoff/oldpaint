@@ -10,8 +10,8 @@ OldPaint.Brush = OldPaint.Image.extend ({
     },
 
     set_color: function (color) {
-        console.log("Brush color set:", color);
         this.make_backup();
+        console.log("Brush color set:", color);
         this.color = color;
         this.image.colorize(color);
     }
