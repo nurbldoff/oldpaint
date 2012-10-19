@@ -223,10 +223,12 @@ OldPaint.Drawing = Backbone.Model.extend({
     after_draw: function(tool, stroke) {
         tool.after(this, stroke);
         var layer = this.layers.active;
-        this.push_undo(this.make_action("draw", {
-            rect: layer.dirty_rect,
-            patch: layer.make_patch(layer.trim_rect(layer.dirty_rect), true),
-            layer: layer}));
+        if (layer.dirty_rect) {
+            this.push_undo(this.make_action("draw", {
+                rect: layer.dirty_rect,
+                patch: layer.make_patch(layer.trim_rect(layer.dirty_rect), true),
+                layer: layer}));
+        }
         layer.cleanup();
         this.redos = [];
         //stroke.brush.restore_backup();
