@@ -123,6 +123,7 @@ $(function () {
     var palette = new OldPaint.Palette({colors: colors, transparent: [0]});
     var palette_editor_view = new OldPaint.PaletteEditorView(
         {model: palette, size: {x: 32, y: 8}});
+    palette.set_background(0);
     palette.set_foreground(1);
 
     //var image_type = OldPaint.RGBImage;
