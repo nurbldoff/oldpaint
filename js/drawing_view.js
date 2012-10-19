@@ -22,6 +22,8 @@ OldPaint.DrawingView = Backbone.View.extend({
     initialize: function (options) {
         _.bindAll(this);
 
+        this.eventbus = options.eventbus;
+
         // Remove context menu for the drawing part, so we can erase
         var no_context_menu = function(event) {
             event.preventDefault();
@@ -220,8 +222,8 @@ OldPaint.DrawingView = Backbone.View.extend({
 
         this.model.palette.on("foreground", this.update_brush);
         this.model.palette.on("change", this.on_palette_changed);
-
-        OldPaint.eventbus.on("brush_activate", this.brush_colorize);
+        
+        this.eventbus.on("brush_activate", this.brush_colorize);
 
         $('#files').on('change', this.handle_file_select);
         $("#logo").click(_.bind(this.show_menu, this, menu));

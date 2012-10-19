@@ -3,9 +3,9 @@ $(function () {
     if (!window.console.log) window.console.log = function() {};
 
     // Global eventbus
-    // events: brush_activated
-    OldPaint.eventbus = {};
-    _.extend(OldPaint.eventbus, Backbone.Events);
+    // events: brush_activate
+    var eventbus = {};
+    _.extend(eventbus, Backbone.Events);
     
 
     // Tools
@@ -163,11 +163,13 @@ $(function () {
                                              image_type: image_type}));
     console.log("done adding brushes");
     var brushes_view = new OldPaint.BrushesView({collection: brushes,
+                                                 eventbus: eventbus,
                                                  name: "brushes"});
     brushes.set_active(brushes.at(0));
 
     var user_brushes = OldPaint.user_brushes = new OldPaint.Brushes();
     var user_brushes_view = new OldPaint.BrushesView({collection: user_brushes,
+                                                      eventbus: eventbus,
                                                       name: "user_brushes"});
 
     OldPaint.active_brushes = OldPaint.brushes;
@@ -178,7 +180,7 @@ $(function () {
         { width: 800, height: 600, palette: palette, image_type: image_type});
     var info_view = new OldPaint.InfoView({model: drawing});
     var layers_view = new OldPaint.MiniLayersView({model: drawing});
-    var drawing_view = new OldPaint.DrawingView({model: drawing});
+    var drawing_view = new OldPaint.DrawingView({model: drawing, eventbus: eventbus});
 
     console.log("adding layer from main");
     drawing.add_layer(true);
