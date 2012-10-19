@@ -78,12 +78,12 @@
                     </div>
                   </div>
 
-                  <div class="brushes">
-                    <p>User brushes</p>
-                    <div id="user_brushes">
-                      <!-- User brushes here -->
-                    </div>
-                  </div>
+                  <!-- <div class="brushes"> -->
+                  <!--   <p>User brushes</p> -->
+                  <!--   <div id="user_brushes"> -->
+                  <!--     <\!-- User brushes here -\-> -->
+                  <!--   </div> -->
+                  <!-- </div> -->
                 </td>
               </td>
             </tr>
@@ -169,6 +169,10 @@
     <!-- Brush preview buttons -->
     <script id="brushes_template" type="text/template">
         {% for brush in brushes %}
+           <div data="{{ brush.cid }}" class="brush"> </div>
+        {% endfor %}
+        <div style="clear: both"></div>
+        {% for brush in user_brushes %}
            <div data="{{ brush.cid }}" class="brush"> </div>
         {% endfor %}
         <div style="clear: both"></div>

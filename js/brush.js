@@ -59,7 +59,7 @@ OldPaint.ImageBrush = OldPaint.Brush.extend ({
         console.log("imagebrush:", spec);
         var spec2 = {width: spec.patch.rect.width, height: spec.patch.rect.height,
                      patch: spec.patch, color: 1, palette: spec.patch.palette,
-                     image_type: spec.image_type};
+                     image_type: spec.image_type, type: spec.type};
         console.log("ImageBrush:", spec2);
         OldPaint.ImageBrush.__super__.initialize.apply(this, [spec2]);
         this.preview = Util.copy_canvas(this.image.canvas);
@@ -81,9 +81,10 @@ OldPaint.Brushes = Backbone.Collection.extend ({
     max_n: 3,
 
     set_active: function (brush) {
+        console.log("set_active", this.models.length);
         this.previous = this.active;
         this.active = brush;
-        brush.trigger("activate", this.indexOf(brush));
+        this.trigger("activate", this.indexOf(brush));
     },
 
     add: function (brush, type) {

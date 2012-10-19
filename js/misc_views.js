@@ -9,14 +9,6 @@ OldPaint.ToolsView = Backbone.View.extend({
     initialize: function (options) {
         _.bindAll(this);
 
-        // this.collection.each(function (tool, index) {
-        //     console.log("hejhej");
-        //     if (tool.key) {
-        //         console.log("binding", tool.key);
-        //         Mousetrap.bind(tool.key, _.bind(this.select, this, index));
-        //     }
-        // }, this);
-
         this.collection.on("activate", this.on_activate);
         this.render();
     },
@@ -42,7 +34,7 @@ OldPaint.ToolsView = Backbone.View.extend({
 
 // The Brushes View
 OldPaint.BrushesView = Backbone.View.extend({
-    el: $("#brushes"),
+    el: "#brushes",
     events: {
         "click .brush": "select"
     },
@@ -52,7 +44,7 @@ OldPaint.BrushesView = Backbone.View.extend({
         this.collection = options.collection;
         this.eventbus = options.eventbus;
         this.type = options.type;
-        this.setElement("#" + options.name);
+        //this.setElement("#" + options.name);
         this.collection.on("activate", this.activate);
         this.collection.on("add", this.render);
         this.collection.on("remove", this.render);
@@ -61,22 +53,14 @@ OldPaint.BrushesView = Backbone.View.extend({
 
     render: function () {
         var template = Ashe.parse( $("#brushes_template").html(), {
-            brushes: this.collection.where({type: this.type})
+            brushes: this.collection.where({type: undefined}),
+            user_brushes: this.collection.where({type: "user"})
         });
         this.$el.html(template);
         _.each($(".brush"), function (btn, index) {
             var brush = this.collection.getByCid($(btn).attr("data"));
             if (brush) {
                 var canvas = brush.preview;
-                // var width = canvas.width;
-                // var height = Math.min(canvas.height, 20);
-                // var ratio = canvas.width / canvas.height;
-                // if (canvas.width > 20 && ratio > 1) {
-                //     height = 20 / ratio;
-                // }
-                // var size = Util.restrict_size(canvas.width, canvas.height, 20);
-                // $(canvas).css({width: height * ratio, height: height,
-                //                "vertical-align": "middle"});
                 var size = Util.restrict_size(canvas.width, canvas.height, 20);
                 $(canvas).css({width: size.x, height: size.y,
                                "vertical-align": "middle"});
@@ -86,15 +70,15 @@ OldPaint.BrushesView = Backbone.View.extend({
     },
 
     activate: function (index) {
-        console.log("activate:", index);
+        console.log("activate brush:", index);
         $(".brush.active").removeClass("active");
-        $(this.$el.children()[index]).addClass("active");
-        this.eventbus.trigger("brush_activate", this.collection.active);
+        $(this.$el.children(".brush")[index]).addClass("active");
     },
 
     select: function (event) {
         var el = event.currentTarget;
-        brush = this.collection.getByCid($(el).attr("data"));
+        var brush = this.collection.getByCid($(el).attr("data"));
+        console.log("select", brush);
         if (brush == this.collection.active) {
             brush.restore_backup();
         } else {
@@ -128,11 +112,11 @@ OldPaint.InfoView = Backbone.View.extend({
 
     set_coordinates: function (coords) {
         // Kinda crappy way to check if we got a position or a rect...
-        if (coords.x != undefined) {
+        if (coords.x !== undefined) {
             this.$coordinates.text("x:" + coords.x + "\xa0y:" + coords.y);
         } else {
             this.$coordinates.text("w:" + coords.width + "\xa0h:" + coords.height);
         }
-    },
+    }
 
 });

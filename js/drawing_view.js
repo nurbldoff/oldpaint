@@ -25,7 +25,6 @@ OldPaint.DrawingView = Backbone.View.extend({
     initialize: function (options) {
         _.bindAll(this);
 
-        this.eventbus = options.eventbus;
         this.tools = options.tools;
         this.brushes = options.brushes;
 
@@ -228,7 +227,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.model.palette.on("foreground", this.update_brush);
         this.model.palette.on("change", this.on_palette_changed);
 
-        this.eventbus.on("brush_activate", this.brush_colorize);
+        this.brushes.on("activate", this.brush_colorize);
 
         $('#files').on('change', this.handle_file_select);
         $("#logo").click(_.bind(this.show_menu, this, menu));
@@ -501,8 +500,15 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     brush_colorize: function () {
         var brush = this.brushes.active;
-        brush.set_color(this.model.palette.foreground, true);
+        if (!brush.type) {
+            console.log("this isn't a user burush!");
+            brush.set_color(this.model.palette.foreground, true);
+        }
         if (this.mouse) this.model.preview_brush(brush, this.model.palette.foreground);
+    },
+
+    brush_restore: function () {
+        this.brushes.active.restore_backup();
     },
 
     // Update the cursor position and draw brush preview
@@ -587,6 +593,7 @@ OldPaint.DrawingView = Backbone.View.extend({
             this.model.after_draw(OldPaint.tools.active, this.stroke);
         }
         this.stroke = null;
+        this.brush_restore();
         $(".fg").css({"pointer-events": "auto"});
         this.model.msg("");
     },
