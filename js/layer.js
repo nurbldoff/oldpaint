@@ -23,7 +23,6 @@ OldPaint.Layer = OldPaint.Image.extend ({
     },
 
     clear_temporary: function (silent) {
-        console.log("clear_temporary");
         if (this.temporary_rect) {
             this.restore_backup(this.temporary_rect, this.temporary_rect, silent);
             if (!silent) this.temporary_rect = null;

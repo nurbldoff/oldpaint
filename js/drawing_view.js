@@ -11,13 +11,15 @@ OldPaint.DrawingView = Backbone.View.extend({
     base_offset: Util.pos(0, 0),
     stroke: null,
     topleft: Util.pos(0, 0),
+    mouse: false,  // is the mouse over the drawing?
 
     events: {
         "mousedown": "begin_stroke",
         //"mousemove": "update_stroke",
         "mouseup": "end_stroke",
         "mousewheel": "wheel_zoom",
-        "mouseleave": "on_mouse_leave"
+        "mouseover": "on_mouse_enter",
+        "mouseout": "on_mouse_leave"
     },
 
     initialize: function (options) {
@@ -265,8 +267,14 @@ OldPaint.DrawingView = Backbone.View.extend({
         }
     },
 
+    on_mouse_enter: function (ev) {
+        console.log("mouse enter");
+        this.mouse = true;
+    },
+
     on_mouse_leave: function (ev) {
         console.log("mouse leave");
+        this.mouse = false;
         this.model.layers.active.clear_temporary();
     },
 
@@ -494,7 +502,7 @@ OldPaint.DrawingView = Backbone.View.extend({
     brush_colorize: function () {
         var brush = this.brushes.active;
         brush.set_color(this.model.palette.foreground, true);
-        this.model.preview_brush(brush, this.model.palette.foreground);
+        if (this.mouse) this.model.preview_brush(brush, this.model.palette.foreground);
     },
 
     // Update the cursor position and draw brush preview
@@ -505,7 +513,7 @@ OldPaint.DrawingView = Backbone.View.extend({
             coords.x = Math.abs(coords.x - this.stroke.start.x) + 1;
             coords.y = Math.abs(coords.y - this.stroke.start.y) + 1;
         } else {
-            if (this.tools.active.preview_brush) {
+            if (this.mouse && this.tools.active.preview_brush) {
                 // Draw the brush preview
                 this.model.preview_brush(this.brushes.active,
                                          this.model.palette.foreground, coords);
