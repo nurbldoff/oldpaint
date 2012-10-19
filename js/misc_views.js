@@ -51,6 +51,7 @@ OldPaint.BrushesView = Backbone.View.extend({
         _.bindAll(this);
         this.collection = options.collection;
         this.eventbus = options.eventbus;
+        this.type = options.type;
         this.setElement("#" + options.name);
         this.collection.on("activate", this.activate);
         this.collection.on("add", this.render);
@@ -60,7 +61,7 @@ OldPaint.BrushesView = Backbone.View.extend({
 
     render: function () {
         var template = Ashe.parse( $("#brushes_template").html(), {
-            brushes: this.collection.models
+            brushes: this.collection.where({type: this.type})
         });
         this.$el.html(template);
         _.each($(".brush"), function (btn, index) {

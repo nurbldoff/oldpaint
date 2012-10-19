@@ -23,6 +23,8 @@ OldPaint.DrawingView = Backbone.View.extend({
         _.bindAll(this);
 
         this.eventbus = options.eventbus;
+        this.tools = options.tools;
+        this.brushes = options.brushes;
 
         // Remove context menu for the drawing part, so we can erase
         var no_context_menu = function(event) {
@@ -222,7 +224,7 @@ OldPaint.DrawingView = Backbone.View.extend({
 
         this.model.palette.on("foreground", this.update_brush);
         this.model.palette.on("change", this.on_palette_changed);
-        
+
         this.eventbus.on("brush_activate", this.brush_colorize);
 
         $('#files').on('change', this.handle_file_select);
@@ -266,7 +268,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         console.log("window resize");
         this.render(true);
     }, 250),
-    
+
     show_menu: function (menu_items) {
         this.model.msg("Menu mode. Select with keyboard or mouse. Leave with Esc.");
         if (!this.menu) {
@@ -484,7 +486,7 @@ OldPaint.DrawingView = Backbone.View.extend({
     },
 
     brush_colorize: function () {
-        var brush = OldPaint.active_brushes.active;
+        var brush = this.brushes.active;
         brush.set_color(this.model.palette.foreground, true);
         this.model.preview_brush(brush, this.model.palette.foreground);
     },
@@ -497,9 +499,9 @@ OldPaint.DrawingView = Backbone.View.extend({
             coords.x = Math.abs(coords.x - this.stroke.start.x) + 1;
             coords.y = Math.abs(coords.y - this.stroke.start.y) + 1;
         } else {
-            if (OldPaint.tools.active.preview_brush) {
+            if (this.tools.active.preview_brush) {
                 // Draw the brush preview
-                this.model.preview_brush(OldPaint.active_brushes.active,
+                this.model.preview_brush(this.brushes.active,
                                          this.model.palette.foreground, coords);
             }
         }
@@ -517,15 +519,15 @@ OldPaint.DrawingView = Backbone.View.extend({
             pos: Util.image_coords(offset, this.window.offset,
                                    this.window.scale),
             shift: event.shiftKey,
-            brush: OldPaint.active_brushes.active
+            brush: this.brushes.active
         };
         this.stroke.start = this.stroke.last = this.stroke.pos;
         $(".fg").css({"pointer-events": "none"});
         if (!this.scroll_mode) {
             switch (this.stroke.button) {
             case 1:  // Drawing
-                this.model.msg(OldPaint.tools.active.help);
-                this.model.before_draw(OldPaint.tools.active, this.stroke);
+                this.model.msg(this.tools.active.help);
+                this.model.before_draw(this.tools.active, this.stroke);
                 this.stroke.draw = true;  // we're drawing, not e.g. panning
                 this.stroke.color = this.model.palette.foreground;
                 this.stroke.brush.set_color(this.stroke.color);

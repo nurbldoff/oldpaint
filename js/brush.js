@@ -4,8 +4,8 @@ OldPaint.Brush = OldPaint.Image.extend ({
     preview: null,  // used to show the brush in the tool button
 
     initialize: function (spec) {
-        console.log("brush:", spec);
         OldPaint.Brush.__super__.initialize.apply(this, [spec]);
+        this.type = spec.type;
         this.color = spec.color;
     },
 
@@ -78,22 +78,20 @@ OldPaint.ImageBrush = OldPaint.Brush.extend ({
 OldPaint.Brushes = Backbone.Collection.extend ({
     model: OldPaint.Brush,
     previous: null,
+    max_n: 3,
 
     set_active: function (brush) {
         this.previous = this.active;
         this.active = brush;
         brush.trigger("activate", this.indexOf(brush));
-        OldPaint.active_brushes = this;
     },
 
-    add: function (brush) {
-        console.log("add brush", brush);
-        //console.log("bsuahes, image_type:", spec.image_type);
-
-        //var brush = new brush_factory(spec);
+    add: function (brush, type) {
         OldPaint.Brushes.__super__.add.apply(this, [brush]);
-        if (this.length > 10) {
-            this.shift();
+        // If there are already max number of brushes, remove the oldest
+        var user_brushes = this.where({type: "user"});
+        if (user_brushes.length > this.max_n) {
+            this.remove(user_brushes[0]);
         }
     }
 });

@@ -6,7 +6,7 @@ $(function () {
     // events: brush_activate
     var eventbus = {};
     _.extend(eventbus, Backbone.Events);
-    
+
 
     // Tools
     var tools = OldPaint.tools = new OldPaint.Tools();
@@ -16,7 +16,8 @@ $(function () {
          draw: function (drawing, stroke) {
              var layer = drawing.layers.active;
              layer.draw_line(stroke.last, stroke.pos,
-                             stroke.brush, stroke.color);}}));
+                             stroke.brush, stroke.color);
+         }}));
 
     tools.add(new Tool(
         {name: "points", key: "d", preview: true,
@@ -82,10 +83,11 @@ $(function () {
                  console.log("action");
                  var layer = drawing.layers.active;
                  var brush = new OldPaint.ImageBrush({
+                     type: "user",
                      patch: layer.make_patch(drawing.selection),
                      image_type: drawing.image_type});
-                 user_brushes.add(brush);
-                 user_brushes.set_active(brush);
+                 brushes.add(brush);
+                 brushes.set_active(brush);
                  drawing.set_selection();
                  tools.set_active(tools.previous);
              };
@@ -108,7 +110,7 @@ $(function () {
              var rgb, color=0;
              drawing.layers.each(function (layer) {
                  color = layer.get_pixel(stroke.pos);
-                 if (color[0] != undefined) color = color[0];
+                 if (color[0] !== undefined) color = color[0];
              });
              if (color != drawing.palette.foreground)
                  drawing.palette.set_foreground(color);
@@ -133,10 +135,9 @@ $(function () {
     //var image_type = OldPaint.RGBImage;
     var image_type = OldPaint.IndexedImage;
 
-    // Brushes
-    var brushes = OldPaint.brushes = new OldPaint.Brushes();
+    // Standard brushes
+    var brushes = new OldPaint.Brushes();
 
-    console.log("brushes...");
     brushes.add(new OldPaint.RectangleBrush({width: 1, height: 1, color: 1,
                                              palette: palette,
                                              image_type: image_type}));
@@ -161,18 +162,18 @@ $(function () {
     brushes.add(new OldPaint.RectangleBrush({width: 50, height: 50, color: 1,
                                              palette: palette,
                                              image_type: image_type}));
-    console.log("done adding brushes");
+
     var brushes_view = new OldPaint.BrushesView({collection: brushes,
                                                  eventbus: eventbus,
                                                  name: "brushes"});
     brushes.set_active(brushes.at(0));
 
-    var user_brushes = OldPaint.user_brushes = new OldPaint.Brushes();
-    var user_brushes_view = new OldPaint.BrushesView({collection: user_brushes,
-                                                      eventbus: eventbus,
+    // var user_brushes = new OldPaint.Brushes();
+    var user_brushes_view = new OldPaint.BrushesView({collection: brushes,
+                                                      eventbus: eventbus, type: "user",
                                                       name: "user_brushes"});
 
-    OldPaint.active_brushes = OldPaint.brushes;
+    //OldPaint.active_brushes = OldPaint.brushes;
 
     // Drawing
     console.log("create drawing");
@@ -180,7 +181,8 @@ $(function () {
         { width: 800, height: 600, palette: palette, image_type: image_type});
     var info_view = new OldPaint.InfoView({model: drawing});
     var layers_view = new OldPaint.MiniLayersView({model: drawing});
-    var drawing_view = new OldPaint.DrawingView({model: drawing, eventbus: eventbus});
+    var drawing_view = new OldPaint.DrawingView({model: drawing, brushes: brushes,
+                                                 tools: tools, eventbus: eventbus});
 
     console.log("adding layer from main");
     drawing.add_layer(true);
