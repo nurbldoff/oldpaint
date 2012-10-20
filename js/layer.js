@@ -102,6 +102,15 @@ OldPaint.Layer = OldPaint.Image.extend ({
         this.cleanup();
     },
 
+    // Create a Patch from part of the image
+    make_patch: function (rect, backup) {
+        var size = this.get_size();
+        rect = Util.intersect(rect, {left: 0, top:0,
+                                     width: size.width, height: size.height});
+        return new OldPaint.Patch(backup ? this.backup : this.image.get_data(),
+                         rect, this.cid, this.image.palette);
+    },
+
     // Takes a patch, applies it and returns what was there before.
     swap_patch: function (patch) {
         var oldpatch = this.make_patch(patch.rect);
