@@ -50,6 +50,28 @@ OldPaint.Image = Backbone.Model.extend ({
         return null;
     },
 
+    // Create a Patch from part of the image
+    make_patch: function (rect, backup) {
+        var size = this.get_size();
+        rect = Util.intersect(rect, {left: 0, top:0,
+                                     width: size.width, height: size.height});
+        return new OldPaint.Patch(backup ? this.backup : this.image.get_data(),
+                         rect, this.cid, this.image.palette);
+    },
+
+    draw_patch: function (patch, position, merge) {
+        var rect = position ?
+                {left: position.left, top: position.top,
+                 width: patch.rect.width, height: patch.rect.height}
+            : patch.rect;
+
+        return this.image.blit(patch.canvas,
+                               {left: 0, top: 0,
+                                width: patch.rect.width,
+                                height: patch.rect.height},
+                               rect, !merge);
+    },
+
     draw_rectangle: function (topleft, size, brush, color, filled) {
         return filled ?
             this.image.drawfilledrectangle(topleft, size, color) :

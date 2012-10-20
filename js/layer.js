@@ -84,6 +84,12 @@ OldPaint.Layer = OldPaint.Image.extend ({
         this.cleanup();
     },
 
+    draw_patch: function () {
+        this.trigger_update(
+            OldPaint.Layer.__super__.draw_patch.apply(this, arguments),
+            true);
+    },
+
     flip_x: function () {
         this.clear_temporary();
         this.trigger_update(OldPaint.Layer.__super__.flip_x.apply(this), true);
@@ -94,29 +100,6 @@ OldPaint.Layer = OldPaint.Image.extend ({
         this.clear_temporary();
         this.trigger_update(OldPaint.Layer.__super__.flip_y.apply(this), true);
         this.cleanup();
-    },
-
-    // Create a Patch from part of the Layer
-    make_patch: function (rect, backup) {
-        var size = this.get_size();
-        rect = Util.intersect(rect, {left: 0, top:0,
-                                     width: size.width, height: size.height});
-        return new OldPaint.Patch(backup ? this.backup : this.image.get_data(),
-                         rect, this.cid, this.image.palette);
-    },
-
-    draw_patch: function (patch, position, merge) {
-        var rect = position ?
-                {left: position.left, top: position.top,
-                 width: patch.rect.width, height: patch.rect.height}
-            : patch.rect;
-        this.trigger_update(
-            this.image.blit(patch.canvas,
-                            {left: 0, top: 0,
-                             width: patch.rect.width,
-                             height: patch.rect.height},
-                            rect, !merge),
-            true);
     },
 
     // Takes a patch, applies it and returns what was there before.
