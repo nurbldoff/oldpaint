@@ -291,6 +291,7 @@ OldPaint.Drawing = Backbone.Model.extend({
         var make_action = this.make_action;
         return function () {
             data = action(data, !!invert);
+            console.log("Action data", data);
             return make_action(type, data, !invert);
         };
     },
@@ -307,11 +308,11 @@ OldPaint.Drawing = Backbone.Model.extend({
 
     undo: function () {
         var action = this.undos.pop();
-        console.log("BEFORE: undos:", this.undos.length, "redos:", this.redos.length);
+        //console.log("BEFORE: undos:", this.undos, "redos:", this.redos);
         if (action) {
             this.layers.active.clear_temporary();
             this.push_redo(action());
-            console.log("AFTER: undos:", this.undos.length, "redos:", this.redos.length);
+            //console.log("AFTER: undos:", this.undos, "redos:", this.redos);
             return true;
         } else return false;
     },

@@ -118,8 +118,18 @@ OldPaint.LayerView = Backbone.View.extend({
     },
 
     on_remove: function () {
-        console.log("Removing layer view", this.cid);
+        console.log("Removing layer view", this.cid, this.model);
         this.remove();
+        this.unbind();
+        // Tedious, but apparently need to be done, or the view will not
+        // be garbage collected -> memory leaks
+        this.model.unbind("redraw", this.render);
+        this.model.unbind("remove", this.on_remove);
+        this.model.unbind("change:visible", this.on_visible);
+        this.model.unbind("change:animated", this.on_animated);
+        this.model.unbind("activate", this.on_activate);
+        this.model.unbind("deactivate", this.on_deactivate);
+        this.model.update = null;
     },
 
     on_visible: function () {

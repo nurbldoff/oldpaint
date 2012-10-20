@@ -132,7 +132,9 @@ OldPaint.MiniLayersView = Backbone.View.extend({
 
     on_remove: function (layer, layers, options) {
         var minis = this.$el.children();
-        $(minis[minis.length - options.index - 1]).remove();
+        var mini = $(minis[minis.length - options.index - 1]);
+        mini.remove();
+        mini.unbind();
     },
 
     drag_start: function (event, ui) {
