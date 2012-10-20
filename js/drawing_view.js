@@ -78,14 +78,14 @@ OldPaint.DrawingView = Backbone.View.extend({
                     this.model.remove_layer(this.model.layers.active);
                 },
                 Flip: {
-                    "Horizontally": this.model.flip_layer_horizontal,
-                    "Vertically": this.model.flip_layer_vertical
+                    Horizontally: this.model.flip_layer_horizontal,
+                    Vertically: this.model.flip_layer_vertical
                 }
             },
             Brush: {
                 Flip: {
-                    "Horizontally": this.brush_flip_x,
-                    "Vertically": this.brush_flip_y
+                    Horizontally: this.brush_flip_x,
+                    Vertically: this.brush_flip_y
                 },
                 Colorize: this.brush_colorize
             }
@@ -227,7 +227,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.model.palette.on("foreground", this.update_brush);
         this.model.palette.on("change", this.on_palette_changed);
 
-        this.brushes.on("activate", this.brush_colorize);
+        this.brushes.on("activate", this.brush_update);
 
         $('#files').on('change', this.handle_file_select);
         $("#logo").click(_.bind(this.show_menu, this));
@@ -500,11 +500,15 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     brush_colorize: function () {
         var brush = this.brushes.active;
-        if (!brush.type) {
-            console.log("this isn't a user burush!");
+        brush.set_color(this.model.palette.foreground, true);
+    },
+
+    brush_update: function () {
+        var brush = this.brushes.active;
+        if (!brush.type)
             brush.set_color(this.model.palette.foreground, true);
-        }
-        if (this.mouse) this.model.preview_brush(brush, this.model.palette.foreground);
+        if (this.mouse)
+            this.model.preview_brush(brush, this.model.palette.foreground);
     },
 
     brush_restore: function () {
