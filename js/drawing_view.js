@@ -241,28 +241,14 @@ OldPaint.DrawingView = Backbone.View.extend({
     render: function (update_image) {
         this.topleft = this.$el.offset();
         this.model.layers.each(function (layer, index) {
-            if (update_image) {
-                layer.image.updateCanvas();
-            }
+            if (update_image) layer.image.updateCanvas();
             layer.trigger("redraw", false);
         });
         // Position the "frame"
-        var negoffset = {x: Math.min(0, this.window.offset.x),
-                         y: Math.min(0, this.window.offset.y)},
-            posoffset = {x: Math.max(0, this.window.offset.x),
-                         y: Math.max(0, this.window.offset.y)},
-            left = Math.max(0, this.window.offset.x),
-            top = Math.max(0, this.window.offset.y),
-            width = this.model.get("width") * this.window.scale + negoffset.x,
-            height = this.model.get("height") * this.window.scale + negoffset.y;
-
         $("#drawing_frame").css({
-            left: left, top: top,
-            width: Math.max(
-                0, Math.min(this.$el.width() - posoffset.x, width)),
-            height: Math.max(
-                0, Math.min(this.$el.height() - posoffset.y, height)),
-            "background-position": negoffset.x + "px " + negoffset.y + "px"
+            left: this.window.offset.x, top: this.window.offset.y,
+            width: this.model.get("width") * this.window.scale,
+            height: this.model.get("height") * this.window.scale
         });
 
         if (this.model.selection) {
@@ -536,14 +522,15 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.model.preview_brush(brush, this.model.palette.foreground);
     },
 
-    brush_colorize: function () {
+    Brush_Colorize: function () {
         var brush = this.brushes.active;
         brush.set_color(this.model.palette.foreground, true);
+        this.brush_update();
     },
 
     brush_update: function () {
         var brush = this.brushes.active;
-        if (!brush.type)
+        if (!brush.type)  // is it a standard brush?
             brush.set_color(this.model.palette.foreground, true);
         if (this.mouse && this.tools.active.preview)
             this.model.preview_brush(brush, this.model.palette.foreground);
