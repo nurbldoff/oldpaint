@@ -128,7 +128,6 @@ OldPaint.Drawing = Backbone.Model.extend({
                                         {layer: new_layer,
                                          index: this.layers.indexOf(new_layer)}));
         if (activate) new_layer.activate();
-        this.msg("Added new layer.");
         new_layer.cleanup();
         return new_layer;
     },
@@ -223,7 +222,7 @@ OldPaint.Drawing = Backbone.Model.extend({
     after_draw: function(tool, stroke) {
         tool.after(this, stroke);
         var layer = this.layers.active;
-        if (layer.dirty_rect) {
+        if (layer.dirty_rect) {  // only push an undo if there was an actual change
             this.push_undo(this.make_action("draw", {
                 rect: layer.dirty_rect,
                 patch: layer.make_patch(layer.trim_rect(layer.dirty_rect), true),
@@ -313,7 +312,8 @@ OldPaint.Drawing = Backbone.Model.extend({
             this.layers.active.clear_temporary();
             this.push_redo(action());
             console.log("AFTER: undos:", this.undos.length, "redos:", this.redos.length);
-        } else this.msg("Nothing more to undo!");
+            return true;
+        } else return false;
     },
 
     redo: function () {
@@ -321,7 +321,8 @@ OldPaint.Drawing = Backbone.Model.extend({
         if (action) {
             this.layers.active.clear_temporary();
             this.push_undo(action());
-        } else this.msg("Nothing more to redo!");
+            return true;
+        } else return false;
     },
 
     // === Misc functions ===
@@ -341,11 +342,6 @@ OldPaint.Drawing = Backbone.Model.extend({
             this.selection = null;
             this.trigger("selection");
         }
-    },
-
-    // Send a message to the info area
-    msg: function (message) {
-        this.trigger("message", message);
     },
 
     update_coords: _.throttle(function (data) {

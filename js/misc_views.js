@@ -8,7 +8,7 @@ OldPaint.ToolsView = Backbone.View.extend({
 
     initialize: function (options) {
         _.bindAll(this);
-
+        this.msgbus = options.msgbus;
         this.collection.on("activate", this.on_activate);
         this.collection.each(function (tool) {
             if (tool.key) {
@@ -23,6 +23,16 @@ OldPaint.ToolsView = Backbone.View.extend({
             tools: this.collection.models
         });
         this.$el.html(template);
+        this.collection.each(function (tool) {
+            var el = $('#' + tool.name);
+            el.hover(
+                (function () {
+                    this.msgbus.trigger("info", tool.name + ": " + tool.help);
+                }).bind(this),
+                (function () {
+                    this.msgbus.trigger("clear");
+                }).bind(this));
+        }, this);
     },
 
     on_activate: function (tool) {
@@ -99,18 +109,23 @@ OldPaint.InfoView = Backbone.View.extend({
 
     initialize: function (options) {
         _.bindAll(this);
-        this.model.on("message", this.set_message);
         this.model.on("coordinates", this.set_coordinates);
-        this.render();
+        this.msgbus = options.msgbus;
+        this.msgbus.on("info", this.set_message);
+        this.msgbus.on("clear", this.set_message);
         this.$message = $("#message");
         this.$coordinates = $("#coordinates");
+        this.render();
     },
 
-    render: function () {},
+    render: function () {
+        this.set_message("Welcome to OldPaint!");
+        this.set_coordinates({x: -1, y: -1});
+    },
 
     set_message: function (message) {
-        console.log("message;", message);
-        this.$message.text(message);
+        if (message) this.$message.text(message);
+        else this.$message.text("");
     },
 
     set_coordinates: function (coords) {

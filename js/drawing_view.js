@@ -27,6 +27,7 @@ OldPaint.DrawingView = Backbone.View.extend({
 
         this.tools = options.tools;
         this.brushes = options.brushes;
+        this.msgbus = options.msgbus;
 
         // Remove context menu for the drawing part, so we can erase
         var no_context_menu = function(event) {
@@ -128,7 +129,7 @@ OldPaint.DrawingView = Backbone.View.extend({
                     "visible", !this.model.layers.active.get("visible"));
             }, "Toggle the current layer's visibility flag."],
 
-            ["n", function () {
+            ["A", function () {
                 this.model.layers.active.set(
                     "animated", !this.model.layers.active.get("animated"));
             }, "Toggle the current layer's animation flag."],
@@ -283,12 +284,9 @@ OldPaint.DrawingView = Backbone.View.extend({
     }, 250),
 
     show_menu: function (start) {
-        this.model.msg("Menu mode. Select with keyboard or mouse. Leave with Esc.");
+        this.msgbus.info("Menu mode. Select with keyboard or mouse. Leave with Esc.");
         if (!this.menu) {
-            $("#title").linearMenu(this.menuitems, this, start);
-        } else {
-            this.menu.close_menu();
-            this.model.msg("");
+            $("#title").linearMenu(this.menuitems, this, start, this.msgbus.clear);
         }
     },
 
@@ -458,7 +456,7 @@ OldPaint.DrawingView = Backbone.View.extend({
     resize_image: function () {
         var resize = function () {
             this.model.resize(this.model.selection);
-            this.model.msg("Resized to (" + this.model.selection.width + ", " +
+            this.msgbus.info("Resized to (" + this.model.selection.width + ", " +
                            this.model.selection.height + ")");
             this.model.set_selection();
         };
@@ -468,7 +466,7 @@ OldPaint.DrawingView = Backbone.View.extend({
             height: this.model.get("height")
         }, resize);
         this.edit_selection();
-        this.model.msg("Resize the image by dragging the corner handles. " +
+        this.msgbus.info("Resize the image by dragging the corner handles. " +
                        "Click anywhere to finish.");
     },
 
@@ -550,7 +548,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         if (!this.scroll_mode) {
             switch (this.stroke.button) {
             case 1:  // Drawing
-                this.model.msg(this.tools.active.help);
+                this.msgbus.info(this.tools.active.help);
                 this.model.before_draw(this.tools.active, this.stroke);
                 this.stroke.draw = true;  // we're drawing, not e.g. panning
                 this.stroke.color = this.model.palette.foreground;
@@ -558,7 +556,7 @@ OldPaint.DrawingView = Backbone.View.extend({
                 this.model.draw(OldPaint.tools.active, this.stroke);
                 break;
             case 3:  // Erasing
-                this.model.msg(OldPaint.tools.active.help);
+                this.msgbus.info(OldPaint.tools.active.help);
                 this.model.before_draw(OldPaint.tools.active, this.stroke);
                 this.stroke.draw = true;
                 this.stroke.color = this.model.palette.background;
@@ -599,7 +597,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.stroke = null;
         this.brush_restore();
         $(".fg").css({"pointer-events": "auto"});
-        this.model.msg("");
+        this.msgbus.clear();
     },
 
     update_offset: function (offset) {

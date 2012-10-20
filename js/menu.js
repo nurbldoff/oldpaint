@@ -2,7 +2,7 @@
  * items can be selected with mouse or keyboard shortcuts */
 
 (function( $ ){
-  $.fn.linearMenu = function(items, context, start) {
+  $.fn.linearMenu = function(items, context, start, on_exit) {
 
       var el = this, backup = this.html(), wrap = $('<div id="menu">');
       var history = $('<div class="history">');
@@ -40,6 +40,7 @@
           Mousetrap.pop();
           el.html(backup);
           context.menu = null;
+          on_exit();
       }
       //$(document).bind("keyup.Esc", close_menu);
       this.close_menu = close_menu;
