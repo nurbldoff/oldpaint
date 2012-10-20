@@ -16,6 +16,7 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
         _.bindAll(this);
 
         this.size = spec.size;
+        this.msgbus = spec.msgbus;
         this.model.on("foreground", this.on_foreground);
         this.model.on("background", this.on_background);
         this.model.on("change", this.update);

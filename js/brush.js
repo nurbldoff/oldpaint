@@ -14,7 +14,7 @@ OldPaint.Brush = OldPaint.Image.extend ({
     set_color: function (color) {
         this.make_backup();
         this.color = color;
-        this.image.colorize(color);
+        this.image.colorize(color, true);
     }
 
 });
@@ -81,7 +81,7 @@ OldPaint.ImageBrush = OldPaint.Brush.extend ({
         this.color = color;
         if (force) {
             this.make_backup();
-            this.image.colorize(color);
+            this.image.colorize(color, true);
         }
     },
 

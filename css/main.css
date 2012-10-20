@@ -189,7 +189,7 @@ td.minilayers {
 
 #minilayers_container {
     position: relative;
-    height: 100%;
+    height: 90%;
     width: 100%;
     overflow-y: auto;
     overflow-x: hidden;
@@ -252,9 +252,6 @@ canvas.minilayer {
     top: 20px;
 }
 
-td.layer_actions {
-    background: #808080;
-}
 
 div.layer_actions {
     width: 100%;

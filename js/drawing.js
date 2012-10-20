@@ -98,20 +98,17 @@ OldPaint.Drawing = Backbone.Model.extend({
         if (this.image_type == OldPaint.IndexedImage) {
             var layer_data = [], canvas;
             var active_layer = this.layers.indexOf(this.layers.active);
-            while (this.layers.models.length > 0) {
-                canvas = this.layers.at(0).image.canvas;
-                layer_data.push(canvas.getContext("2d").getImageData(
-                    0, 0, canvas.width, canvas.height).data);
-                this.layers.remove(this.layers.at(0), {silent: true});
-            }
             this.image_type = OldPaint.RGBImage;
-            _.each(layer_data, function (data, index) {
-                this.add_layer(false, data);
+            this.layers.each(function (layer) {
+                console.log("layer:", layer);
+                layer.convert(this.image_type);
+                layer.redraw();
+                layer.cleanup();
             }, this);
-            this.layers.set_active(this.layers.at(active_layer));
             this.undos = [];
             this.redos = [];
-        } else this.msg("Drawing is not of Indexed type - not converting.");
+            return true;
+        } else return false;
     },
 
     // === Layer operations ===

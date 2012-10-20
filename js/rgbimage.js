@@ -2,15 +2,15 @@
 
 OldPaint.RGBImage = function (data) {
 
-    this.type = "RGB"
+    this.type = "RGB";
 
     if (data.canvas) {
         this.canvas = data.canvas;
     } else {
         this.canvas = document.createElement('canvas');
+        this.canvas.width = data.width;
+        this.canvas.height = data.height;
     }
-    this.canvas.width = data.width;
-    this.canvas.height = data.height;
     this.context = this.canvas.getContext("2d");
 
     this.palette = data.palette;
@@ -43,6 +43,7 @@ OldPaint.RGBImage = function (data) {
 
     this.drawline = function (startPt, endPt, brush, color) {
         var erase = !this.palette.colors[color][3];
+        console.log("erase:", erase);
         var rect = Draw.drawLineWithBrush(
             this.context, startPt, endPt, brush.image.canvas, null, erase);
         return rect;

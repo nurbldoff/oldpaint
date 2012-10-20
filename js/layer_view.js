@@ -17,7 +17,7 @@ OldPaint.LayerView = Backbone.View.extend({
     },
 
     initialize: function (options) {
-        console.log("layer_view");
+        console.log("layer_view", options.model);
         _.bindAll(this);
         this.window = options.window;
         //this.model.on("update", this.update);

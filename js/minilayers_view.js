@@ -19,7 +19,7 @@ OldPaint.MiniLayerView = Backbone.View.extend({
         this.model.on("redraw_preview", this.redraw);
         this.model.on("change:visible", this.on_visibility);
         this.model.on("change:animated", this.on_animatedness);
-        this.model.palette.on("change", this.redraw);
+        this.model.image.palette.on("change", this.redraw);
         this.redraw();
     },
 

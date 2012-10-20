@@ -71,7 +71,8 @@ OldPaint.DrawingView = Backbone.View.extend({
                     PNG: this.save_as_png,
                     ORA: this.save_as_ora
                 },
-                Resize: this.resize_image
+                Resize: this.resize_image,
+                Convert: this.convert_image
             },
             Layer: {
                 Add: function () {this.model.add_layer(true);},
@@ -450,6 +451,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         if (this.model.image_type === OldPaint.IndexedImage) {
             this.render(true);
         }
+        this.brush_update();
     },
 
     // Callback for when a layer has been added
@@ -497,10 +499,13 @@ OldPaint.DrawingView = Backbone.View.extend({
     },
 
     convert_image: function (event) {
-        this.model.convert_to_rgb_type();
+        if (!this.model.convert_to_rgb_type())
+            this.msgbus.info("Drawing is not of Indexed type - not converting.");
+        else
+            this.brushes.each(function (brush) {brush.convert(OldPaint.RGBImage);});
     },
 
-    update_brush: function (color) {
+    updat_berush: function (color) {
         this.brushes.active.set_color(color);
     },
 
@@ -614,8 +619,9 @@ OldPaint.DrawingView = Backbone.View.extend({
         if (this.stroke.draw) {
             this.model.after_draw(OldPaint.tools.active, this.stroke);
         }
+        if (this.stroke.button === 3)
+            this.brush_restore();
         this.stroke = null;
-        this.brush_restore();
         $(".fg").css({"pointer-events": "auto"});
         this.msgbus.clear();
     },

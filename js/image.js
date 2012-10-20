@@ -2,15 +2,22 @@ OldPaint.Image = Backbone.Model.extend ({
 
     initialize: function (spec) {
         _.bindAll(this);
-        this.palette = spec.palette || new OldPaint.Palette({});
+        var palette = spec.palette || new OldPaint.Palette({});
         this.image = new spec.image_type(
             {width: spec.width, height: spec.height,
-             palette: this.palette, image: spec.image});
+             palette: palette, image: spec.image});
         if (!spec.data && spec.background) this.clear(spec.background);
         if (spec.patch) {
             this.draw_patch(spec.patch, {left: 0, top:0});
         }
         this.make_backup();
+    },
+
+    convert: function (image_type) {
+        var canvas = this.image.canvas,
+            width = canvas.width, height = canvas.height,
+            data = canvas.getContext("2d").getImageData(0, 0, width, height);
+        this.image = new image_type({palette: this.image.palette, canvas: canvas});
     },
 
     get_size: function () {
