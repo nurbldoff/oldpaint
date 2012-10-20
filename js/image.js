@@ -15,12 +15,6 @@ OldPaint.Image = Backbone.Model.extend ({
         this.make_backup();
     },
 
-    // change image backend type (currently only works indexed -> rgb)
-    convert: function (image_type) {
-        this.image = new image_type({palette: this.image.palette,
-                                     canvas: this.image.canvas});
-    },
-
     get_size: function () {
         return {width: this.image.canvas.width,
                 height: this.image.canvas.height};
@@ -30,6 +24,8 @@ OldPaint.Image = Backbone.Model.extend ({
         return this.image.getpixel(pos.x, pos.y);
     },
 
+    // Make a backup copy of the image data. Can be used to e.g. undo a
+    // change later, by restoring that part from backup.
     make_backup: function () {
         this.backup = Util.copy_canvas(this.image.get_data());
     },
@@ -52,27 +48,6 @@ OldPaint.Image = Backbone.Model.extend ({
             if (!silent) return all_rect;
         }
         return null;
-    },
-
-    // Create a Patch from part of the image
-    make_patch: function (rect, backup) {
-        var size = this.get_size();
-        rect = Util.intersect(rect, {left: 0, top:0,
-                                     width: size.width, height: size.height});
-        return new OldPaint.Patch(backup ? this.backup : this.image.get_data(),
-                         rect, this.cid, this.image.palette);
-    },
-
-    draw_patch: function (patch, position, merge) {
-        var rect = position ?
-                {left: position.left, top: position.top,
-                 width: patch.rect.width, height: patch.rect.height}
-            : patch.rect;
-        return this.image.blit(patch.canvas,
-                               {left: 0, top: 0,
-                                width: patch.rect.width,
-                                height: patch.rect.height},
-                               rect, !merge);
     },
 
     draw_rectangle: function (topleft, size, brush, color, filled) {
@@ -117,6 +92,12 @@ OldPaint.Image = Backbone.Model.extend ({
 
     flip_y: function () {
         return this.image.flipy();
+    },
+
+    // change image backend type (currently only works indexed -> rgb)
+    convert: function (image_type) {
+        this.image = new image_type({palette: this.image.palette,
+                                     canvas: this.image.canvas});
     },
 
     trim_rect: function (rect) {
