@@ -99,6 +99,7 @@ OldPaint.Drawing = Backbone.Model.extend({
             var layer_data = [], canvas;
             var active_layer = this.layers.indexOf(this.layers.active);
             this.image_type = OldPaint.RGBImage;
+            this.layers.active.clear_temporary();
             this.layers.each(function (layer) {
                 console.log("layer:", layer);
                 layer.convert(this.image_type);

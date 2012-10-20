@@ -502,11 +502,16 @@ OldPaint.DrawingView = Backbone.View.extend({
     },
 
     convert_image: function (event) {
-        if (!this.model.convert_to_rgb_type())
-            this.msgbus.info("Drawing is not of Indexed type - not converting.");
-        else {
-            this.brushes.each(function (brush) {brush.convert(OldPaint.RGBImage);});
-            this.update_title();
+        var proceed = confirm("You are about to convert the image to RGB palette format. " +
+                              "This is (currently) an irreversible operation, and you will " +
+                              "lose your undo history. Proceed?");
+        if (proceed) {
+            if (!this.model.convert_to_rgb_type())
+                this.msgbus.info("Drawing is not of Indexed type - not converting.");
+            else {
+                this.brushes.each(function (brush) {brush.convert(OldPaint.RGBImage);});
+                this.update_title();
+            }
         }
     },
 
