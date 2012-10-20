@@ -115,11 +115,21 @@ $(function () {
          help: "Click on a pixel to select that color in the palette.",
          draw: function (drawing, stroke) {
              var rgb, color=0;
-             drawing.layers.each(function (layer) {
-                 color = layer.get_pixel(stroke.pos);
-                 if (color[0] !== undefined) color = color[0];
-             });
-             if (color != drawing.palette.foreground)
+             // Walk down through the layers and use the first non transparent
+             // pixel we see.
+             for (var i=drawing.layers.length-1; i>=0; i--) {
+                 var layer = drawing.layers.at(i);
+                 if (layer.get("visible")) {
+                     color = layer.get_pixel(stroke.pos);
+                     var alpha = color[3] || drawing.palette.colors[color][3];
+                     if (alpha > 0) break;
+                 }
+             }
+             // If it's a RGB image, we modify the foreground color instead
+             if (color[0] !== undefined)
+                 drawing.palette.change_color(drawing.palette.foreground,
+                                              Util.rgba(color));
+             else
                  drawing.palette.set_foreground(color);
          }}));
 

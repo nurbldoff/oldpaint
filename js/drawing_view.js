@@ -230,6 +230,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.model.palette.on("change", this.on_palette_changed);
 
         this.brushes.on("activate", this.brush_update);
+        this.tools.on("activate", this.cleanup);
 
         $('#files').on('change', this.handle_file_select);
         $("#logo").click(_.bind(this.show_menu, this));
@@ -398,6 +399,10 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.window.scale = Math.pow(2, this.zoom);
     },
 
+    cleanup: function () {
+        this.model.layers.active.clear_temporary();
+    },
+
     // Save the image to the browser's internal storage. Let's not do that
     // while the user is actually drawing though, since it will cause stutter.
     save_internal: function () {
@@ -540,7 +545,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         var brush = this.brushes.active;
         if (!brush.type)
             brush.set_color(this.model.palette.foreground, true);
-        if (this.mouse)
+        if (this.mouse && this.tools.active.preview)
             this.model.preview_brush(brush, this.model.palette.foreground);
     },
 

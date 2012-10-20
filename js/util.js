@@ -4,6 +4,11 @@ Util.rgb = function (color) {
     return {r: color[0], g: color[1], b: color[2]};
 };
 
+Util.rgba = function (color) {
+    return {r: color[0], g: color[1], b: color[2], a: color[3]};
+};
+
+
 Util.RGB2HTML = function (red, green, blue) {
     var decColor = red + 256 * green + 65536 * blue;
     return decColor.toString(16);

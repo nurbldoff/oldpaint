@@ -204,6 +204,7 @@ OldPaint.Drawing = Backbone.Model.extend({
 
     redraw: function(layer) {
         layer = layer || this.layers.active;
+        console.log(layer);
         layer.redraw();
     },
 
