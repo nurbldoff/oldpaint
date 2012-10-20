@@ -119,7 +119,6 @@ OldPaint.LayerView = Backbone.View.extend({
 
     on_remove: function () {
         console.log("Removing layer view", this.cid);
-        this.$el.remove();
         this.remove();
     },
 

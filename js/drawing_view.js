@@ -99,8 +99,8 @@ OldPaint.DrawingView = Backbone.View.extend({
 
             ["-", this.zoom_out, "Zoom out."],
             ["+", this.zoom_in, "Zoom in."],
-            ["z", this.model.undo, "Undo last change."],
-            ["y", this.model.redo, "Redo last undo."],
+            ["z", this.on_undo, "Undo last change."],
+            ["y", this.on_redo, "Redo last undo."],
 
             ["r", function () {this.model.redraw();}, "Redraw the screen."],
 
@@ -232,6 +232,8 @@ OldPaint.DrawingView = Backbone.View.extend({
 
         $('#files').on('change', this.handle_file_select);
         $("#logo").click(_.bind(this.show_menu, this));
+        $("#undo").click(this.on_undo);
+        $("#redo").click(this.on_redo);
     },
 
     render: function (update_image) {
@@ -412,6 +414,22 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     load_internal: function (evt) {
         this.model.load_from_storage();
+    },
+
+    on_undo: function () {
+        if (this.model.undo()) {
+            this.msgbus.info("Undo");
+        } else {
+            this.msgbus.info("Nothing more to undo!");
+        }
+    },
+
+    on_redo: function () {
+        if (this.model.redo()) {
+            this.msgbus.info("Redo");
+        } else {
+            this.msgbus.info("Nothing more to redo!");
+        }
     },
 
     // Center the drawing on screen

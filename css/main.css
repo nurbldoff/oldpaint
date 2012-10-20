@@ -157,12 +157,11 @@ div.brushes {
     color: #fff;
     text-shadow: #000 1px 1px;
     clear: both;
-    margin: 2px 0;
     padding: 2px;
 }
 
 #brushes {
-
+    margin: 3px 0;
 }
 
 .brush {
