@@ -1,3 +1,5 @@
+// Base image model. Used by Layer and Brush.
+
 OldPaint.Image = Backbone.Model.extend ({
 
     initialize: function (spec) {
@@ -13,11 +15,10 @@ OldPaint.Image = Backbone.Model.extend ({
         this.make_backup();
     },
 
+    // change image backend type (currently only works indexed -> rgb)
     convert: function (image_type) {
-        var canvas = this.image.canvas,
-            width = canvas.width, height = canvas.height,
-            data = canvas.getContext("2d").getImageData(0, 0, width, height);
-        this.image = new image_type({palette: this.image.palette, canvas: canvas});
+        this.image = new image_type({palette: this.image.palette,
+                                     canvas: this.image.canvas});
     },
 
     get_size: function () {
@@ -33,6 +34,7 @@ OldPaint.Image = Backbone.Model.extend ({
         this.backup = Util.copy_canvas(this.image.get_data());
     },
 
+    // Restore image data from backup
     restore_backup: function (rect, dest_rect, silent) {
         if (rect) {
             if (dest_rect) {
@@ -124,13 +126,3 @@ OldPaint.Image = Backbone.Model.extend ({
                                      height: size.height});
     }
 });
-
-
-// Part of an Image
-OldPaint.Patch = function (source, rect, layerid, palette) {
-    console.log("Patch:", rect, source, layerid, palette);
-    this.canvas = Util.copy_canvas(source, rect);
-    this.rect = rect;
-    this.layerid = layerid;
-    this.palette = palette;
-};
