@@ -111,6 +111,13 @@ OldPaint.Drawing = Backbone.Model.extend({
         } else return false;
     },
 
+    get_type: function () {
+        if (this.image_type == OldPaint.IndexedImage)
+            return "Indexed";
+        if (this.image_type == OldPaint.RGBImage)
+            return "RGB";
+    },
+
     // === Layer operations ===
 
     add_layer: function (activate, data) {

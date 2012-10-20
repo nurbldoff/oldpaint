@@ -226,7 +226,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.model.on("load", this.on_load);
         this.model.on("change:title", this.on_rename);
 
-        this.model.palette.on("foreground", this.update_brush);
+        this.model.palette.on("foreground", this.brush_update);
         this.model.palette.on("change", this.on_palette_changed);
 
         this.brushes.on("activate", this.brush_update);
@@ -268,6 +268,8 @@ OldPaint.DrawingView = Backbone.View.extend({
             this.make_selection(this.model.selection);
             this.edit_selection();
         }
+
+        this.update_title();
     },
 
     on_mouse_enter: function (ev) {
@@ -385,8 +387,9 @@ OldPaint.DrawingView = Backbone.View.extend({
     },
 
     update_title: function () {
-        var text = this.model.get("title") +
-                " [" + this.model.get("width") + "x" + this.model.get("height") + "] " +
+        var text = this.model.get("title") + " " +
+                "(" + this.model.get("width") + "x" + this.model.get("height") + ", " +
+                this.model.get_type() + ") " +
                 Math.pow(2, this.zoom) + "x";
         $("#title").text(text);  // Probably better to make a view for this
     },
@@ -501,13 +504,15 @@ OldPaint.DrawingView = Backbone.View.extend({
     convert_image: function (event) {
         if (!this.model.convert_to_rgb_type())
             this.msgbus.info("Drawing is not of Indexed type - not converting.");
-        else
+        else {
             this.brushes.each(function (brush) {brush.convert(OldPaint.RGBImage);});
+            this.update_title();
+        }
     },
 
-    updat_berush: function (color) {
-        this.brushes.active.set_color(color);
-    },
+    // update_brush: function (color) {
+    //     this.brushes.active.set_color(color);
+    // },
 
     brush_flip_x: function () {
         var brush = this.brushes.active;
