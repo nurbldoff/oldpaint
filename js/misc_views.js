@@ -27,10 +27,10 @@ OldPaint.ToolsView = Backbone.View.extend({
             var el = $('#' + tool.name);
             el.hover(
                 (function () {
-                    this.msgbus.trigger("info", tool.name + ": " + tool.help);
+                    this.msgbus.info("Tool: " + tool.name + " - " + tool.help);
                 }).bind(this),
                 (function () {
-                    this.msgbus.trigger("clear");
+                    this.msgbus.clear();
                 }).bind(this));
         }, this);
     },
@@ -56,7 +56,7 @@ OldPaint.BrushesView = Backbone.View.extend({
     initialize: function (options) {
         _.bindAll(this);
         this.collection = options.collection;
-        this.eventbus = options.eventbus;
+        this.msgbus = options.msgbus;
         this.type = options.type;
         //this.setElement("#" + options.name);
         this.collection.on("activate", this.activate);
@@ -79,6 +79,14 @@ OldPaint.BrushesView = Backbone.View.extend({
                 $(canvas).css({width: size.x, height: size.y,
                                "vertical-align": "middle"});
                 $(btn).append(canvas);
+                $(btn).hover(
+                    (function () {
+                        this.msgbus.info(brush.get_info());
+                    }).bind(this),
+                    (function () {
+                        this.msgbus.clear();
+                    }).bind(this));
+
             }
         }, this);
     },

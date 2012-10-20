@@ -23,6 +23,7 @@ OldPaint.Brush = OldPaint.Image.extend ({
 OldPaint.EllipseBrush = OldPaint.Brush.extend ({
     initialize: function (spec) {
         console.log("ellipsebrush:", spec);
+        this.spec = spec;
         OldPaint.EllipseBrush.__super__.initialize.apply(
             this, [{width: spec.width * 2 + 1,
                     height: spec.height * 2 + 1,
@@ -35,14 +36,19 @@ OldPaint.EllipseBrush = OldPaint.Brush.extend ({
         this.image.palette = spec.palette;
         this.set_color(spec.color);
         this.make_backup();
+    },
+
+    get_info: function () {
+        return "Brush: ellipse, " + this.spec.width + "x" + this.spec.height;
     }
+
 });
 
 // A Brush filled with a rectangle
 OldPaint.RectangleBrush = OldPaint.Brush.extend ({
     initialize: function (spec) {
-        console.log("rectanglebrush:", spec);
         var palette = spec.palette;
+        this.spec = spec;
         spec.palette = undefined;
         OldPaint.RectangleBrush.__super__.initialize.apply(this, [spec]);
         this.draw_rectangle({x: 0, y: 0},
@@ -52,6 +58,10 @@ OldPaint.RectangleBrush = OldPaint.Brush.extend ({
         this.image.palette = palette;
         this.set_color(spec.color);
         this.make_backup();
+    },
+
+    get_info: function () {
+        return "Brush: rectangle, " + this.spec.width + "x" + this.spec.height;
     }
 });
 
@@ -59,11 +69,11 @@ OldPaint.RectangleBrush = OldPaint.Brush.extend ({
 OldPaint.ImageBrush = OldPaint.Brush.extend ({
     initialize: function (spec) {
         console.log("imagebrush:", spec);
-        var spec2 = {width: spec.patch.rect.width, height: spec.patch.rect.height,
+        this.spec = {width: spec.patch.rect.width, height: spec.patch.rect.height,
                      patch: spec.patch, color: 1, palette: spec.patch.palette,
                      image_type: spec.image_type, type: spec.type};
-        console.log("ImageBrush:", spec2);
-        OldPaint.ImageBrush.__super__.initialize.apply(this, [spec2]);
+
+        OldPaint.ImageBrush.__super__.initialize.apply(this, [this.spec]);
         this.preview = Util.copy_canvas(this.image.canvas);
     },
 
@@ -73,7 +83,12 @@ OldPaint.ImageBrush = OldPaint.Brush.extend ({
             this.make_backup();
             this.image.colorize(color);
         }
+    },
+
+    get_info: function () {
+        return "Brush: user defined, " + this.spec.width + "x" + this.spec.height;
     }
+
 });
 
 OldPaint.Brushes = Backbone.Collection.extend ({

@@ -70,7 +70,7 @@ table.header {
 }
 
 tr.header {
-    background: grey;
+    background: #999;
     padding-right: 1px;
 }
 
@@ -90,7 +90,7 @@ table.header td {
 
 #title {
     width: 100%;
-    font-size: 10pt;
+    font-size: 11pt;
 }
 
 #drawing_actions {
@@ -388,4 +388,3 @@ button.active, .brush.active {
 .cell {
     display: table-cell;
 }
-

@@ -274,8 +274,10 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     on_mouse_leave: function (ev) {
         console.log("mouse leave");
-        this.mouse = false;
-        this.model.layers.active.clear_temporary();
+        if (!this.stroke) {
+            this.mouse = false;
+            this.model.layers.active.clear_temporary();
+        }
     },
 
     on_window_resize: _.throttle(function (ev) {
