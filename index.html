@@ -225,16 +225,55 @@
 
     <!-- Modal dialog for picking stuff -->
     <script id="modal_selection_template" type="text/template">
-      <div id="popup">
-        <div id="popup_body">
-          {% for item in items %}
+      <div class="popup container">
+        <div class="popup select">
+          <div class="popup body">
+            <div id="title"> {{ title }} </div>
+            {% for item in items %}
             <div id="{{ items }}" class="fileitem png"> {{ item }} </div>
-          {% endfor %}
+            {% endfor %}
+          </div>
+        </div>
+        <div class="popup block">
         </div>
       </div>
-      <div id="popup_block">
+    </script>
+
+    <script id="modal_alert_template" type="text/template">
+      <div class="popup container">
+        <div class="popup alert">
+          <div class="popup body">
+            <div id="title"> {{ title }} </div>
+            <div id="message"> {{ message }} </div>
+            <div id="responses">
+              <button id="ok">OK</button>
+              <button id="abort">Abort</button>
+            </div>
+          </div>
+        </div>
+        <div class="popup block">
+        </div>
       </div>
     </script>
+
+    <script id="modal_input_template" type="text/template">
+      <div class="popup container">
+        <div class="popup alert">
+          <div class="popup body">
+            <div id="title"> {{ title }} </div>
+            <div id="message"> {{ message }} </div>
+            <input type="text" name="modal" class="mousetrap" />
+            <div id="responses">
+              <button id="ok">OK</button>
+              <button id="abort">Abort</button>
+            </div>
+          </div>
+        </div>
+        <div class="popup block">
+        </div>
+      </div>
+    </script>
+
 
     <script id="load_popup_template" type="text/template">
       <div id="popup">

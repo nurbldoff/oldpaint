@@ -107,7 +107,8 @@ OldPaint.DrawingView = Backbone.View.extend({
             ["i s", this.save_internal, "Save drawing to browser's local storage."],
             ["i l", this.load_internal, "Load drawing from browser's local storage."],
             ["i d", this.delete_internal, "Delete drawing from browser's local storage."],
-            ["i i", this.save_settings, "Save settings to browser's local storage."],
+            ["i i", this.save_settings, "Save settings."],
+            ["i o", this.load_settings, "Load settings."],
 
             // Layer key actions
             ["l", function () {this.show_menu("Layer");}],
@@ -373,8 +374,11 @@ OldPaint.DrawingView = Backbone.View.extend({
     },
 
     rename: function () {
-        var name = prompt("What do you want to call the drawing?");
-        this.model.set("title", name);
+        var on_ok = (function (name) {
+            this.model.set("title", name);
+        }).bind(this);
+        var on_abort = function () {};
+        Modal.input("Rename drawing", "What do you want to name it?", on_ok, on_abort);
     },
 
     on_rename: function (model, value) {
@@ -502,17 +506,19 @@ OldPaint.DrawingView = Backbone.View.extend({
     },
 
     convert_image: function (event) {
-        var proceed = confirm("You are about to convert the image to RGB palette format. " +
-                              "This is (currently) an irreversible operation, and you will " +
-                              "lose your undo history. Proceed?");
-        if (proceed) {
+        var on_ok = (function () {
             if (!this.model.convert_to_rgb_type())
                 this.msgbus.info("Drawing is not of Indexed type - not converting.");
             else {
                 this.brushes.each(function (brush) {brush.convert(OldPaint.RGBImage);});
                 this.update_title();
             }
-        }
+        }).bind(this);
+        var on_abort = function () {};
+        Modal.alert("Convert image",
+                    "You are about to convert the image to RGB palette format. " +
+                    "This is (currently) an irreversible operation, and you will " +
+                    "lose your undo history. Proceed?", on_ok, on_abort);
     },
 
     // update_brush: function (color) {
