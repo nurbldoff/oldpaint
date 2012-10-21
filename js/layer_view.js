@@ -20,7 +20,7 @@ OldPaint.LayerView = Backbone.View.extend({
         console.log("layer_view", options.model);
         _.bindAll(this);
         this.window = options.window;
-        //this.model.on("update", this.update);
+        this.model.on("update", this.update);
         //this.model.on("resize", this.resize);
         this.model.on("redraw", this.render);
         this.model.on("remove", this.on_remove);
@@ -28,7 +28,6 @@ OldPaint.LayerView = Backbone.View.extend({
         this.model.on("change:animated", this.on_animated);
         this.model.on("activate", this.on_activate);
         this.model.on("deactivate", this.on_deactivate);
-        this.model.update = this.update;  // don't use events for this, too slow
 
         this.resize();
         this.render();
@@ -118,7 +117,6 @@ OldPaint.LayerView = Backbone.View.extend({
     },
 
     on_remove: function () {
-        console.log("Removing layer view", this.cid, this.model);
         this.remove();
         this.unbind();
         // Tedious, but apparently need to be done, or the view will not
@@ -129,7 +127,7 @@ OldPaint.LayerView = Backbone.View.extend({
         this.model.unbind("change:animated", this.on_animated);
         this.model.unbind("activate", this.on_activate);
         this.model.unbind("deactivate", this.on_deactivate);
-        this.model.update = null;
+        //this.model.update = null;
     },
 
     on_visible: function () {

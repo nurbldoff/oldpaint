@@ -14,6 +14,7 @@ OldPaint.Layer = OldPaint.Image.extend ({
     },
 
     clear_temporary: function (silent) {
+        console.log("clear_temporary");
         if (this.temporary_rect) {
             this.restore_backup(this.temporary_rect, this.temporary_rect, silent);
             if (!silent) this.temporary_rect = null;
@@ -181,7 +182,7 @@ OldPaint.Layer = OldPaint.Image.extend ({
                 this.last_change = rect;
                 this.dirty_rect = Util.union(rect, this.dirty_rect);
             }
-            this.update(rect, clear);
+            this.trigger("update", rect, clear);
         }
     }
 });
@@ -197,7 +198,9 @@ OldPaint.Layers = Backbone.Collection.extend({
     },
 
     on_activate: function (layer) {
-        if (this.active && this.active != layer) {
+        // It can be that the previously active layer has just been removed.
+        // In that case we still have the reference, but there's no view.
+        if (this.active && this.contains(this.active) && this.active != layer) {
             this.active.clear_temporary();
             this.active.trigger("deactivate");
         }

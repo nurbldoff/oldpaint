@@ -54,7 +54,7 @@ ChromeApp.fileLoadChooser = function(callbacks) {
     // See crbug.com/145112.
     var accepts = [{
         //mimeTypes: ['text/*'],
-        extensions: ['png', 'ora']
+        extensions: _.keys(callbacks)
     }];
     chrome.fileSystem.chooseEntry(
         {type: 'openFile', accepts: accepts}, function(readOnlyEntry) {

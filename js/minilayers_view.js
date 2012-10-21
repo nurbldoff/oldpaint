@@ -14,6 +14,7 @@ OldPaint.MiniLayerView = Backbone.View.extend({
     initialize: function (options) {
         _.bindAll(this);
         this.render();
+        this.model.on("remove", this.on_remove);
         this.model.on("activate", this.activate);
         this.model.on("deactivate", this.deactivate);
         this.model.on("redraw_preview", this.redraw);
@@ -65,6 +66,21 @@ OldPaint.MiniLayerView = Backbone.View.extend({
         this.$el.children(".layerVisibleCheck").prop("checked", visibility);
     },
 
+    on_remove: function () {
+        console.log("minilayer remove", this.model.cid);
+        this.remove();
+        this.unbind();
+
+        this.model.unbind("remove", this.on_remove);
+        this.model.unbind("activate", this.activate);
+        this.model.unbind("deactivate", this.deactivate);
+        this.model.unbind("redraw_preview", this.redraw);
+        this.model.unbind("change:visible", this.on_visibility);
+        this.model.unbind("change:animated", this.on_animatedness);
+        this.model.image.palette.unbind("change", this.redraw);
+        console.log("minilayer done");
+    },
+
     change_visibility: function (event) {
         this.model.set("visible", event.currentTarget.checked);
     },
@@ -87,11 +103,10 @@ OldPaint.MiniLayersView = Backbone.View.extend({
     initialize: function (options) {
         _.bindAll(this);
         this.model.layers.on("add", this.on_add);
-        this.model.layers.on("remove", this.on_remove);
-        //this.model.layers.on("move", this.render);
 
         this.model.layers.on("resize", this.render);
         this.model.on("load", this.render);
+        this.model.on("remove", this.on_remove);
 
         $("#layer_add").on("click", this.add_layer);
         $("#layer_delete").on("click", this.remove_layer);
@@ -130,13 +145,6 @@ OldPaint.MiniLayersView = Backbone.View.extend({
         container.redraw();
     },
 
-    on_remove: function (layer, layers, options) {
-        var minis = this.$el.children();
-        var mini = $(minis[minis.length - options.index - 1]);
-        mini.remove();
-        mini.unbind();
-    },
-
     drag_start: function (event, ui) {
         this.start_index = ui.item.index();
     },
@@ -168,6 +176,12 @@ OldPaint.MiniLayersView = Backbone.View.extend({
 
     remove_layer: function (event) {
         this.model.remove_layer(this.model.layers.active);
+    },
+
+    on_remove: function (layer) {
+        if (layer == this.active) {
+            this.active = this.collection.at(this.collection.indexof(layer));
+        }
     },
 
     merge_layer: function (event) {

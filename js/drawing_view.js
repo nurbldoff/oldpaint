@@ -450,6 +450,7 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     // Callback for when a layer has been added
     on_layer_added: function (layer, options) {
+        console.log("added layer", layer.cid);
         var layerview = new OldPaint.LayerView({model: layer, window: this.window});
         $("#layers_container").append(layerview.el);
         this.render();
@@ -665,18 +666,21 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     zoom_in: function (event, center_mouse) {
         var canvas_pos;
-        if (center_mouse) {
+        if (center_mouse === true) {
             canvas_pos = Util.event_coords(event, this.topleft);
         } else {
-            canvas_pos = { x: Math.floor(this.$el.width() / 2),
-                           y: Math.floor(this.$el.height() / 2) };
+            canvas_pos = {
+                x: Math.floor(this.$el.width() / 2),
+                y: Math.floor(this.$el.height() / 2)
+            };
         }
+        console.log("zoom", center_mouse, canvas_pos.x, canvas_pos.y);
         this.set_zoom(this.zoom + 1, canvas_pos);
     },
 
     zoom_out: function (event, center_mouse) {
         var canvas_pos;
-        if (center_mouse) {
+        if (center_mouse === true) {
             canvas_pos = Util.event_coords(event, this.topleft);
         } else {
             canvas_pos = { x: Math.floor(this.$el.width() / 2),
