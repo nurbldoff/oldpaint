@@ -73,7 +73,7 @@ ChromeApp.fileLoadChooser = function(callbacks) {
 
 ChromeApp.fileSaveChooser = function(name, data, type, callback) {
     var config = {type: 'saveFile', suggestedName: name};
-    chrome.fileSystem.chooseEntry(config, function(writableEntry) {
+    return chrome.fileSystem.chooseEntry(config, function(writableEntry) {
         var blob = new Blob([data], {type: type});
         ChromeApp.writeFileEntry(writableEntry, blob, callback);
     });

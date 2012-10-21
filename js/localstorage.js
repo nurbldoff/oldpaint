@@ -70,12 +70,16 @@ LocalStorage.mkdir = function (rootDirEntry, path, callback) {
                 } else callback();
             }, LocalStorage.error_handler);
     }
-    create_folder(rootDirEntry, path.split("/"));
+    if (path)
+        create_folder(rootDirEntry, path.split("/"));
+    else
+        callback();
 };
 
 LocalStorage.write = function (args, fs) {
     function write_file () {
         var filename = (args.path ? args.path + "/" : "") + args.name;
+        console.log("filename:", filename);
         fs.root.getFile(filename, {create: true}, function(fileEntry) {
             fileEntry.createWriter(function(fileWriter) {
                 fileWriter.onwriteend = function(e) {
@@ -112,6 +116,7 @@ LocalStorage.read = function (args, fs) {
 
 LocalStorage.read_txt = function (args, fs) {
     var filename = (args.path ? args.path + "/" : "") + args.name;
+    console.log("filename:", filename);
     fs.root.getFile(filename, {}, function(fileEntry) {
 
         // Get a File object representing the file,

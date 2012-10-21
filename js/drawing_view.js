@@ -39,9 +39,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         document.querySelector('#drawing').oncontextmenu = no_context_menu;
 
         // Load settings from local storage
-        LocalStorage.request(LocalStorage.read_txt,
-                             {path: "", name: "settings.json",
-                              on_load: this.load_settings});
+        this.load_settings();
 
         this.topleft = this.$el.offset();
         this.center();
@@ -300,19 +298,27 @@ OldPaint.DrawingView = Backbone.View.extend({
     },
 
     load_settings: function (e) {
-        var settings = JSON.parse(e.target.result);
-        console.log("settings:", settings);
-        if (settings.last_drawing) {
-            this.model.load_from_storage(settings.last_drawing);
-        }
+        var model = this.model;
+        LocalStorage.request(
+            LocalStorage.read_txt,
+            {name: "settings.json",
+             on_load: function (e) {
+                 var settings = JSON.parse(e.target.result);
+                 console.log("settings:", settings);
+                 if (settings.last_drawing) {
+                     model.load_from_storage(settings.last_drawing);
+                 }
+             }
+            });
     },
 
     save_settings: function () {
+        console.log("save settings");
         var settings = {
             last_drawing: this.model.get("title")
         };
         LocalStorage.request(LocalStorage.write,
-                             {path: "", name: "settings.json",
+                             {name: "settings.json",
                               blob: new Blob([JSON.stringify(settings)],
                                              {type: 'text/plain'})});
     },
@@ -330,10 +336,12 @@ OldPaint.DrawingView = Backbone.View.extend({
     },
 
     chrome_save_as_png: function () {
-        ChromeApp.fileSaveChooser(Util.change_extension(this.model.get("title"), "png"),
-                                  this.model.flatten_visible_layers().make_png(true),
-                                  "image/png",
-                                  function () {console.log("write done");});
+        var model = this.model;
+        ChromeApp.fileSaveChooser(
+            //Util.change_extension(this.model.get("title"), "png"),
+            this.model.flatten_visible_layers().make_png(true),
+            "image/png",
+            function (something) {console.log(something);});
     },
 
     handle_file_select: function (evt) {
