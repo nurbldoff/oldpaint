@@ -38,12 +38,14 @@ Modal.input = function (title, message, ok_callback, abort_callback) {
                                {title: title, message: message});
     $(document.body).append(template);
     $('input[name="modal"]').focus();
+    $('input[name="modal"]').bind();
     Mousetrap.push();
     $(".popup.block").click(function () {
         Modal.close();
         abort_callback();
     });
     var on_ok_click = function (event) {
+        Mousetrap.unbind("return");
         ok_callback($('input[name="modal"]').val());
         Modal.close();
     };
