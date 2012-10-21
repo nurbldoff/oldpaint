@@ -8,10 +8,8 @@ Modal.list = function (items, callback) {
                                {title: "Load image", items: items});
     $(document.body).append(template);
     Mousetrap.push();
-    $(".popup.block").click(function () {Modal.close();
-                                         Mousetrap.pop();});
+    $(".popup.block").click(function () {Modal.close();});
     $(".fileitem").click(function (event) {Modal.close();
-                                           Mousetrap.pop();
                                            callback(event.target.id);});
 };
 
@@ -22,14 +20,11 @@ Modal.alert = function (title, message, ok_callback, abort_callback) {
     Mousetrap.push();
     $(".popup.block").click(function () {
         Modal.close();
-        Mousetrap.pop();
         abort_callback();
     });
     var on_ok_click = function (event) {Modal.close();
-                                        Mousetrap.pop();
                                         ok_callback();};
     var on_abort_click = function (event) {Modal.close();
-                                        Mousetrap.pop();
                                         abort_callback();};
     Mousetrap.bind("return", on_ok_click);
     Mousetrap.bind("escape", on_abort_click);
@@ -46,17 +41,14 @@ Modal.input = function (title, message, ok_callback, abort_callback) {
     Mousetrap.push();
     $(".popup.block").click(function () {
         Modal.close();
-        Mousetrap.pop();
         abort_callback();
     });
     var on_ok_click = function (event) {
         ok_callback($('input[name="modal"]').val());
         Modal.close();
-        Mousetrap.pop();
     };
     var on_abort_click = function (event) {Modal.close();
-                                        Mousetrap.pop();
-                                        abort_callback();};
+                                           abort_callback();};
     Mousetrap.bind("return", on_ok_click);
     Mousetrap.bind("escape", on_abort_click);
     $("#ok").click(on_ok_click);
@@ -65,6 +57,7 @@ Modal.input = function (title, message, ok_callback, abort_callback) {
 
 
 Modal.close = function(fadeOutTime) {
+    Mousetrap.pop();
+    $(".popup").unbind();
     $(".popup").remove();
-    $("#popup_block").remove();
 };
