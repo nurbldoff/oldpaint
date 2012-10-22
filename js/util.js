@@ -131,10 +131,11 @@ Util.frame_coords = function (image_coords, scale) {
             y: Math.ceil(image_coords.y * scale)};
 };
 
+// Convert image coordinates to canvas (screen) coordinates
 Util.canvas_coords = function (image_coords, offset, scale) {
-    return {x: Math.ceil((image_coords.x + offset.x) * scale),
-            y: Math.ceil((image_coords.y + offset.y) * scale)};
-}
+    return {x: Math.ceil(image_coords.x * scale + offset.x),
+            y: Math.ceil(image_coords.y * scale + offset.y)};
+};
 
 // Returns a canvas containing a copy of the input canvas,
 // optionally only the part contained by rect, and optionally flipped.

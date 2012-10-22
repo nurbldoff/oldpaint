@@ -92,7 +92,6 @@ OldPaint.DrawingView = Backbone.View.extend({
         };
 
         // Keyboard bindings.
-        var model = this.model;
         var keybindings = [
             ["return", this.show_menu.bind(this, null)],
 
@@ -220,8 +219,8 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.model.layers.on("move", this.on_layer_reordered);
 
         this.model.on("resize", this.on_resize);
-        this.model.on("selection", this.make_selection);
-        this.model.on("selection_done", this.edit_selection);
+        // this.model.on("selection", this.make_selection);
+        // this.model.on("selection_done", this.edit_selection);
         this.model.on("load", this.on_load);
         this.model.on("change:title", this.on_rename);
 
@@ -235,6 +234,9 @@ OldPaint.DrawingView = Backbone.View.extend({
         $("#logo").click(this.show_menu.bind(this, null));
         $("#undo").click(this.on_undo);
         $("#redo").click(this.on_redo);
+
+        this.selection_view = new OldPaint.SelectionView({model: this.model,
+                                                          window: this.window});
     },
 
     render: function (update_image) {
@@ -251,10 +253,9 @@ OldPaint.DrawingView = Backbone.View.extend({
         });
 
         if (this.model.selection) {
-            this.make_selection(this.model.selection);
-            this.edit_selection();
+            this.selection_view.render(this.model.selection);
+            this.selection_view.edit();
         }
-
         this.update_title();
     },
 
@@ -426,6 +427,20 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.model.load_from_storage();
     },
 
+    // Show the saved drawings list
+    load_popup: function (event) {
+        var load = _.bind(function (title) {
+            this.model.save_to_storage();
+            this.model.load_from_storage(title);
+        }, this);
+        var callback = function (result) {
+            var dirs = _.filter(result, function (item) {return item.isDirectory;});
+            var names = _.map(dirs, function (item) {return item.name;});
+            Modal.list(names, load);
+        };
+        var drawings = LocalStorage.list({callback: callback});
+    },
+
     on_undo: function () {
         if (this.model.undo()) {
             this.msgbus.info("Undo");
@@ -497,7 +512,7 @@ OldPaint.DrawingView = Backbone.View.extend({
             left: 0, top: 0, width: this.model.get("width"),
             height: this.model.get("height")
         }, resize);
-        this.edit_selection();
+        this.selection_view.edit();
         this.msgbus.info("Resize the image by dragging the corner handles. " +
                        "Click anywhere to finish.");
     },
@@ -697,135 +712,5 @@ OldPaint.DrawingView = Backbone.View.extend({
         case -1: this.zoom_out(event, true); break;
         }
     },
-
-    // Visualize the selection rectangle
-    make_selection: function (begin) {
-        if (this.model.selection) {
-            if (begin) {
-                var template = Ashe.parse( $("#selection_template").html(), {});
-                $("#selection").html(template);
-            }
-            var rect = this.model.selection;
-            var start = Util.canvas_coords({x: rect.left, y: rect.top}, this.window.offset,
-                                           this.window.scale);
-            var end = Util.canvas_coords({x: rect.left + rect.width,
-                                          y: rect.top + rect.height}, this.window.offset,
-                                         this.window.scale);
-            $("#selection_main").css({left: start.x - 10,
-                                      top: start.y - 10,
-                                      width: end.x - start.x + 20,
-                                      height: end.y - start.y + 20});
-            $(".selection.frame").css({width: end.x - start.x,
-                                       height: end.y - start.y});
-        } else {
-            $("#selection").empty();
-        }
-    },
-
-    // Make the selection editable
-    edit_selection: function () {
-        var begin_scroll = (function (event) {
-            if (event.which == 2) this.begin_stroke(event);
-        }).bind(this);
-        var scroll = (function (event) {
-            if (event.which == 2) this.update_stroke(event);
-        }).bind(this);
-
-        var end_scroll = (function (event) {
-            if (event.which == 2) this.end_stroke(event);
-        }).bind(this);
-
-        $("#selection_block").css(
-            {visibility: "visible"}).unbind()
-            .on("mousedown", begin_scroll)
-            .on("mousemove", scroll)
-            .on("mouseup", end_scroll)
-            .on("click", this.model.selection.action);
-        $(".selection.handle").css(
-            {visibility: "visible", "pointer-events": "auto"})
-            .on("mousedown", this, function (event) {
-                $(".selection.handle").css("pointer-events", "none");
-                $("#selection_block").on("mousemove", this,
-                                         event.data.resize_selection);
-                $("#selection_block").on("mouseup",
-                                         event.data.resize_selection_done);
-            });
-    },
-
-    resize_selection: function (event) {
-        var cpos = Util.event_coords(event);
-        var ipos = Util.image_coords(cpos, this.window.scale);
-        // if (!event.data.start_pos) {
-        //     event.data.start_pos = ipos;
-        //     event.data.start_selection = Util.copy(this.model.selection);
-        // }
-        if (!event.data.last_pos) {
-            event.data.last_pos = ipos;
-            event.data.last_selection = Util.copy(this.model.selection);
-        }
-        var delta = Util.subtract(ipos, event.data.last_pos);
-        event.data.last_pos = ipos;
-        var selection = event.data.last_selection;
-        switch (event.data.id) {
-        case "selection_botright":
-            this.model.set_selection(
-                {left: selection.left,
-                 top: selection.top,
-                 width: selection.width + delta.x,
-                 height: selection.height + delta.y});
-            break;
-        case "selection_topright":
-            this.model.set_selection(
-                {left: selection.left,
-                 top: selection.top + delta.y,
-                 width: selection.width + delta.x,
-                 height: selection.height - delta.y});
-            break;
-        case "selection_topleft":
-            this.model.set_selection(
-                {left: selection.left + delta.x,
-                 top: selection.top + delta.y,
-                 width: selection.width - delta.x,
-                 height: selection.height - delta.y});
-            break;
-        case "selection_botleft":
-            this.model.set_selection(
-                {left: selection.left + delta.x,
-                 top: selection.top,
-                 width: selection.width - delta.x,
-                 height: selection.height + delta.y});
-            break;
-        }
-        event.data.last_selection = Util.copy(this.model.selection);
-    },
-
-    resize_selection_done: function (event) {
-        this.edit_selection();
-    },
-
-    finish_selection: function (event) {
-        if (event.which == 1) {
-            var layer = this.model.layers.active;
-            var brush = new ImageBrush({
-                patch: layer.make_patch(this.model.selection)});
-            OldPaint.user_brushes.add(brush);
-            OldPaint.user_brushes.set_active(brush);
-            $("#selection").empty();
-        }
-    },
-
-    // Show the saved drawings list
-    load_popup: function (event) {
-        var load = _.bind(function (title) {
-            this.model.save_to_storage();
-            this.model.load_from_storage(title);
-        }, this);
-        var callback = function (result) {
-            var dirs = _.filter(result, function (item) {return item.isDirectory;});
-            var names = _.map(dirs, function (item) {return item.name;});
-            Modal.list(names, load);
-        };
-        var drawings = LocalStorage.list({callback: callback});
-    }
 
 });
