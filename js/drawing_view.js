@@ -94,7 +94,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         // Keyboard bindings.
         var model = this.model;
         var keybindings = [
-            ["return", function () {this.show_menu();}],
+            ["return", this.show_menu.bind(this, null)],
 
             ["-", this.zoom_out, "Zoom out."],
             ["+", this.zoom_in, "Zoom in."],
@@ -231,8 +231,8 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.brushes.on("activate", this.brush_update);
         this.tools.on("activate", this.cleanup);
 
-        $('#files').on('change', this.handle_file_select);
-        $("#logo").click(_.bind(this.show_menu, this));
+        $('#files').on('change', this.on_file_select);
+        $("#logo").click(this.show_menu.bind(this, null));
         $("#undo").click(this.on_undo);
         $("#redo").click(this.on_redo);
     },
@@ -283,19 +283,66 @@ OldPaint.DrawingView = Backbone.View.extend({
         }
     },
 
+    // Load an user selected file from the normal filesystem
     load: function () {
         if (chrome.fileSystem) this.chrome_open();
         else $('#files').click();
     },
 
+    // Save as PNG to the normal filesystem. If we can, let the user choose where.
     save_as_png: function () {
         if (chrome.fileSystem) this.chrome_save_as_png();
         else this.model.export_png();
     },
 
+    // Save as ORA to the normal filesystem. If we can, let the user choose where.
     save_as_ora: function () {
         if (chrome.fileSystem) this.chrome_save_as_ora();
         else this.model.export_ora();
+    },
+
+    chrome_open: function () {
+        ChromeApp.fileLoadChooser({"png": this.load_png_data,
+                                   "ora": this.load_ora_data});
+    },
+
+    chrome_save_as_ora: function () {
+        ChromeApp.fileSaveChooser(Util.change_extension(this.model.get("title"), "ora"),
+                                  Util.convertDataURIToBlob(Util.create_ora(this.model)),
+                                  "image/ora",
+                                  function () {console.log("write done");});
+    },
+
+    chrome_save_as_png: function () {
+        var model = this.model;
+        ChromeApp.fileSaveChooser(
+            //Util.change_extension(this.model.get("title"), "png"),
+            this.model.flatten_visible_layers().make_png(true),
+            "image/png",
+            function (something) {console.log(something);});
+    },
+
+    on_file_select: function (evt) {
+        var files = evt.target.files;
+        if (files.length > 0) {
+            var f = files[0];
+            var reader = new FileReader();
+            if (f.type.match('image/png')) {
+                reader.onload = this.load_png_data;
+            } else {
+                reader.onload = this.load_ora_data;
+            }
+            reader.readAsDataURL(f);
+            this.model.set("title", f.name.split(".")[0]);
+        }
+    },
+
+    load_png_data: function (e) {
+        this.model.load(Util.load_png, {layers: [e.target.result.slice(22)]});
+    },
+
+    load_ora_data: function (e) {
+        this.model.load(Util.load_ora, e.target.result);
     },
 
     load_settings: function (e) {
@@ -322,50 +369,6 @@ OldPaint.DrawingView = Backbone.View.extend({
                              {name: "settings.json",
                               blob: new Blob([JSON.stringify(settings)],
                                              {type: 'text/plain'})});
-    },
-
-    chrome_open: function () {
-        ChromeApp.fileLoadChooser({"png": this.load_png_file,
-                                   "ora": this.load_ora_file});
-    },
-
-    chrome_save_as_ora: function () {
-        ChromeApp.fileSaveChooser(Util.change_extension(this.model.get("title"), "ora"),
-                                  Util.convertDataURIToBlob(Util.create_ora(this.model)),
-                                  "image/ora",
-                                  function () {console.log("write done");});
-    },
-
-    chrome_save_as_png: function () {
-        var model = this.model;
-        ChromeApp.fileSaveChooser(
-            //Util.change_extension(this.model.get("title"), "png"),
-            this.model.flatten_visible_layers().make_png(true),
-            "image/png",
-            function (something) {console.log(something);});
-    },
-
-    handle_file_select: function (evt) {
-        var files = evt.target.files;
-        if (files.length > 0) {
-            var f = files[0];
-            var reader = new FileReader();
-            if (f.type.match('image/png')) {
-                reader.onload = this.load_png_file;
-            } else {
-                reader.onload = this.load_ora_file;
-            }
-            reader.readAsDataURL(f);
-            this.model.set("title", f.name.split(".")[0]);
-        }
-    },
-
-    load_png_file: function (e) {
-        this.model.load(Util.load_png, {layers: [e.target.result.slice(22)]});
-    },
-
-    load_ora_file: function (e) {
-        this.model.load(Util.load_ora, e.target.result);
     },
 
     on_load: function () {
@@ -405,7 +408,7 @@ OldPaint.DrawingView = Backbone.View.extend({
     // while the user is actually drawing though, since it will cause stutter.
     save_internal: function () {
         if (this.stroke) {
-            setTimeout(this.save_to_storage, 1000);
+            setTimeout(this.model.save_to_storage, 1000);
         } else {
             this.model.save_to_storage();
         }

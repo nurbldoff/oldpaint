@@ -1,5 +1,11 @@
 /* A menu that is displayed horizontally in an element,
- * items can be selected with mouse or keyboard shortcuts */
+ * items can be selected with mouse or keyboard shortcuts
+ *
+ * @param items - an object describing the menu items
+ * @param context - the context to bind actions to
+ * @start - optionally start the menu one step down
+ * @on_exit - optional callback to run on exit
+ * */
 
 (function( $ ){
   $.fn.linearMenu = function(items, context, start, on_exit) {
@@ -40,7 +46,7 @@
           Mousetrap.pop();
           el.html(backup);
           context.menu = null;
-          on_exit();
+          if (on_exit) on_exit();
       }
       //$(document).bind("keyup.Esc", close_menu);
       this.close_menu = close_menu;

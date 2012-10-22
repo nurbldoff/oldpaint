@@ -7,6 +7,7 @@ OldPaint.Layer = OldPaint.Image.extend ({
     temporary_rect: null,
     last_change: null,
     last_brush_position: {x: 0, y:0},
+    changed_since_save: true,
 
     defaults: {
         visible: true,
