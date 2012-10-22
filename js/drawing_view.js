@@ -236,6 +236,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         $("#redo").click(this.on_redo);
 
         this.selection_view = new OldPaint.SelectionView({model: this.model,
+                                                          msgbus: this.msgbus,
                                                           window: this.window});
     },
 
