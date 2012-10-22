@@ -83,11 +83,11 @@ OldPaint.DrawingView = Backbone.View.extend({
                 }
             },
             Brush: {
+                Colorize: this.brush_colorize,
                 Flip: {
                     Horizontally: this.brush_flip_x,
                     Vertically: this.brush_flip_y
                 },
-                Colorize: this.brush_colorize
             }
         };
 
@@ -459,12 +459,12 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     // Center the drawing on screen
     center: function () {
-        var offs = $("#drawing_window").offset();
+        //var offs = $("#drawing_window").offset();
         this.center_on_image_pos(
             {x: Math.round(this.model.get("width") / 2),
              y: Math.round(this.model.get("height") / 2)},
-            {x: Math.round($("#drawing_window").width() / 2) + offs.left,
-             y: Math.round($("#drawing_window").height() / 2) + offs.top});
+            {x: Math.round($("body").width() / 2) - this.window.offset.x,
+             y: Math.round($("body").height() / 2) - this.window.offset.y});
         this.render();
     },
 
@@ -555,7 +555,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.model.preview_brush(brush, this.model.palette.foreground);
     },
 
-    Brush_Colorize: function () {
+    brush_colorize: function () {
         var brush = this.brushes.active;
         brush.set_color(this.model.palette.foreground, true);
         this.brush_update();

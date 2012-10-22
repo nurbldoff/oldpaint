@@ -80,7 +80,6 @@ OldPaint.ImageBrush = OldPaint.Brush.extend ({
     set_color: function (color, force) {
         this.color = color;
         if (force) {
-            this.make_backup();
             this.image.colorize(color, true);
         }
     },
