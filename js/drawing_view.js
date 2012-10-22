@@ -687,8 +687,8 @@ OldPaint.DrawingView = Backbone.View.extend({
             canvas_pos = Util.event_coords(event);
         } else {
             canvas_pos = {
-                x: Math.floor(this.$el.width() / 2),
-                y: Math.floor(this.$el.height() / 2)
+                x: Math.floor($("body").width() / 2) - this.window.offset.x,
+                y: Math.floor($("body").height() / 2) - this.window.offset.y
             };
         }
         console.log("zoom", center_mouse, canvas_pos.x, canvas_pos.y);
@@ -700,8 +700,10 @@ OldPaint.DrawingView = Backbone.View.extend({
         if (center_mouse === true) {
             canvas_pos = Util.event_coords(event);
         } else {
-            canvas_pos = { x: Math.floor(this.$el.width() / 2),
-                           y: Math.floor(this.$el.height() / 2)};
+            canvas_pos = {
+                x: Math.floor($("body").width() / 2) - this.window.offset.x,
+                y: Math.floor($("body").height() / 2) - this.window.offset.y
+            };
         }
         this.set_zoom(this.zoom - 1, canvas_pos);
     },
