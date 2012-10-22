@@ -3,7 +3,7 @@
 
 OldPaint.DrawingView = Backbone.View.extend({
 
-    el: $("#drawing"),
+    el: $("#drawing_frame"),
     active_layer: null,
     zoom: 0,
     window: {scale: 1,
@@ -47,7 +47,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         $(window).resize(this.on_window_resize);
 
         // Bind the time critical mousemove directly instead of using Backbone
-        var el = document.getElementById('drawing');
+        var el = document.getElementById('drawing_frame');
         el.onmousemove = this.update_stroke;
 
         // Let's save to local storage periodically
@@ -560,8 +560,7 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     // Update the cursor position and draw brush preview
     update_cursor: _.throttle(function (event, stroke) {
-        var coords = Util.image_coords(Util.event_coords(event, this.topleft),
-                                       this.window.offset, this.window.scale);
+        var coords = Util.image_coords(Util.event_coords(event), this.window.scale);
         if (this.stroke && this.stroke.start) {
             coords.x = Math.abs(coords.x - this.stroke.start.x) + 1;
             coords.y = Math.abs(coords.y - this.stroke.start.y) + 1;
@@ -577,14 +576,13 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     // Callback for when the user presses a mouse button on the canvas
     begin_stroke: function (event) {
-        this.base_offset.x = this.window.offset.x;
-        this.base_offset.y = this.window.offset.y;
-        var offset = Util.event_coords(event, this.topleft);
+        // this.base_offset.x = this.window.offset.x;
+        // this.base_offset.y = this.window.offset.y;
+        var offset = Util.event_coords(event);
         this.stroke = {
             button: event.which,
             offset: offset,
-            pos: Util.image_coords(offset, this.window.offset,
-                                   this.window.scale),
+            pos: Util.image_coords(offset, this.window.scale),
             shift: event.shiftKey,
             brush: this.brushes.active
         };
@@ -598,15 +596,15 @@ OldPaint.DrawingView = Backbone.View.extend({
                 this.stroke.draw = true;  // we're drawing, not e.g. panning
                 this.stroke.color = this.model.palette.foreground;
                 this.stroke.brush.set_color(this.stroke.color);
-                this.model.draw(OldPaint.tools.active, this.stroke);
+                this.model.draw(this.tools.active, this.stroke);
                 break;
             case 3:  // Erasing
-                this.msgbus.info(OldPaint.tools.active.help);
-                this.model.before_draw(OldPaint.tools.active, this.stroke);
+                this.msgbus.info(this.tools.active.help);
+                this.model.before_draw(this.tools.active, this.stroke);
                 this.stroke.draw = true;
                 this.stroke.color = this.model.palette.background;
                 this.stroke.brush.set_color(this.stroke.color, true);
-                this.model.draw(OldPaint.tools.active, this.stroke);
+                this.model.draw(this.tools.active, this.stroke);
                 break;
             }
         }
@@ -617,16 +615,15 @@ OldPaint.DrawingView = Backbone.View.extend({
         //console.log(this.stroke.draw);
         this.update_cursor(event);
         if (this.stroke) {
-            var cpos = Util.event_coords(event, this.topleft);
-            this.stroke.pos = Util.image_coords(cpos, this.window.offset,
-                                                this.window.scale);
+            var cpos = Util.event_coords(event);
+            this.stroke.pos = Util.image_coords(cpos, this.window.scale);
             if (this.stroke.draw) {
                 if (!OldPaint.tools.active.oneshot)
                     this.model.draw(OldPaint.tools.active, this.stroke);
             } else {
                 this.update_offset({
-                    x: this.base_offset.x + cpos.x - this.stroke.offset.x,
-                    y: this.base_offset.y + cpos.y - this.stroke.offset.y});
+                    x: cpos.x - this.stroke.offset.x,
+                    y: cpos.y - this.stroke.offset.y});
                 this.render();
             }
             this.stroke.last = this.stroke.pos;
@@ -647,32 +644,20 @@ OldPaint.DrawingView = Backbone.View.extend({
     },
 
     update_offset: function (offset) {
-        this.window.offset = {x: Math.floor(offset.x), y: Math.floor(offset.y)};
-    },
-
-    begin_scroll: function (event) {
-        if (event.which == 2) {this.begin_stroke(event);}
-    },
-
-    scroll: function (event) {
-        if (event.which == 2) {this.update_stroke(event);}
-    },
-
-    end_scroll: function (event) {
-        if (event.which == 2) {this.end_stroke(event);}
+        this.window.offset = {x: this.window.offset.x + Math.floor(offset.x),
+                              y: this.window.offset.y + Math.floor(offset.y)};
     },
 
     // Center the display on a certain image coordinate
     center_on_image_pos: function (ipos, cpos) {
         //var scale = this.get_scale();
-        offset = {x: Math.round(cpos.x - (ipos.x + 0.5) * this.window.scale),
-                  y: Math.round(cpos.y - (ipos.y + 0.5)* this.window.scale)};
+        var offset = {x: Math.round(cpos.x - (ipos.x + 0.5) * this.window.scale),
+                      y: Math.round(cpos.y - (ipos.y + 0.5) * this.window.scale)};
         this.update_offset(offset);
     },
 
     set_zoom: function (zoom, center_pos) {
-        var image_pos = Util.image_coords(center_pos, this.window.offset,
-                                          this.window.scale);
+        var image_pos = Util.image_coords(center_pos, this.window.scale);
         this.zoom = Math.max(-3, Math.min(5, zoom));
         this.model.layers.active.clear_temporary();
         this.update_scale();
@@ -684,7 +669,7 @@ OldPaint.DrawingView = Backbone.View.extend({
     zoom_in: function (event, center_mouse) {
         var canvas_pos;
         if (center_mouse === true) {
-            canvas_pos = Util.event_coords(event, this.topleft);
+            canvas_pos = Util.event_coords(event);
         } else {
             canvas_pos = {
                 x: Math.floor(this.$el.width() / 2),
@@ -698,7 +683,7 @@ OldPaint.DrawingView = Backbone.View.extend({
     zoom_out: function (event, center_mouse) {
         var canvas_pos;
         if (center_mouse === true) {
-            canvas_pos = Util.event_coords(event, this.topleft);
+            canvas_pos = Util.event_coords(event);
         } else {
             canvas_pos = { x: Math.floor(this.$el.width() / 2),
                            y: Math.floor(this.$el.height() / 2)};
@@ -721,12 +706,10 @@ OldPaint.DrawingView = Backbone.View.extend({
                 $("#selection").html(template);
             }
             var rect = this.model.selection;
-            var start = Util.canvas_coords({x: rect.left, y: rect.top},
-                                           this.window.offset,
+            var start = Util.canvas_coords({x: rect.left, y: rect.top}, this.window.offset,
                                            this.window.scale);
             var end = Util.canvas_coords({x: rect.left + rect.width,
-                                          y: rect.top + rect.height},
-                                         this.window.offset,
+                                          y: rect.top + rect.height}, this.window.offset,
                                          this.window.scale);
             $("#selection_main").css({left: start.x - 10,
                                       top: start.y - 10,
@@ -741,11 +724,22 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     // Make the selection editable
     edit_selection: function () {
+        var begin_scroll = (function (event) {
+            if (event.which == 2) this.begin_stroke(event);
+        }).bind(this);
+        var scroll = (function (event) {
+            if (event.which == 2) this.update_stroke(event);
+        }).bind(this);
+
+        var end_scroll = (function (event) {
+            if (event.which == 2) this.end_stroke(event);
+        }).bind(this);
+
         $("#selection_block").css(
             {visibility: "visible"}).unbind()
-            .on("mousedown", this.begin_scroll)
-            .on("mousemove", this.scroll)
-            .on("mouseup", this.end_scroll)
+            .on("mousedown", begin_scroll)
+            .on("mousemove", scroll)
+            .on("mouseup", end_scroll)
             .on("click", this.model.selection.action);
         $(".selection.handle").css(
             {visibility: "visible", "pointer-events": "auto"})
@@ -759,9 +753,8 @@ OldPaint.DrawingView = Backbone.View.extend({
     },
 
     resize_selection: function (event) {
-        var cpos = Util.event_coords(event, this.topleft);
-        var ipos = Util.image_coords(cpos, this.window.offset,
-                                     this.window.scale);
+        var cpos = Util.event_coords(event);
+        var ipos = Util.image_coords(cpos, this.window.scale);
         // if (!event.data.start_pos) {
         //     event.data.start_pos = ipos;
         //     event.data.start_selection = Util.copy(this.model.selection);

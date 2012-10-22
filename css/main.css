@@ -299,16 +299,16 @@ td.bottom table {
     border-width: 0;
     background: #606060;
     margin: 0;
-    cursor: url("../images/cursor.gif") 10 10,auto;
+
 }
 
 #drawing_frame {
     position: absolute;
-    background-attachment: fixed;
+    /* background-attachment: fixed; */
     background: #D0D0D0 url("../images/chequered_transp.png");
-    pointer-events: none;
     outline: 2px solid black;
     /* -webkit-transform: rotate(45deg); */
+    cursor: url("../images/cursor.gif") 10 10,auto;
 }
 
 #layers_container {
@@ -333,15 +333,15 @@ canvas.layer {
 /* } */
 
 
-.layer.invisible {
+canvas.layer.invisible {
     visibility: hidden;
 }
 
-.layer.animated {
+canvas.layer.animated {
     visibility: hidden;
 }
 
-.layer.animated.active {
+canvas.layer.animated.active {
     visibility: visible;
 }
 

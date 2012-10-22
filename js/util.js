@@ -102,13 +102,12 @@ Util.rectify = function (start, end) {
 };
 
 // Calculate the canvas position of the cursor
-Util.event_coords = function (event, offset) {
+Util.event_coords = function (event) {
     // if (event.targetTouches && event.targetTouches.length > 0) {
     //     console.log("TargetTouches:", event.TargetTouches)
     //     event = event.targetTouches[0];
     // }
-    return {x: event.pageX - offset.left,
-            y: event.pageY - offset.top};
+    return {x: event.offsetX, y: event.offsetY};
 };
 
 Util.rect = function (left, top, width, height) {
@@ -121,16 +120,21 @@ Util.pos = function (x, y) {
 };
 
 // Convert from a position on the screen canvas to image coordinates
-Util.image_coords = function (canvas_coords, offset, scale) {
-    return {x: Math.floor((canvas_coords.x - offset.x) / scale),
-            y: Math.floor((canvas_coords.y - offset.y) / scale)};
+Util.image_coords = function (coords, scale) {
+    return {x: Math.floor(coords.x / scale),
+            y: Math.floor(coords.y / scale)};
 };
 
-// Convert from image to canvas coords
-Util.canvas_coords = function (image_coords, offset, scale) {
-    return {x: Math.ceil(image_coords.x * scale + offset.x),
-            y: Math.ceil(image_coords.y * scale + offset.y)};
+// Convert from image to frame coords
+Util.frame_coords = function (image_coords, scale) {
+    return {x: Math.ceil(image_coords.x * scale),
+            y: Math.ceil(image_coords.y * scale)};
 };
+
+Util.canvas_coords = function (image_coords, offset, scale) {
+    return {x: Math.ceil((image_coords.x + offset.x) * scale),
+            y: Math.ceil((image_coords.y + offset.y) * scale)};
+}
 
 // Returns a canvas containing a copy of the input canvas,
 // optionally only the part contained by rect, and optionally flipped.
