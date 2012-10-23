@@ -219,8 +219,8 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.model.layers.on("move", this.on_layer_reordered);
 
         this.model.on("resize", this.on_resize);
-        // this.model.on("selection", this.make_selection);
-        // this.model.on("selection_done", this.edit_selection);
+        this.model.on("selection", this.on_selection);
+        //this.model.on("selection_done", this.edit_selection);
         this.model.on("load", this.on_load);
         this.model.on("change:title", this.on_rename);
 
@@ -234,10 +234,6 @@ OldPaint.DrawingView = Backbone.View.extend({
         $("#logo").click(this.show_menu.bind(this, null));
         $("#undo").click(this.on_undo);
         $("#redo").click(this.on_redo);
-
-        this.selection_view = new OldPaint.SelectionView({model: this.model,
-                                                          msgbus: this.msgbus,
-                                                          window: this.window});
     },
 
     render: function (update_image) {
@@ -253,10 +249,6 @@ OldPaint.DrawingView = Backbone.View.extend({
             height: this.model.get("height") * this.window.scale
         });
 
-        if (this.model.selection) {
-            this.selection_view.render(this.model.selection);
-            this.selection_view.edit();
-        }
         this.update_title();
     },
 
@@ -275,7 +267,7 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     on_window_resize: _.throttle(function (ev) {
         console.log("window resize");
-        this.render(true);
+        this.render(false);
     }, 250),
 
     show_menu: function (start) {
@@ -715,5 +707,12 @@ OldPaint.DrawingView = Backbone.View.extend({
         case -1: this.zoom_out(event, true); break;
         }
     },
+
+    on_selection: function (selection) {
+        var selview = new OldPaint.SelectionView({model: selection,
+                                                  msgbus: this.msgbus,
+                                                  window: this.window});
+        $("#drawing").append(selview.$el);
+    }
 
 });

@@ -85,29 +85,26 @@ $(function () {
              var rect = Util.rectify(stroke.start,
                                      {x: stroke.pos.x + 1,
                                       y: stroke.pos.y + 1});
-             var select_brush = function () {
-                 console.log("action");
+             var action = function (rect) {
                  var layer = drawing.layers.active;
-                 var brush = new OldPaint.ImageBrush({
-                     type: "user",
-                     patch: layer.make_patch(drawing.selection),
-                     image_type: drawing.image_type});
+                 var brush = new OldPaint.ImageBrush({type: "user",
+                                                      patch: layer.make_patch(rect),
+                                                      image_type: drawing.image_type});
                  brushes.add(brush);
                  brush.activate();
-                 drawing.set_selection();
                  tools.previous.activate();
              };
-             drawing.set_selection(rect, select_brush);
+             drawing.make_selection(action);
          },
          draw: function (drawing, stroke) {
-             var layer = drawing.layers.active;
-             var rect = Util.rectify(stroke.start,
-                                     {x: stroke.pos.x + 1,
-                                      y: stroke.pos.y + 1});
-             drawing.set_selection(rect);
+              var rect = Util.rectify(stroke.start, {x: stroke.pos.x + 1,
+                                                     y: stroke.pos.y + 1});
+             drawing.selection.resize(rect);
          },
          after: function (drawing, stroke) {
-             drawing.trigger("selection_done");
+             // The operation is not quite finished when the user releases the mouse,
+             // the selection can still be edited by dragging the corners.
+             drawing.selection.edit();
          }}));
 
     tools.add(new Tool(

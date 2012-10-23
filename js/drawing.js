@@ -336,21 +336,14 @@ OldPaint.Drawing = Backbone.Model.extend({
 
     // === Misc functions ===
 
-    set_selection: function (rect, action) {
-        if (rect) {
-            var begin = !this.selection;
-            if (begin) {
-                this.selection = rect;
-                this.selection.action = action;
-            } else {
-                $.extend(this.selection, rect);
-            }
-            this.trigger("selection", begin);
-            this.update_coords(this.selection);
-        } else {
-            this.selection = null;
-            this.trigger("selection");
-        }
+    make_selection: function (action) {
+        this.selection = new OldPaint.Selection({action: action});
+        this.trigger("selection", this.selection);
+    },
+
+    end_selection: function (action) {
+        this.selection.finish(action);
+        this.selection = null;
     },
 
     update_coords: _.throttle(function (data) {
