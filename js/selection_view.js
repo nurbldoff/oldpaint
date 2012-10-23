@@ -12,12 +12,13 @@ OldPaint.SelectionView = Backbone.View.extend({
         console.log("selection view", options.model);
         _.bindAll(this);
         this.window = options.window;
-        this.msgbus = options.msgbus;
+        this.eventbus = options.eventbus;
         //this.model.on("selection", this.render);
         this.model.on("change", this.update);
         this.model.on("edit", this.edit);
-        //this.model.on("finish", this.edit);
-
+        this.window.on("change", this.update);
+        //this.model.on("finish", this.finish);
+        this.model.on("abort", this.cleanup);
         this.render();
     },
 
@@ -28,14 +29,15 @@ OldPaint.SelectionView = Backbone.View.extend({
         this.$el.html(template);
     },
 
-    update: function (rect) {
+    update: function () {
+        var rect = this.model.rect;
         var start = Util.canvas_coords({x: rect.left, y: rect.top}, this.window.offset,
                                        this.window.scale);
         var end = Util.canvas_coords({x: rect.left + rect.width,
                                       y: rect.top + rect.height}, this.window.offset,
                                      this.window.scale);
-        var handle_width = ($("#selection_topleft").width() + 2);
-        var handle_height = ($("#selection_topleft").height() + 2);
+        var handle_width = ($("#selection_topleft").width() + 4);
+        var handle_height = ($("#selection_topleft").height() + 4);
         $("#selection_main").css({left: start.x - handle_width,
                                   top: start.y - handle_height,
                                   width: end.x - start.x + 2*handle_width,
@@ -60,24 +62,28 @@ OldPaint.SelectionView = Backbone.View.extend({
             if (event.which == 2) this.end_stroke(event);
         }).bind(this);
 
-        $("#selection_block").unbind();
-        $("#selection_block").css(
-            {visibility: "visible"}).unbind()
-            .on("mousedown", begin_scroll)
-            .on("mousemove", scroll)
-            .on("mouseup", end_scroll)
-            .on("click", this.on_done);
+        // $("#selection_block").unbind();
+        // $("#selection_block").css(
+        //     {visibility: "visible"}).unbind()
+        //     .on("mousedown", begin_scroll)
+        //     .on("mousemove", scroll)
+        //     .on("mouseup", end_scroll)
+        //     .on("click", this.on_done);
 
         $(".selection.handle").unbind();
         $(".selection.handle").css(
             {visibility: "visible", "pointer-events": "auto"})
             .on("mousedown", this, function (event) {
-                $(".selection.handle").css("pointer-events", "none");
-                $("#selection_block").on("mousemove", this, event.data.resize);
-                $("#selection_block").on("mouseup", this, event.data.resize_done);
+                $(".selection").css("pointer-events", "none");
+                $("#drawing_frame").on("mousemove", this, event.data.resize);
+                $("#drawing_frame").on("mouseup", this, event.data.resize_done);
             });
 
-        this.msgbus.info("Select an area by dragging the mouse.");
+        $("#selection_center").unbind();
+        $("#selection_center").css({"pointer-events": "auto"})
+            .on("mousedown", this.finish);
+
+        this.eventbus.info("Select an area by dragging the mouse.");
     },
 
     // callback for dragging a corner handle
@@ -119,13 +125,21 @@ OldPaint.SelectionView = Backbone.View.extend({
 
     // Callback for releasing a corner handle
     resize_done: function (event) {
+        $("#drawing_frame").unbind("mousemove", event.data.resize);
+        $("#drawing_frame").unbind("mouseup", event.data.resize_done);
         this.edit();
     },
 
-    on_done: function () {
+    finish: function () {
         this.model.finish();
+        this.cleanup();
+    },
+
+    cleanup: function () {
         this.model.unbind("change", this.update);
         this.model.unbind("finish", this.edit);
+        this.window.unbind("change", this.update);
+        this.model.unbind("abort", this.cleanup);
         this.remove();
         this.unbind();
     }

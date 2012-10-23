@@ -16,21 +16,18 @@
 
 #selection_center {
     position: relative;
-    pointer-events: none;
 }
 
 #selection_frame1 {
     position: absolute;
     border: solid white 2px;
     opacity: 0.7;
-    pointer-events: none;
 }
 
 #selection_frame2 {
     position: absolute;
     opacity: 0.7;
     border: dashed black 2px;
-    pointer-events: none;
 }
 
 #selection_topleft, #selection_topright, #selection_botleft, #selection_botright {
@@ -38,9 +35,13 @@
     width: 10px;
     height: 10px;
     outline: solid black 2px;
-    background-color: rgba(255,0,0,0.5);
+    border-width: 2px 0 0 2px;
+    border-color: white;
+    border-style: solid;
+    background-color: red;
     visibility: hidden;
     cursor: pointer;
+    opacity: 0.7;
 }
 
 #selection_topleft {

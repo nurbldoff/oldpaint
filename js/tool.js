@@ -38,6 +38,7 @@ OldPaint.Tools = Backbone.Collection.extend ({
     },
 
     on_activate: function (tool) {
+        console.log("activated tool", tool.name);
         this.previous = this.active;
         this.active = tool;
     }

@@ -3,10 +3,9 @@ $(function () {
     if (!window.console.log) window.console.log = function() {};
 
     // Used to send messages to the info area
-    var msgbus = {};
-    _.extend(msgbus, Backbone.Events);
-    msgbus.info = function (msg) {msgbus.trigger("info", msg);};
-    msgbus.clear = function () {msgbus.trigger("clear");};
+    OldPaint.eventbus = eventbus = _.extend({}, Backbone.Events);
+    eventbus.info = function (msg) {eventbus.trigger("info", msg);};
+    eventbus.clear = function () {eventbus.trigger("clear");};
 
     // Tools
     var tools = OldPaint.tools = new OldPaint.Tools();
@@ -81,30 +80,38 @@ $(function () {
         {name: "brush", key: "u", preview: false,
          help: "Click and drag to select the area you want to copy.",
          before: function (drawing, stroke) {
-             var layer = drawing.layers.active;
-             var rect = Util.rectify(stroke.start,
-                                     {x: stroke.pos.x + 1,
-                                      y: stroke.pos.y + 1});
-             var action = function (rect) {
+             if (!drawing.selection) {
                  var layer = drawing.layers.active;
-                 var brush = new OldPaint.ImageBrush({type: "user",
-                                                      patch: layer.make_patch(rect),
-                                                      image_type: drawing.image_type});
-                 brushes.add(brush);
-                 brush.activate();
-                 tools.previous.activate();
-             };
-             drawing.make_selection(action);
+                 var rect = Util.rectify(stroke.start,
+                                         {x: stroke.pos.x + 1,
+                                          y: stroke.pos.y + 1});
+                 var action = function (rect) {
+                     var layer = drawing.layers.active;
+                     var brush = new OldPaint.ImageBrush({type: "user",
+                                                          patch: layer.make_patch(rect),
+                                                          image_type: drawing.image_type});
+                     brushes.add(brush);
+                     brush.activate();
+                     tools.previous.activate();
+                     drawing.selection = null;
+                 };
+                 drawing.make_selection(action);
+             } else {
+                 drawing.selection.abort();
+                 drawing.selection = null;
+             }
          },
          draw: function (drawing, stroke) {
-              var rect = Util.rectify(stroke.start, {x: stroke.pos.x + 1,
-                                                     y: stroke.pos.y + 1});
-             drawing.selection.resize(rect);
+             if (drawing.selection && !drawing.selection.editable) {
+                 var rect = Util.rectify(stroke.start, {x: stroke.pos.x + 1,
+                                                        y: stroke.pos.y + 1});
+                 drawing.selection.resize(rect);
+             }
          },
          after: function (drawing, stroke) {
              // The operation is not quite finished when the user releases the mouse,
              // the selection can still be edited by dragging the corners.
-             drawing.selection.edit();
+             if (drawing.selection && !drawing.selection.editable) drawing.selection.edit();
          }}));
 
     tools.add(new Tool(
@@ -130,7 +137,7 @@ $(function () {
                  drawing.palette.set_foreground(color);
          }}));
 
-    var tools_view = new OldPaint.ToolsView({collection: tools, msgbus: msgbus});
+    var tools_view = new OldPaint.ToolsView({collection: tools, eventbus: eventbus});
     tools.at(0).activate();
 
     // Palette
@@ -142,7 +149,7 @@ $(function () {
     }
     var palette = new OldPaint.Palette({colors: colors, transparent: [0]});
     var palette_editor_view = new OldPaint.PaletteEditorView(
-        {model: palette, size: {x: 32, y: 8}, msgbus: msgbus});
+        {model: palette, size: {x: 32, y: 8}, eventbus: eventbus});
     palette.set_background(0);
     palette.set_foreground(1);
 
@@ -177,17 +184,17 @@ $(function () {
                                              palette: palette,
                                              image_type: image_type}));
 
-    var brushes_view = new OldPaint.BrushesView({collection: brushes, msgbus: msgbus});
+    var brushes_view = new OldPaint.BrushesView({collection: brushes, eventbus: eventbus});
     brushes.at(0).activate();
 
     // Drawing
     console.log("create drawing");
     var drawing = new OldPaint.Drawing(
         { width: 800, height: 600, palette: palette, image_type: image_type});
-    var info_view = new OldPaint.InfoView({model: drawing, msgbus: msgbus});
-    var layers_view = new OldPaint.MiniLayersView({model: drawing, msgbus: msgbus});
+    var info_view = new OldPaint.InfoView({model: drawing, eventbus: eventbus});
+    var layers_view = new OldPaint.MiniLayersView({model: drawing, eventbus: eventbus});
     var drawing_view = new OldPaint.DrawingView({model: drawing, brushes: brushes,
-                                                 tools: tools, msgbus: msgbus});
+                                                 tools: tools, eventbus: eventbus});
 
     console.log("adding layer from main");
     drawing.add_layer(true);

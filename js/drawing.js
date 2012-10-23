@@ -337,7 +337,7 @@ OldPaint.Drawing = Backbone.Model.extend({
     // === Misc functions ===
 
     make_selection: function (action) {
-        this.selection = new OldPaint.Selection({action: action});
+        this.selection = new OldPaint.Selection({drawing: this, action: action});
         this.trigger("selection", this.selection);
     },
 

@@ -6,8 +6,7 @@ OldPaint.DrawingView = Backbone.View.extend({
     el: $("#drawing_frame"),
     active_layer: null,
     zoom: 0,
-    window: {scale: 1,
-             offset: Util.pos(0, 0)},
+    window: _.extend({scale: 1, offset: Util.pos(0, 0)}, Backbone.Events),
     base_offset: Util.pos(0, 0),
     stroke: null,
     topleft: Util.pos(0, 0),
@@ -27,7 +26,7 @@ OldPaint.DrawingView = Backbone.View.extend({
 
         this.tools = options.tools;
         this.brushes = options.brushes;
-        this.msgbus = options.msgbus;
+        this.eventbus = options.eventbus;
 
         // Remove context menu for the drawing part, so we can erase
         var no_context_menu = function(event) {
@@ -274,9 +273,9 @@ OldPaint.DrawingView = Backbone.View.extend({
     }, 250),
 
     show_menu: function (start) {
-        this.msgbus.info("Menu mode. Select with keyboard or mouse. Leave with Esc.");
+        this.eventbus.info("Menu mode. Select with keyboard or mouse. Leave with Esc.");
         if (!this.menu) {
-            $("#title").linearMenu(this.menuitems, this, start, this.msgbus.clear);
+            $("#title").linearMenu(this.menuitems, this, start, this.eventbus.clear);
         }
     },
 
@@ -395,6 +394,7 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     update_scale: function() {
         this.window.scale = Math.pow(2, this.zoom);
+        this.window.trigger("change");
     },
 
     cleanup: function () {
@@ -439,17 +439,17 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     on_undo: function () {
         if (this.model.undo()) {
-            this.msgbus.info("Undo");
+            this.eventbus.info("Undo");
         } else {
-            this.msgbus.info("Nothing more to undo!");
+            this.eventbus.info("Nothing more to undo!");
         }
     },
 
     on_redo: function () {
         if (this.model.redo()) {
-            this.msgbus.info("Redo");
+            this.eventbus.info("Redo");
         } else {
-            this.msgbus.info("Nothing more to redo!");
+            this.eventbus.info("Nothing more to redo!");
         }
     },
 
@@ -499,7 +499,7 @@ OldPaint.DrawingView = Backbone.View.extend({
     resize_image: function () {
         var resize = function () {
             this.model.resize(this.model.selection);
-            this.msgbus.info("Resized to (" + this.model.selection.width + ", " +
+            this.eventbus.info("Resized to (" + this.model.selection.width + ", " +
                            this.model.selection.height + ")");
             this.model.set_selection();
         };
@@ -509,7 +509,7 @@ OldPaint.DrawingView = Backbone.View.extend({
             height: this.model.get("height")
         }, resize);
         this.selection_view.edit();
-        this.msgbus.info("Resize the image by dragging the corner handles. " +
+        this.eventbus.info("Resize the image by dragging the corner handles. " +
                        "Click anywhere to finish.");
     },
 
@@ -522,7 +522,7 @@ OldPaint.DrawingView = Backbone.View.extend({
     convert_image: function (event) {
         var on_ok = (function () {
             if (!this.model.convert_to_rgb_type())
-                this.msgbus.info("Drawing is not of Indexed type - not converting.");
+                this.eventbus.info("Drawing is not of Indexed type - not converting.");
             else {
                 this.brushes.each(function (brush) {brush.convert(OldPaint.RGBImage);});
                 this.update_title();
@@ -602,7 +602,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         if (!this.scroll_mode) {
             switch (this.stroke.button) {
             case 1:  // Drawing
-                this.msgbus.info(this.tools.active.help);
+                this.eventbus.info(this.tools.active.help);
                 this.model.before_draw(this.tools.active, this.stroke);
                 this.stroke.draw = true;  // we're drawing, not e.g. panning
                 this.stroke.color = this.model.palette.foreground;
@@ -610,7 +610,7 @@ OldPaint.DrawingView = Backbone.View.extend({
                 this.model.draw(this.tools.active, this.stroke);
                 break;
             case 3:  // Erasing
-                this.msgbus.info(this.tools.active.help);
+                this.eventbus.info(this.tools.active.help);
                 this.model.before_draw(this.tools.active, this.stroke);
                 this.stroke.draw = true;
                 this.stroke.color = this.model.palette.background;
@@ -652,13 +652,14 @@ OldPaint.DrawingView = Backbone.View.extend({
             this.brush_restore();
         this.stroke = null;
         $(".fg").css({"pointer-events": "auto"});
-        this.msgbus.clear();
+        this.eventbus.clear();
         document.onmouseup = null;
     },
 
     update_offset: function (offset) {
         this.window.offset = {x: this.window.offset.x + Math.floor(offset.x),
                               y: this.window.offset.y + Math.floor(offset.y)};
+        this.window.trigger("change");
     },
 
     // Center the display on a certain image coordinate
@@ -707,6 +708,7 @@ OldPaint.DrawingView = Backbone.View.extend({
     },
 
     wheel_zoom: function (event, delta, deltaX, deltaY) {
+        console.log("wheel_zoom", event);
         switch (deltaY) {
         case 1: this.zoom_in(event, true); break;
         case -1: this.zoom_out(event, true); break;
@@ -715,7 +717,7 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     on_selection: function (selection) {
         var selview = new OldPaint.SelectionView({model: selection,
-                                                  msgbus: this.msgbus,
+                                                  eventbus: this.eventbus,
                                                   window: this.window});
         $("#drawing").append(selview.$el);
     }

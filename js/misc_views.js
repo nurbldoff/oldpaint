@@ -8,7 +8,7 @@ OldPaint.ToolsView = Backbone.View.extend({
 
     initialize: function (options) {
         _.bindAll(this);
-        this.msgbus = options.msgbus;
+        this.eventbus = options.eventbus;
         this.collection.on("activate", this.on_activate);
         this.collection.each(function (tool) {
             if (tool.key) {
@@ -27,10 +27,10 @@ OldPaint.ToolsView = Backbone.View.extend({
             var el = $('#' + tool.name);
             el.hover(
                 (function () {
-                    this.msgbus.info("Tool: " + tool.name + " - " + tool.help);
+                    this.eventbus.info("Tool: " + tool.name + " - " + tool.help);
                 }).bind(this),
                 (function () {
-                    this.msgbus.clear();
+                    this.eventbus.clear();
                 }).bind(this));
         }, this);
     },
@@ -56,7 +56,7 @@ OldPaint.BrushesView = Backbone.View.extend({
     initialize: function (options) {
         _.bindAll(this);
         this.collection = options.collection;
-        this.msgbus = options.msgbus;
+        this.eventbus = options.eventbus;
         this.type = options.type;
         //this.setElement("#" + options.name);
         this.collection.on("activate", this.activate);
@@ -81,10 +81,10 @@ OldPaint.BrushesView = Backbone.View.extend({
                 $(btn).append(canvas);
                 $(btn).hover(
                     (function () {
-                        this.msgbus.info(brush.get_info());
+                        this.eventbus.info(brush.get_info());
                     }).bind(this),
                     (function () {
-                        this.msgbus.clear();
+                        this.eventbus.clear();
                     }).bind(this));
 
             }
@@ -118,9 +118,9 @@ OldPaint.InfoView = Backbone.View.extend({
     initialize: function (options) {
         _.bindAll(this);
         this.model.on("coordinates", this.set_coordinates);
-        this.msgbus = options.msgbus;
-        this.msgbus.on("info", this.set_message);
-        this.msgbus.on("clear", this.set_message);
+        this.eventbus = options.eventbus;
+        this.eventbus.on("info", this.set_message);
+        this.eventbus.on("clear", this.set_message);
         this.$message = $("#message");
         this.$coordinates = $("#coordinates");
         this.render();
