@@ -21,7 +21,7 @@ OldPaint.LayerView = Backbone.View.extend({
         _.bindAll(this);
         this.window = options.window;
         this.model.on("update", this.update);
-        //this.model.on("resize", this.resize);
+        this.model.on("resize", this.resize);
         this.model.on("redraw", this.render);
         this.model.on("remove", this.on_remove);
         this.model.on("change:visible", this.on_visible);
@@ -66,12 +66,8 @@ OldPaint.LayerView = Backbone.View.extend({
         }
     },
 
-    // Resize the view
+    // Resize the view, e.g. because the window size changed
     resize: function () {
-        console.log("resize");
-        // some trickery to get window resize to work
-        //$(vlayer.canvas).hide();
-        //$("div.drawing").css({width: 0, height: 0});
         this.el.width = $("#drawing").width();
         this.el.height = $("#drawing").height();
         this.context = this.el.getContext('2d');
@@ -86,8 +82,7 @@ OldPaint.LayerView = Backbone.View.extend({
         }
         $(".drawing").css({width: this.el.width,
                                      height: this.el.height});
-        this.topleft = $("#drawing").offset();
-        console.log("topleft", this.topleft);
+        //this.topleft = $("#drawing").offset();
     },
 
     // Redraw part of the view
@@ -134,8 +129,8 @@ OldPaint.LayerView = Backbone.View.extend({
         this.visible = this.model.attributes.visible;
         if (this.visible) this.render();  // Layer may have been moved/zoomed since
         this.$el.toggleClass("invisible", !this.visible);
-    },
 
+    },
     on_animated: function () {
         this.animated = this.model.attributes.animated;
         if (this.visible) this.render();

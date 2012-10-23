@@ -299,7 +299,7 @@ td.bottom table {
     border-width: 0;
     background: #606060;
     margin: 0;
-
+    overflow: hidden;
 }
 
 #drawing_frame {

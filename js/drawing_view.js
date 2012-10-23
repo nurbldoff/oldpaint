@@ -16,7 +16,7 @@ OldPaint.DrawingView = Backbone.View.extend({
     events: {
         "mousedown": "begin_stroke",
         //"mousemove": "update_stroke",
-        "mouseup": "end_stroke",
+        //"mouseup": "end_stroke",
         "mousewheel": "wheel_zoom",
         "mouseover": "on_mouse_enter",
         "mouseout": "on_mouse_leave"
@@ -267,6 +267,9 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     on_window_resize: _.throttle(function (ev) {
         console.log("window resize");
+        this.model.layers.each(function (layer) {
+            layer.trigger("resize");
+        });
         this.render(false);
     }, 250),
 
@@ -616,6 +619,7 @@ OldPaint.DrawingView = Backbone.View.extend({
                 break;
             }
         }
+        document.onmouseup = this.end_stroke;
     },
 
     // Callback for when the user is moving the mouse
@@ -649,6 +653,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.stroke = null;
         $(".fg").css({"pointer-events": "auto"});
         this.msgbus.clear();
+        document.onmouseup = null;
     },
 
     update_offset: function (offset) {
