@@ -252,12 +252,10 @@ OldPaint.DrawingView = Backbone.View.extend({
     },
 
     on_mouse_enter: function (ev) {
-        console.log("mouse enter");
         this.mouse = true;
     },
 
     on_mouse_leave: function (ev) {
-        console.log("mouse leave");
         if (!this.stroke) {
             this.mouse = false;
             this.model.layers.active.clear_temporary();
@@ -265,7 +263,6 @@ OldPaint.DrawingView = Backbone.View.extend({
     },
 
     on_window_resize: _.throttle(function (ev) {
-        console.log("window resize");
         this.model.layers.each(function (layer) {
             layer.trigger("resize");
         });
@@ -459,8 +456,8 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.center_on_image_pos(
             {x: Math.round(this.model.get("width") / 2),
              y: Math.round(this.model.get("height") / 2)},
-            {x: Math.round($("body").width() / 2) - this.window.offset.x,
-             y: Math.round($("body").height() / 2) - this.window.offset.y});
+            {x: Math.round($("#drawing").width() / 2) - this.window.offset.x,
+             y: Math.round($("#drawing").height() / 2) - this.window.offset.y});
         this.render();
     },
 
@@ -686,11 +683,10 @@ OldPaint.DrawingView = Backbone.View.extend({
             canvas_pos = Util.event_coords(event);
         } else {
             canvas_pos = {
-                x: Math.floor($("body").width() / 2) - this.window.offset.x,
-                y: Math.floor($("body").height() / 2) - this.window.offset.y
+                x: Math.floor($("#drawing").width() / 2) - this.window.offset.x,
+                y: Math.floor($("#drawing").height() / 2) - this.window.offset.y
             };
         }
-        console.log("zoom", center_mouse, canvas_pos.x, canvas_pos.y);
         this.set_zoom(this.zoom + 1, canvas_pos);
     },
 
@@ -700,15 +696,14 @@ OldPaint.DrawingView = Backbone.View.extend({
             canvas_pos = Util.event_coords(event);
         } else {
             canvas_pos = {
-                x: Math.floor($("body").width() / 2) - this.window.offset.x,
-                y: Math.floor($("body").height() / 2) - this.window.offset.y
+                x: Math.floor($("#drawing").width() / 2) - this.window.offset.x,
+                y: Math.floor($("#drawing").height() / 2) - this.window.offset.y
             };
         }
         this.set_zoom(this.zoom - 1, canvas_pos);
     },
 
     wheel_zoom: function (event, delta, deltaX, deltaY) {
-        console.log("wheel_zoom", event);
         switch (deltaY) {
         case 1: this.zoom_in(event, true); break;
         case -1: this.zoom_out(event, true); break;
