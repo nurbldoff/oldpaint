@@ -63,6 +63,8 @@ OldPaint.LayerView = Backbone.View.extend({
             // if (rect) {
             //     this.update(rect);
             // }
+        } else {
+            this.deferred_render = true;
         }
     },
 
@@ -100,8 +102,12 @@ OldPaint.LayerView = Backbone.View.extend({
     },
 
     on_activate: function () {
-        this.$el.toggleClass("active", true);
         this.active = true;
+        if (this.deferred_render) {
+            this.deferred_render = false;
+            this.render();
+        }
+        this.$el.toggleClass("active", true);
     },
 
     on_deactivate: function () {
@@ -127,13 +133,13 @@ OldPaint.LayerView = Backbone.View.extend({
 
     on_visible: function () {
         this.visible = this.model.attributes.visible;
-        if (this.visible) this.render();  // Layer may have been moved/zoomed since
+        if (this.deferred_render) this.render();  // Layer may have been moved/zoomed since
         this.$el.toggleClass("invisible", !this.visible);
 
     },
     on_animated: function () {
         this.animated = this.model.attributes.animated;
-        if (this.visible) this.render();
+        if (this.deferred_render) this.render();
         this.$el.toggleClass("animated", this.animated);
     }
 

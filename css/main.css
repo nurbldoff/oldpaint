@@ -332,11 +332,6 @@ canvas.layer {
 /*     width: 100%; */
 /* } */
 
-
-canvas.layer.invisible {
-    visibility: hidden;
-}
-
 canvas.layer.animated {
     visibility: hidden;
 }
@@ -344,6 +339,15 @@ canvas.layer.animated {
 canvas.layer.animated.active {
     visibility: visible;
 }
+
+canvas.layer.invisible {
+    visibility: hidden;
+}
+
+canvas.layer.animated.active.invisible {
+    visibility: hidden;
+}
+
 
 
 /* === Buttons === */
