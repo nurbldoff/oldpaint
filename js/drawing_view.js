@@ -4,18 +4,14 @@
 OldPaint.DrawingView = Backbone.View.extend({
 
     el: $("#drawing_frame"),
-    active_layer: null,
+
     zoom: 0,
     window: _.extend({scale: 1, offset: Util.pos(0, 0)}, Backbone.Events),
-    base_offset: Util.pos(0, 0),
     stroke: null,
-    topleft: Util.pos(0, 0),
     mouse: false,  // is the mouse over the drawing?
 
     events: {
         "mousedown": "begin_stroke",
-        //"mousemove": "update_stroke",
-        //"mouseup": "end_stroke",
         "mousewheel": "wheel_zoom",
         "mouseover": "on_mouse_enter",
         "mouseout": "on_mouse_leave"
@@ -40,14 +36,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         // Load settings from local storage
         this.load_settings();
 
-        this.topleft = this.$el.offset();
         this.center();
-
-        $(window).resize(this.on_window_resize);
-
-        // Bind the time critical mousemove directly instead of using Backbone
-        var el = document.getElementById('drawing_frame');
-        el.onmousemove = this.update_stroke;
 
         // Let's save to local storage periodically
         // TODO: the save system should be smart enough to e.g. only save layers that
@@ -214,6 +203,13 @@ OldPaint.DrawingView = Backbone.View.extend({
         });
 
         // Events
+
+        // Mousemove is performance critical so let's bind it directly
+        var el = document.getElementById('drawing_frame');
+        el.onmousemove = this.update_stroke;
+
+        $(window).resize(this.on_window_resize);
+
         this.model.layers.on("add", this.on_layer_added);
         this.model.layers.on("move", this.on_layer_reordered);
 
@@ -236,7 +232,6 @@ OldPaint.DrawingView = Backbone.View.extend({
     },
 
     render: function (update_image) {
-        this.topleft = this.$el.offset();
         this.model.layers.each(function (layer, index) {
             if (update_image) layer.image.updateCanvas();
             layer.trigger("redraw", false);
@@ -584,8 +579,6 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     // Callback for when the user presses a mouse button on the canvas
     begin_stroke: function (event) {
-        // this.base_offset.x = this.window.offset.x;
-        // this.base_offset.y = this.window.offset.y;
         var offset = Util.event_coords(event);
         this.stroke = {
             button: event.which,
