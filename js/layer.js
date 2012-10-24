@@ -14,6 +14,11 @@ OldPaint.Layer = OldPaint.Image.extend ({
         animated: false
     },
 
+    initialize: function (spec) {
+        OldPaint.Layer.__super__.initialize.apply(this, [spec]);
+        this.make_backup();
+    },
+
     clear_temporary: function (silent) {
         if (this.temporary_rect) {
             this.restore_backup(this.temporary_rect, this.temporary_rect, silent);
@@ -81,7 +86,6 @@ OldPaint.Layer = OldPaint.Image.extend ({
         this.trigger_update(
             this.draw_patch(patch, rect, true),
             true);
-        this.make_backup();
         this.cleanup();
     },
 
@@ -139,7 +143,7 @@ OldPaint.Layer = OldPaint.Image.extend ({
         var rect = whole ? this.get_rect() : this.dirty_rect;
         this.dirty_rect = null;
         if (rect) {
-            if (this.image.updateAlpha) this.image.updateAlpha(rect);
+            //if (this.image.updateAlpha) this.image.updateAlpha(rect);
             this.trigger_update(rect);
         }
         this.make_backup();
@@ -160,7 +164,6 @@ OldPaint.Layer = OldPaint.Image.extend ({
                              width: orig_width, height: orig_height},
                             {left: -rect.left, top: -rect.top,
                              width: orig_width, height: orig_height});
-        this.make_backup();
         this.cleanup();
     },
 

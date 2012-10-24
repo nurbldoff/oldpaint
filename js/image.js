@@ -12,7 +12,7 @@ OldPaint.Image = Backbone.Model.extend ({
         if (spec.patch) {
             this.draw_patch(spec.patch, {left: 0, top:0});
         }
-        this.make_backup();
+        this.backup = null;
     },
 
     get_size: function () {
@@ -97,9 +97,8 @@ OldPaint.Image = Backbone.Model.extend ({
 
     draw_clear: function (color) {
         var rect = this.image.clear();
-        if (color >= 0) {
+        if (color >= 0)
             this.draw_fill({x: 0, y: 0}, color);
-        }
         return rect;
     },
 

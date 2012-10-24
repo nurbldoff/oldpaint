@@ -77,6 +77,7 @@ OldPaint.ImageBrush = OldPaint.Brush.extend ({
         if (this.image.updateAlpha)
             this.image.updateAlpha();
         this.preview = Util.copy_canvas(this.image.canvas);
+        this.make_backup();
     },
 
     set_color: function (color, force) {
@@ -85,6 +86,17 @@ OldPaint.ImageBrush = OldPaint.Brush.extend ({
             this.image.colorize(color, true);
         }
     },
+
+    flip_x: function () {
+        OldPaint.Layer.__super__.flip_x.apply(this);
+        this.make_backup();
+    },
+
+    flip_y: function () {
+        OldPaint.Layer.__super__.flip_y.apply(this);
+        this.make_backup();
+    },
+
 
     get_info: function () {
         return "Brush: user defined, " + this.spec.width + "x" + this.spec.height;
