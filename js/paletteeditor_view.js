@@ -63,6 +63,8 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
             }
             var color = colors[index], outer = $("<div>"), inner = $("<div>"),
                 hex = Util.colorToHex(color);
+            if (color[3] === 0)
+                inner.addClass("transparent");
             outer.addClass("colors cell");
             outer.attr("data", index);
             outer.css({background: "#"+hex});
