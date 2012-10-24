@@ -300,6 +300,7 @@ td.bottom table {
     background: #606060;
     margin: 0;
     overflow: hidden;
+    cursor: url("../images/cursor.gif") 10 10,auto;
 }
 
 #drawing_frame {
@@ -308,7 +309,7 @@ td.bottom table {
     background: #D0D0D0 url("../images/chequered_transp.png");
     outline: 2px solid black;
     /* -webkit-transform: rotate(45deg); */
-    cursor: url("../images/cursor.gif") 10 10,auto;
+    pointer-events: none;
 }
 
 #layers_container {

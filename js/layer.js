@@ -152,7 +152,6 @@ OldPaint.Layer = OldPaint.Image.extend ({
     },
 
     resize: function (rect) {
-        console.log("resize:", rect);
         this.make_backup();
         var orig_width = this.image.canvas.width;
         var orig_height = this.image.canvas.height;

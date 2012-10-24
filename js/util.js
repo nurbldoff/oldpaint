@@ -120,21 +120,21 @@ Util.pos = function (x, y) {
 };
 
 // Convert from a position on the screen canvas to image coordinates
-Util.image_coords = function (coords, scale) {
-    return {x: Math.floor(coords.x / scale),
-            y: Math.floor(coords.y / scale)};
+Util.image_coords = function (coords, window) {
+    return {x: Math.floor((coords.x - window.offset.x) / window.scale),
+            y: Math.floor((coords.y - window.offset.y) / window.scale)};
 };
 
 // Convert from image to frame coords
-Util.frame_coords = function (image_coords, scale) {
-    return {x: Math.ceil(image_coords.x * scale),
-            y: Math.ceil(image_coords.y * scale)};
+Util.frame_coords = function (image_coords, window) {
+    return {x: Math.ceil(image_coords.x * window.scale + window.offset.x),
+            y: Math.ceil(image_coords.y * window.scale + window.offset.y)};
 };
 
 // Convert image coordinates to canvas (screen) coordinates
-Util.canvas_coords = function (image_coords, offset, scale) {
-    return {x: Math.ceil(image_coords.x * scale + offset.x),
-            y: Math.ceil(image_coords.y * scale + offset.y)};
+Util.canvas_coords = function (image_coords, window) {
+    return {x: Math.ceil(image_coords.x * window.scale),
+            y: Math.ceil(image_coords.y * window.scale)};
 };
 
 // Returns a canvas containing a copy of the input canvas,

@@ -3,6 +3,7 @@ OldPaint.Selection = Backbone.Model.extend({
     initialize: function (options) {
         this.drawing = options.drawing;
         this.action = options.action;
+        this.rect = options.rect;
         this.editable = false;
     },
 

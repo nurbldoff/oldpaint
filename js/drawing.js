@@ -121,6 +121,10 @@ OldPaint.Drawing = Backbone.Model.extend({
             return "RGB";
     },
 
+    get_rect: function () {
+        return this.layers.active.get_rect();
+    },
+
     // === Layer operations ===
 
     add_layer: function (activate, data) {
@@ -202,7 +206,7 @@ OldPaint.Drawing = Backbone.Model.extend({
         this.set({width: size.width, height: size.height});
         this.layers.each(function(layer) {layer.resize(size);});
         this.trigger("resize");
-        this.layers.trigger("resize");
+        //this.layers.trigger("resize");
     },
 
     redraw: function(layer) {
@@ -337,13 +341,16 @@ OldPaint.Drawing = Backbone.Model.extend({
 
     // === Misc functions ===
 
-    make_selection: function (action) {
-        this.selection = new OldPaint.Selection({drawing: this, action: action});
+    make_selection: function (action, rect) {
+        console.log("make_selection");
+        this.selection = new OldPaint.Selection({drawing: this,
+                                                 action: action,
+                                                 rect: rect});
         this.trigger("selection", this.selection);
     },
 
     end_selection: function (action) {
-        this.selection.finish(action);
+        //this.selection.finish(action);
         this.selection = null;
     },
 

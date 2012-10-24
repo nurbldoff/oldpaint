@@ -20,22 +20,24 @@ OldPaint.SelectionView = Backbone.View.extend({
         //this.model.on("finish", this.finish);
         this.model.on("abort", this.cleanup);
         this.render();
+        if (this.model.rect) {
+            this.update();
+            this.edit();
+        }
     },
 
     // Visualize the selection rectangle
     render: function () {
-        console.log("render");
         var template = Ashe.parse( $("#selection_template").html(), {});
         this.$el.html(template);
+        $("#drawing").after(this.$el);
     },
 
     update: function () {
         var rect = this.model.rect;
-        var start = Util.canvas_coords({x: rect.left, y: rect.top}, this.window.offset,
-                                       this.window.scale);
-        var end = Util.canvas_coords({x: rect.left + rect.width,
-                                      y: rect.top + rect.height}, this.window.offset,
-                                     this.window.scale);
+        var start = Util.frame_coords({x: rect.left, y: rect.top}, this.window);
+        var end = Util.frame_coords({x: rect.left + rect.width,
+                                      y: rect.top + rect.height}, this.window);
         var handle_width = ($("#selection_topleft").width() + 4);
         var handle_height = ($("#selection_topleft").height() + 4);
         $("#selection_main").css({left: start.x - handle_width,
@@ -48,35 +50,13 @@ OldPaint.SelectionView = Backbone.View.extend({
 
     // Make the selection editable
     edit: function () {
-        this.last_pos = null;
-
-        var begin_scroll = (function (event) {
-            if (event.which == 2) this.begin_stroke(event);
-        }).bind(this);
-
-        var scroll = (function (event) {
-            if (event.which == 2) this.update_stroke(event);
-        }).bind(this);
-
-        var end_scroll = (function (event) {
-            if (event.which == 2) this.end_stroke(event);
-        }).bind(this);
-
-        // $("#selection_block").unbind();
-        // $("#selection_block").css(
-        //     {visibility: "visible"}).unbind()
-        //     .on("mousedown", begin_scroll)
-        //     .on("mousemove", scroll)
-        //     .on("mouseup", end_scroll)
-        //     .on("click", this.on_done);
-
         $(".selection.handle").unbind();
         $(".selection.handle").css(
             {visibility: "visible", "pointer-events": "auto"})
             .on("mousedown", this, function (event) {
                 $(".selection").css("pointer-events", "none");
-                $("#drawing_frame").on("mousemove", this, event.data.resize);
-                $("#drawing_frame").on("mouseup", this, event.data.resize_done);
+                $("#drawing").on("mousemove", this, event.data.resize);
+                $("#drawing").on("mouseup", this, event.data.resize_done);
             });
 
         $("#selection_center").unbind();
@@ -88,7 +68,7 @@ OldPaint.SelectionView = Backbone.View.extend({
 
     // callback for dragging a corner handle
     resize: function (event) {
-        var ipos = Util.image_coords(Util.event_coords(event), this.window.scale);
+        var ipos = Util.image_coords(Util.event_coords(event), this.window);
         if (!this.last_pos) this.last_pos = ipos;
         var delta = Util.subtract(ipos, this.last_pos);
         var sel = this.model.rect;
@@ -125,8 +105,8 @@ OldPaint.SelectionView = Backbone.View.extend({
 
     // Callback for releasing a corner handle
     resize_done: function (event) {
-        $("#drawing_frame").unbind("mousemove", event.data.resize);
-        $("#drawing_frame").unbind("mouseup", event.data.resize_done);
+        $("#drawing").unbind("mousemove", this.resize);
+        $("#drawing").unbind("mouseup", this.resize_done);
         this.edit();
     },
 
@@ -140,8 +120,8 @@ OldPaint.SelectionView = Backbone.View.extend({
         this.model.unbind("finish", this.edit);
         this.window.unbind("change", this.update);
         this.model.unbind("abort", this.cleanup);
-        this.remove();
         this.unbind();
+        this.remove();
     }
 
 });
