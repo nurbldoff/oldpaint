@@ -190,8 +190,9 @@ OldPaint.Drawing = Backbone.Model.extend({
                                             palette: this.palette,
                                             image_type: this.image_type});
         this.layers.each(function (layer, index) {
-            if (layer.get("visible")) {
+            if (layer.is_visible(layer === this.layers.active)) {
                 this.merge_layers(layer, new_layer, true);
+                console.log("merging layer", index);
             }
         }, this);
         return new_layer.image;

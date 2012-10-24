@@ -68,7 +68,8 @@ OldPaint.DrawingView = Backbone.View.extend({
                 Flip: {
                     Horizontally: this.model.flip_layer_horizontal,
                     Vertically: this.model.flip_layer_vertical
-                }
+                },
+                Export: this.save_layer_as_png
             },
             Brush: {
                 Colorize: this.brush_colorize,
@@ -283,6 +284,12 @@ OldPaint.DrawingView = Backbone.View.extend({
         else this.model.export_png();
     },
 
+    // Save layer as PNG to the normal filesystem. If we can, let the user choose where.
+    save_layer_as_png: function () {
+        if (chrome.fileSystem) this.chrome_save_as_png(true);
+        else this.model.export_png(true);
+    },
+
     // Save as ORA to the normal filesystem. If we can, let the user choose where.
     save_as_ora: function () {
         if (chrome.fileSystem) this.chrome_save_as_ora();
@@ -301,11 +308,12 @@ OldPaint.DrawingView = Backbone.View.extend({
                                   function () {console.log("write done");});
     },
 
-    chrome_save_as_png: function () {
+    chrome_save_as_png: function (single) {
         var model = this.model;
         ChromeApp.fileSaveChooser(
-            //Util.change_extension(this.model.get("title"), "png"),
-            this.model.flatten_visible_layers().make_png(true),
+            Util.change_extension(this.model.get("title"), "png"),
+            single ? this.layers.active.image.make_png(true) :
+                this.model.flatten_visible_layers().make_png(true),
             "image/png",
             function (something) {console.log(something);});
     },
@@ -457,7 +465,21 @@ OldPaint.DrawingView = Backbone.View.extend({
     },
 
     // Callback for when the user changes the palette
-    on_palette_changed: function (colors) {
+    on_palette_changed: function (transparency) {
+        // Here might be some logic to only update layers that use the
+        // changed colors, perhaps even only the relevant parts, etc...
+        if (this.model.image_type === OldPaint.IndexedImage) {
+            this.render(true);
+        }
+        if (transparency)
+            this.model.layers.each(function (layer) {
+                layer.cleanup();
+            });
+        this.brush_update();
+    },
+
+    // Callback for when the user changes the palette
+    on_palette_transparency_changed: function () {
         // Here might be some logic to only update layers that use the
         // changed colors, perhaps even only the relevant parts, etc...
         if (this.model.image_type === OldPaint.IndexedImage) {

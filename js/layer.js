@@ -167,6 +167,13 @@ OldPaint.Layer = OldPaint.Image.extend ({
         this.trigger("activate", this);
     },
 
+    // Return whether this layer is visible, given whether it is active or not.
+    is_visible: function (active) {
+        var visible = this.get("visible"),
+            animated = this.get("animated");
+        return visible && (!animated || (animated && active));
+    },
+
     // This should be overridden with the function to update the view.
     update: function () {console.log("Update function missing!");},
 
