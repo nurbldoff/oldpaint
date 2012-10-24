@@ -134,8 +134,9 @@ OldPaint.Layer = OldPaint.Image.extend ({
 
     // This should be run after a completed drawing action
     // Returns the changed rect
-    cleanup: function () {
-        var rect = this.dirty_rect;
+    // Note: Seems like a clumsy way of doing things. Engineer it away!
+    cleanup: function (whole) {
+        var rect = whole ? this.get_rect() : this.dirty_rect;
         this.dirty_rect = null;
         if (rect) {
             if (this.image.updateAlpha) this.image.updateAlpha(rect);

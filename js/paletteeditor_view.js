@@ -80,9 +80,8 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
     update: function (colors) {
         if (colors) {
             _.each(colors, function (color) {
-                var index = color[0], rgb = color[1];
-                var hex = "#" + Util.colorToHex(rgb);
-                var swatch = $("#color" + index);
+                var hex = "#" + Util.colorToHex(color.rgba);
+                var swatch = $("#color" + color.index);
                 swatch.css("background", hex);
                 swatch.parent().css("background", hex);
             });
@@ -218,7 +217,6 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
                 $("#color" + index).addClass("transparent");
             }
         }
-        this.model.trigger("change");
     },
 
     on_foreground: function (index) {

@@ -222,6 +222,7 @@ OldPaint.DrawingView = Backbone.View.extend({
 
         this.model.palette.on("foreground", this.brush_update);
         this.model.palette.on("change", this.on_palette_changed);
+        //this.model.palette.on("transparency", this.on_palette_transparency_changed);
 
         this.brushes.on("activate", this.brush_update);
         this.tools.on("activate", this.cleanup);
@@ -465,24 +466,21 @@ OldPaint.DrawingView = Backbone.View.extend({
     },
 
     // Callback for when the user changes the palette
-    on_palette_changed: function (transparency) {
+    on_palette_changed: function (changes) {
         // Here might be some logic to only update layers that use the
         // changed colors, perhaps even only the relevant parts, etc...
         if (this.model.image_type === OldPaint.IndexedImage) {
             this.render(true);
         }
-        if (transparency)
-            this.model.layers.each(function (layer) {
-                layer.cleanup();
-            });
         this.brush_update();
     },
 
-    // Callback for when the user changes the palette
+    // Callback for when the user changes the palette transparency
     on_palette_transparency_changed: function () {
-        // Here might be some logic to only update layers that use the
-        // changed colors, perhaps even only the relevant parts, etc...
         if (this.model.image_type === OldPaint.IndexedImage) {
+            this.model.layers.each(function (layer) {
+                layer.cleanup(true);
+            });
             this.render(true);
         }
         this.brush_update();

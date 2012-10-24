@@ -74,6 +74,8 @@ OldPaint.ImageBrush = OldPaint.Brush.extend ({
                      image_type: spec.image_type, type: spec.type};
 
         OldPaint.ImageBrush.__super__.initialize.apply(this, [this.spec]);
+        if (this.image.updateAlpha)
+            this.image.updateAlpha();
         this.preview = Util.copy_canvas(this.image.canvas);
     },
 
