@@ -107,6 +107,7 @@ OldPaint.SelectionView = Backbone.View.extend({
     resize_done: function (event) {
         $("#drawing").unbind("mousemove", this.resize);
         $("#drawing").unbind("mouseup", this.resize_done);
+        this.last_pos = null;
         this.edit();
     },
 
