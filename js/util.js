@@ -101,7 +101,7 @@ Util.rectify = function (start, end) {
             height: Math.abs(end.y - start.y)};
 };
 
-// Calculate the canvas position of the cursor
+// Get the mouse position from an event
 Util.event_coords = function (event) {
     // if (event.targetTouches && event.targetTouches.length > 0) {
     //     console.log("TargetTouches:", event.TargetTouches)

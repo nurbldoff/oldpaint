@@ -688,8 +688,8 @@ OldPaint.DrawingView = Backbone.View.extend({
             canvas_pos = Util.event_coords(event);
         } else {
             canvas_pos = {
-                x: Math.floor($("#drawing").width() / 2) - this.window.offset.x,
-                y: Math.floor($("#drawing").height() / 2) - this.window.offset.y
+                x: Math.floor($("#drawing").width() / 2),
+                y: Math.floor($("#drawing").height() / 2)
             };
         }
         this.set_zoom(this.zoom + 1, canvas_pos);
@@ -701,8 +701,8 @@ OldPaint.DrawingView = Backbone.View.extend({
             canvas_pos = Util.event_coords(event);
         } else {
             canvas_pos = {
-                x: Math.floor($("#drawing").width() / 2) - this.window.offset.x,
-                y: Math.floor($("#drawing").height() / 2) - this.window.offset.y
+                x: Math.floor($("#drawing").width() / 2),
+                y: Math.floor($("#drawing").height() / 2)
             };
         }
         this.set_zoom(this.zoom - 1, canvas_pos);

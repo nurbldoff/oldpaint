@@ -259,7 +259,7 @@ OldPaint.IndexedImage = function (data) {
     };
 
     // make sure the alpha channel reflects the actual drawn parts.
-    // This must be done after erasing (?)
+    // Note that this destroys the color info in transparent parts!
     this.updateAlpha = function (rect) {
         rect = Util.intersect(rect,
                               {left:0, top:0,

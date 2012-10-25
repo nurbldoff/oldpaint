@@ -74,6 +74,7 @@ OldPaint.ImageBrush = OldPaint.Brush.extend ({
                      image_type: spec.image_type, type: spec.type};
 
         OldPaint.ImageBrush.__super__.initialize.apply(this, [this.spec]);
+        // If it is an indexed, we need to fix the transparency
         if (this.image.updateAlpha)
             this.image.updateAlpha();
         this.preview = Util.copy_canvas(this.image.canvas);
@@ -96,7 +97,6 @@ OldPaint.ImageBrush = OldPaint.Brush.extend ({
         OldPaint.Layer.__super__.flip_y.apply(this);
         this.make_backup();
     },
-
 
     get_info: function () {
         return "Brush: user defined, " + this.spec.width + "x" + this.spec.height;
