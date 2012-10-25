@@ -36,9 +36,10 @@
           return null;
       }
 
-      function markup_letter (string, index) {
+      function markup_letter (string, index, submenu) {
           var before = string.substr(0, index),
               after = string.substr(index+1);
+          if (submenu) after = after + ">";
           return before + "<span class='shortcut'>" + string[index] + "</span>" + after;
       }
 
@@ -54,13 +55,14 @@
       function show_menu (items) {
           var tmp = $('<div>');
           $.each(items, function (name, item) {
+              var isfunc = _.isFunction(item);
               var btn = $('<button class="menuitem">');
               var action = function (event) {
                   btn.removeClass("menuitem");
                   history.append(btn);
                   Mousetrap.reset();
                   Mousetrap.bind("escape", close_menu);
-                  if (_.isFunction(item)) {
+                  if (isfunc) {
                       close_menu();
                       _.bind(item, context)();
                   }
@@ -70,7 +72,7 @@
               var shortcut = find_shortcut(name);
               Mousetrap.bind(shortcut, action);
               btn.click(action);
-              btn.html(markup_letter(name, name.indexOf(shortcut.toUpperCase())));
+              btn.html(markup_letter(name, name.indexOf(shortcut.toUpperCase()), !isfunc));
               tmp.append(btn);
           });
           menu.html(tmp);

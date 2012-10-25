@@ -97,6 +97,7 @@ $(function () {
                  };
                  drawing.make_selection(action);
              } else {
+                 // The user has clicked outside the selection
                  drawing.selection.abort();
                  drawing.selection = null;
              }
@@ -188,15 +189,16 @@ $(function () {
     brushes.at(0).activate();
 
     // Drawing
-    console.log("create drawing");
-    var drawing = new OldPaint.Drawing(
-        { width: 800, height: 600, palette: palette, image_type: image_type});
-    var info_view = new OldPaint.InfoView({model: drawing, eventbus: eventbus});
-    var layers_view = new OldPaint.MiniLayersView({model: drawing, eventbus: eventbus});
+    var drawing = new OldPaint.Drawing({width: 800, height: 600,
+                                        palette: palette, image_type: image_type,
+                                        max_undos: 50});
     var drawing_view = new OldPaint.DrawingView({model: drawing, brushes: brushes,
                                                  tools: tools, eventbus: eventbus});
 
-    console.log("adding layer from main");
+
+    var info_view = new OldPaint.InfoView({model: drawing, eventbus: eventbus});
+    var layers_view = new OldPaint.MiniLayersView({model: drawing, eventbus: eventbus});
+
     drawing.add_layer(true);
 
 });

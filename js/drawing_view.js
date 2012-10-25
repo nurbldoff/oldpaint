@@ -12,7 +12,7 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     events: {
         "mousedown": "begin_stroke",
-        "mousewheel": "wheel_zoom",
+        "mousewheel": "on_wheel_zoom",
         "mouseover": "on_mouse_enter",
         "mouseout": "on_mouse_leave"
     },
@@ -44,7 +44,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         //var intervalID = setInterval(this.save_internal, 60000);
 
         // === Menu ===
-        // Items are defined by name and function
+        // Items are defined by name and function/subitems
         // Keyboard shortcut is the first Uppercase letter in the name,
         // don't put overlapping keybindings in the same level!
         this.menuitems = {
@@ -708,18 +708,18 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.set_zoom(this.zoom - 1, canvas_pos);
     },
 
-    wheel_zoom: function (event, delta, deltaX, deltaY) {
+    on_wheel_zoom: function (event, delta, deltaX, deltaY) {
         switch (deltaY) {
         case 1: this.zoom_in(event, true); break;
         case -1: this.zoom_out(event, true); break;
         }
     },
 
+    // When a selection rectangle is created, make a view for it
     on_selection: function (selection) {
-        console.log("on_selection");
-        var selview = new OldPaint.SelectionView({model: selection,
-                                                  eventbus: this.eventbus,
-                                                  window: this.window});
+        new OldPaint.SelectionView({model: selection,
+                                    eventbus: this.eventbus,
+                                    window: this.window});
     }
 
 });

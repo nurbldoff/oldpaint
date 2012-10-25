@@ -3,6 +3,7 @@
 OldPaint.Drawing = Backbone.Model.extend({
 
     selection: null,
+    max_undos: 20,  // maximum length of undo history
 
     defaults: {
         title: "Untitled",
@@ -13,6 +14,7 @@ OldPaint.Drawing = Backbone.Model.extend({
     initialize: function (spec) {
         _.bindAll(this);
         this.palette = spec.palette;
+        this.max_undos = this.max_undos || spec.max_undos;
         this.layers = new OldPaint.Layers();
         this.undos = [];
         this.redos = [];
@@ -144,10 +146,12 @@ OldPaint.Drawing = Backbone.Model.extend({
     },
 
     remove_layer: function (layer) {
-        var index = this.layers.indexOf(layer);
-        this.layers.remove(layer);
-        this.push_undo(this.make_action("remove_layer",
-                                        {layer: layer, index: index}));
+        if (this.layers.length > 1) {
+            var index = this.layers.indexOf(layer);
+            this.layers.remove(layer);
+            this.push_undo(this.make_action("remove_layer",
+                                            {layer: layer, index: index}));
+        }
     },
 
     clear_layer: function (layer, color) {
@@ -311,12 +315,12 @@ OldPaint.Drawing = Backbone.Model.extend({
 
     push_undo: function (action) {
         this.undos.push(action);
-        if (this.undos.length > 20) {this.undos.shift();}
+        if (this.undos.length > this.max_undos) {this.undos.shift();}
     },
 
     push_redo: function (action) {
         this.redos.push(action);
-        if (this.redos.length > 20) {this.redos.shift();}
+        if (this.redos.length > this.max_undos) {this.redos.shift();}
     },
 
     undo: function () {
