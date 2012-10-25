@@ -23,10 +23,10 @@ OldPaint.Drawing = Backbone.Model.extend({
     },
 
     // Load image data
+    // TODO: guess it should be possible to undo loading..?
     load: function (loader, data) {
-        // TODO: guess it should be possible to undo loading..?
+        // Remove all the present layers
         while (this.layers.models.length > 0) {
-            console.log("popping layer");
             this.layers.pop({silent: false});
         }
         this.layers.active = null;
@@ -206,6 +206,7 @@ OldPaint.Drawing = Backbone.Model.extend({
         return new_layer.image;
     },
 
+    // Resize all the layers
     resize: function(size) {
         this.set({width: size.width, height: size.height});
         this.layers.each(function(layer) {layer.resize(size);});
@@ -215,7 +216,6 @@ OldPaint.Drawing = Backbone.Model.extend({
 
     redraw: function(layer) {
         layer = layer || this.layers.active;
-        console.log(layer);
         layer.redraw();
     },
 

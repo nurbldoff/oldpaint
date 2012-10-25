@@ -77,12 +77,13 @@ $(function () {
     //                     }}));
 
     tools.add(new Tool(
-        {name: "brush", key: "u", preview: false,
+        {name: "select", key: "u", preview: false,
          help: "Click and drag to select the area you want to copy.",
          before: function (drawing, stroke) {
+             // Are we making a selection, or editing one that is already present?
              if (!drawing.selection) {
-                 var layer = drawing.layers.active;
-                 var rect = Util.rectify(stroke.start,
+                 var layer = drawing.layers.active,
+                     rect = Util.rectify(stroke.start,
                                          {x: stroke.pos.x + 1,
                                           y: stroke.pos.y + 1});
                  var action = function (rect) {
@@ -93,13 +94,13 @@ $(function () {
                      brushes.add(brush);
                      brush.activate();
                      tools.previous.activate();
-                     drawing.selection = null;
+                     drawing.end_selection();
                  };
                  drawing.make_selection(action);
              } else {
                  // The user has clicked outside the selection
                  drawing.selection.abort();
-                 drawing.selection = null;
+                 drawing.end_selection();
              }
          },
          draw: function (drawing, stroke) {
@@ -112,7 +113,8 @@ $(function () {
          after: function (drawing, stroke) {
              // The operation is not quite finished when the user releases the mouse,
              // the selection can still be edited by dragging the corners.
-             if (drawing.selection && !drawing.selection.editable) drawing.selection.edit();
+             if (drawing.selection && !drawing.selection.editable)
+                 drawing.selection.edit();
          }}));
 
     tools.add(new Tool(
@@ -141,12 +143,13 @@ $(function () {
     var tools_view = new OldPaint.ToolsView({collection: tools, eventbus: eventbus});
     tools.at(0).activate();
 
-    // Palette
+    // Palette - create a random one for now
     var colors = [[0, 0, 0, 255]];
     for (var i=1; i<256; i++) {
         colors.push([Math.floor(Math.random()*255),
                      Math.floor(Math.random()*255),
-                     Math.floor(Math.random()*255), 255]);
+                     Math.floor(Math.random()*255),
+                     255]);
     }
     var palette = new OldPaint.Palette({colors: colors, transparent: [0]});
     var palette_editor_view = new OldPaint.PaletteEditorView(
@@ -194,7 +197,6 @@ $(function () {
                                         max_undos: 50});
     var drawing_view = new OldPaint.DrawingView({model: drawing, brushes: brushes,
                                                  tools: tools, eventbus: eventbus});
-
 
     var info_view = new OldPaint.InfoView({model: drawing, eventbus: eventbus});
     var layers_view = new OldPaint.MiniLayersView({model: drawing, eventbus: eventbus});

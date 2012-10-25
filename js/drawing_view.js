@@ -453,11 +453,13 @@ OldPaint.DrawingView = Backbone.View.extend({
             this.model.resize(this.model.selection.rect);
             this.eventbus.info("Resized to (" + this.model.selection.width + ", " +
                                this.model.selection.height + ")");
+            this.tools.previous.activate();
             this.model.end_selection();
         }).bind(this);
         this.model.make_selection(resize, this.model.get_rect());
         this.eventbus.info("Resize the image by dragging the corner handles. " +
                            "Click anywhere to finish.");
+        this.tools.where({name: "select"})[0].activate();
     },
 
     on_undo: function () {
