@@ -36,7 +36,7 @@
           return null;
       }
 
-      function markup_letter (string, index, submenu) {
+      function make_label (string, index, submenu) {
           var before = string.substr(0, index),
               after = string.substr(index+1);
           if (submenu) after = after + ">";
@@ -49,11 +49,10 @@
           context.menu = null;
           if (on_exit) on_exit();
       }
-      //$(document).bind("keyup.Esc", close_menu);
       this.close_menu = close_menu;
 
       function show_menu (items) {
-          var tmp = $('<div>');
+          var div = $('<div>');
           $.each(items, function (name, item) {
               var isfunc = _.isFunction(item);
               var btn = $('<button class="menuitem">');
@@ -72,10 +71,10 @@
               var shortcut = find_shortcut(name);
               Mousetrap.bind(shortcut, action);
               btn.click(action);
-              btn.html(markup_letter(name, name.indexOf(shortcut.toUpperCase()), !isfunc));
-              tmp.append(btn);
+              btn.html(make_label(name, name.indexOf(shortcut.toUpperCase()), !isfunc));
+              div.append(btn);
           });
-          menu.html(tmp);
+          menu.html(div);
           //el.children().show("slide", { direction: "down" }, 100);
       }
   };
