@@ -64,6 +64,7 @@ OldPaint.MiniLayerView = Backbone.View.extend({
 
     on_visibility: function () {
         var visibility = this.model.get("visible");
+        console.log("visibility", visibility);
         this.$el.children("canvas").toggleClass("invisible", !visibility);
         this.$el.children(".layerVisibleCheck").prop("checked", visibility);
     },

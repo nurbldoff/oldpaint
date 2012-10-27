@@ -128,9 +128,9 @@ OldPaint.Drawing = Backbone.Model.extend({
     // === Layer operations ===
 
     add_layer: function (activate, spec) {
-        var image = !spec ? null : spec.data,
-            visible = !spec ? true : spec.visible,
-            animated = !spec ? false : spec.animated;
+        var image = (!spec ? null : spec.data),
+            visible = (!spec ? true : spec.visible),
+            animated = (!spec ? false : spec.animated);
         var new_layer = new OldPaint.Layer({width: this.get("width"),
                                             height: this.get("height"),
                                             palette: this.palette,
@@ -253,15 +253,16 @@ OldPaint.Drawing = Backbone.Model.extend({
 
     preview_brush: function(brush, color, pos) {
         var layer = this.layers.active;
-        if (!pos) {
-            pos = layer.last_brush_position;
-            layer.clear_temporary();  // remove old
-            layer.draw_brush(pos, brush, color, true);
-        } else if (pos.x != layer.last_brush_position.x ||
-            pos.y != layer.last_brush_position.y) {
-            layer.clear_temporary();  // remove old
-            layer.draw_brush(pos, brush, color, true);
-        }
+        if (layer)
+            if (!pos) {
+                pos = layer.last_brush_position;
+                layer.clear_temporary();  // remove old
+                layer.draw_brush(pos, brush, color, true);
+            } else if (pos.x != layer.last_brush_position.x ||
+                       pos.y != layer.last_brush_position.y) {
+                layer.clear_temporary();  // remove old
+                layer.draw_brush(pos, brush, color, true);
+            }
     },
 
     // === Undo system ===

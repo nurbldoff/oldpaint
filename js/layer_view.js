@@ -24,9 +24,6 @@ OldPaint.LayerView = Backbone.View.extend({
 
         this.resize();
         this.render(true);
-
-        this.$el.toggleClass("invisible", !this.model.get("visible"));
-        this.$el.toggleClass("animated", this.model.get("animated"));
     },
 
     // Redraw the whole view
@@ -42,6 +39,9 @@ OldPaint.LayerView = Backbone.View.extend({
                                    this.window.offset.x, this.window.offset.y,
                                    canvas.width * this.window.scale,
                                    canvas.height * this.window.scale);
+
+            this.$el.toggleClass("invisible", !this.model.get("visible"));
+            this.$el.toggleClass("animated", this.model.get("animated"));
 
             // var image_rect = {left: 0, top: 0,
             //                   width: canvas.width, height: canvas.height};

@@ -332,7 +332,8 @@ Util.load_png = function (data, drawing) {
         Util.load_base64_png(image).done(function (result) {
             drawing.set("height", result.height);
             drawing.set("width", result.width);
-            drawing.add_layer(true, result.layers[0]);
+            drawing.add_layer(true, {data: result.layers[0],
+                                     visible: true, animated: false});
             if (data.palette) {
                 drawing.palette.set_colors(data.palette);
             } else if (result.palette.length > 0) {

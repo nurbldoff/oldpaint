@@ -45,7 +45,6 @@ table.palette_editor {
 
 .color.transparent {
     z-index: 100;
-    background-color: orange;
     background-image: url(../images/striped.png);
 }
 
