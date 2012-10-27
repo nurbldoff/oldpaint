@@ -36,6 +36,8 @@ OldPaint.MiniLayerView = Backbone.View.extend({
         this.canvas.height = size.y;
         this.redraw();
         this.$el.append(this.canvas);
+        this.on_visibility();
+        this.on_animatedness();
     },
 
     redraw: function () {
@@ -62,6 +64,7 @@ OldPaint.MiniLayerView = Backbone.View.extend({
 
     on_visibility: function () {
         var visibility = this.model.get("visible");
+        console.log("visibility", visibility);
         this.$el.children("canvas").toggleClass("invisible", !visibility);
         this.$el.children(".layerVisibleCheck").prop("checked", visibility);
     },

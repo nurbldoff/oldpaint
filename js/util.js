@@ -212,6 +212,15 @@ Util.strip_data_header = function (data) {
 };
 
 
+Util.string_to_boolean = function (string){
+	switch(string.toLowerCase()){
+		case "true": case "yes": case "1": return true;
+		case "false": case "no": case "0": case null: return false;
+		default: return Boolean(string);
+	}
+};
+
+
 // Takes a base64 encoded data URI and returns a binary 'blob'
 Util.convertDataURIToBlob = function (dataURI, mimetype) {
 
@@ -323,7 +332,8 @@ Util.load_png = function (data, drawing) {
         Util.load_base64_png(image).done(function (result) {
             drawing.set("height", result.height);
             drawing.set("width", result.width);
-            drawing.add_layer(true, result.layers[0]);
+            drawing.add_layer(true, {data: result.layers[0],
+                                     visible: true, animated: false});
             if (data.palette) {
                 drawing.palette.set_colors(data.palette);
             } else if (result.palette.length > 0) {
@@ -369,9 +379,17 @@ Util.load_ora = function (data, drawing) {
     drawing.set("width", xml.getElementsByTagName("image")[0].getAttribute("w"));
     drawing.set("height", xml.getElementsByTagName("image")[0].getAttribute("h"));
     _.each(layer_nodes, function (node, index) {
-        var filename = node.getAttribute("src"), image = zip.file(filename);
+        var filename = node.getAttribute("src"),
+            visible = Util.string_to_boolean(
+                node.getAttribute("visible") || "true"),
+            animated = Util.string_to_boolean(
+                node.getAttribute("animated") || "false"),
+            image = zip.file(filename);
+        console.log("ORA: visible:", visible, "animated:", animated);
         Util.load_base64_png(btoa(image.data)).done(function (data) {
-            drawing.add_layer(true, data.layers[0]);
+            drawing.add_layer(true, {data: data.layers[0],
+                                     visible: visible,
+                                     animated: animated});
             // TODO: this isn't a pretty way of loading the palette...
             if (data.palette.length > 0) {
                 drawing.palette.set_colors(data.palette);
@@ -395,6 +413,8 @@ Util.create_ora = function (drawing) {
         xw.writeStartElement("layer");
         xw.writeAttributeString("name", "layer" + (index+1));
         xw.writeAttributeString("src", "data/layer" + (index+1) + ".png");
+        xw.writeAttributeString("visible", layer.get("visible"));
+        xw.writeAttributeString("animated", layer.get("animated"));
         xw.writeEndElement();
         zip.file("data/layer"+ (index+1) + ".png",
                  layer.image.make_png(), {base64: true});
