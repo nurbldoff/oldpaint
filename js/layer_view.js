@@ -4,25 +4,18 @@
 OldPaint.LayerView = Backbone.View.extend({
     tagName: "canvas",
     className: 'layer',
-    zoom: 0,
+
     context: null,
-    //offset: {x: 0, y: 0},
-    base_offset: {x: 0, y: 0},
-
+    deferred_render: false,
     active: false,
-    visible: true,
-    animated: false,
-
-    events: {
-    },
 
     initialize: function (options) {
-        console.log("layer_view", options.model);
         _.bindAll(this);
+
         this.window = options.window;
         this.model.on("update", this.update);
         this.model.on("resize", this.resize);
-        this.model.on("redraw", this.render);
+        this.model.on("redraw", this.on_redraw);
         this.model.on("remove", this.on_remove);
         this.model.on("change:visible", this.on_visible);
         this.model.on("change:animated", this.on_animated);
@@ -30,16 +23,20 @@ OldPaint.LayerView = Backbone.View.extend({
         this.model.on("deactivate", this.on_deactivate);
 
         this.resize();
-        this.render();
+        this.render(true);
+
+        this.$el.toggleClass("invisible", !this.model.get("visible"));
+        this.$el.toggleClass("animated", this.model.get("animated"));
     },
 
     // Redraw the whole view
-    render: function (frame) {
+    render: function (force) {
         // Let's not redraw invisible layers, that would be silly
-        if (this.visible && (!this.animated || (this.animated && this.active))) {
+        var animated = this.model.get("animated"),
+            visible = this.model.get("visible");
+        if (force || visible && (!animated || (animated && this.active))) {
             //var scale = this.get_scale();
             var canvas = this.model.image.canvas;
-
             this.context.clearRect(0, 0, this.el.width, this.el.height);
             this.context.drawImage(canvas, 0, 0, canvas.width, canvas.height,
                                    this.window.offset.x, this.window.offset.y,
@@ -66,6 +63,10 @@ OldPaint.LayerView = Backbone.View.extend({
         } else {
             this.deferred_render = true;
         }
+    },
+
+    on_redraw: function () {
+        this.render();
     },
 
     // Resize the view, e.g. because the window size changed
@@ -132,15 +133,13 @@ OldPaint.LayerView = Backbone.View.extend({
     },
 
     on_visible: function () {
-        this.visible = this.model.attributes.visible;
-        if (this.deferred_render) this.render();  // Layer may have been moved/zoomed since
-        this.$el.toggleClass("invisible", !this.visible);
+        if (this.deferred_render) this.render();  // View may have been moved/zoomed
+        this.$el.toggleClass("invisible", !this.model.get("visible"));
 
     },
     on_animated: function () {
-        this.animated = this.model.attributes.animated;
         if (this.deferred_render) this.render();
-        this.$el.toggleClass("animated", this.animated);
+        this.$el.toggleClass("animated", this.model.get("animated"));
     }
 
 });

@@ -36,6 +36,8 @@ OldPaint.MiniLayerView = Backbone.View.extend({
         this.canvas.height = size.y;
         this.redraw();
         this.$el.append(this.canvas);
+        this.on_visibility();
+        this.on_animatedness();
     },
 
     redraw: function () {
