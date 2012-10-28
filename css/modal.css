@@ -45,14 +45,14 @@
     text-align: center;
     color: white;
     text-shadow: #000 1px 1px;
-    padding-bottom: 10px;
 }
 
-.popup.alert #message {
+.popup #message {
     font-size: 11pt;
+    padding: 10px;
 }
 
-.popup.alert #responses {
+.popup #responses {
     text-align: center;
 }
 

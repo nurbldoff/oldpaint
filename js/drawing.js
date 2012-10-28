@@ -55,7 +55,7 @@ OldPaint.Drawing = Backbone.Model.extend({
 
     // save to internal browser storage
     save_to_storage: function () {
-        console.log("Saving", this.get("title"));
+        console.log("Saving", this.get("title"), "to localstorage");
         var spec = {
             title: this.get("title"),
             current_layer_number: this.layers.number,
@@ -77,6 +77,7 @@ OldPaint.Drawing = Backbone.Model.extend({
     },
 
     load_from_storage: function (title) {
+        console.log("Loading", title, "from localstorage");
         if (title) {
             this.set("title", title);
         }
