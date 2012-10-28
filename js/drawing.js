@@ -6,8 +6,8 @@ OldPaint.Drawing = Backbone.Model.extend({
 
     defaults: {
         title: "Untitled",
-        width: 0,
-        height: 0
+        width: 640,
+        height: 512
     },
 
     initialize: function (spec) {
@@ -18,6 +18,14 @@ OldPaint.Drawing = Backbone.Model.extend({
         this.redos = [];
         this.image_type = spec.image_type;
         this.layers.on("stroke", this.on_stroke);
+    },
+
+    reinitialize: function () {
+        while (this.layers.models.length > 0) {
+            this.layers.pop({silent: false});
+        }
+        this.add_layer();
+        this.set("title", "Untitled");
     },
 
     // Load image data
@@ -65,7 +73,9 @@ OldPaint.Drawing = Backbone.Model.extend({
         this.layers.each(function (layer, index) {
             console.log("Saving", this.get("title"), layer.id);
             var name = "layer" + layer.id;
-            spec.layers.push(name);
+            spec.layers.push({name: name,
+                              visible: layer.get("visible"),
+                              animated: layer.get("animated")});
             layer.clear_temporary(true);
             LocalStorage.save({path: this.get("title") + "/data",
                                name: name,
@@ -84,8 +94,9 @@ OldPaint.Drawing = Backbone.Model.extend({
         var model = this;
         var read_spec = function (e) {
             var spec = JSON.parse(e.target.result);
+            console.log("spec", spec);
             var data = [];
-            LocalStorage.read_images(spec, _.bind(model.load, this, Util.load_raw));
+            LocalStorage.read_images(spec, model.load.bind(this, Util.load_raw));
         };
         LocalStorage.load_txt({path: this.get("title"), name: "spec",
                                on_load: read_spec});

@@ -378,9 +378,13 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     delete_internal: function () {
         var on_abort = function () {};
+        var on_ok = (function () {
+            this.model.remove_from_storage();
+            this.model.reinitialize();
+        }).bind(this);
         Modal.alert("Delete drawing", "Are you sure you want to delete this " +
                     "drawing from internal storage? This action can't be undone.",
-                    this.model.remove_from_storage, on_abort);
+                    on_ok, on_abort);
     },
 
     load_internal: function (evt) {

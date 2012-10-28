@@ -348,11 +348,14 @@ Util.load_raw = function (data, drawing) {
     _.each(data.layers, function (image, index) {
         // TODO: Should be easier to bypass this whole thing and load
         // the canvas directly into the image. Faster too.
-        Util.load_base64_png(image).done(function (result) {
+        Util.load_base64_png(image.data).done(function (result) {
             drawing.set("height", result.height);
             drawing.set("width", result.width);
+            // Highly inelegant code follows...
             var layer = drawing.add_layer(true);
             layer.image.put_data(result.layers[0]);
+            layer.set("visible", image.visible);
+            layer.set("animated", image.animated);
             layer.cleanup();
             if (data.palette) {
                 drawing.palette.set_colors(data.palette);
