@@ -224,12 +224,14 @@
     <!-- Modal dialog for picking stuff -->
     <script id="modal_selection_template" type="text/template">
       <div class="popup container">
-        <div class="popup select">
+        <div class="popup frame">
           <div class="popup body">
             <div id="title"> {{ title }} </div>
-            {% for item in items %}
-            <div id="{{ items }}" class="fileitem png"> {{ item }} </div>
-            {% endfor %}
+            <div class="popup itemlist">
+              {% for item in items %}
+              <div id="{{ items }}" class="fileitem png"> {{ item }} </div>
+              {% endfor %}
+            </div>
           </div>
         </div>
         <div class="popup block">
@@ -239,7 +241,7 @@
 
     <script id="modal_alert_template" type="text/template">
       <div class="popup container">
-        <div class="popup alert">
+        <div class="popup frame">
           <div class="popup body">
             <div id="title"> {{ title }} </div>
             <div id="message"> {{ message }} </div>
@@ -256,7 +258,7 @@
 
     <script id="modal_input_template" type="text/template">
       <div class="popup container">
-        <div class="popup alert">
+        <div class="popup frame">
           <div class="popup body">
             <div class="popup" id="title"> {{ title }} </div>
             <div class="popup" id="message"> {{ message }} </div>
