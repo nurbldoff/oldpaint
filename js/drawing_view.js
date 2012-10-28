@@ -603,24 +603,20 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.stroke.start = this.stroke.last = this.stroke.pos;
         $(".fg").css({"pointer-events": "none"});
         if (!this.scroll_mode) {
+            this.eventbus.info(this.tools.active.help);
+            this.model.before_draw(this.tools.active, this.stroke);
+            this.stroke.draw = true;  // we're drawing, not e.g. panning
             switch (this.stroke.button) {
             case 1:  // Drawing
-                this.eventbus.info(this.tools.active.help);
-                this.model.before_draw(this.tools.active, this.stroke);
-                this.stroke.draw = true;  // we're drawing, not e.g. panning
                 this.stroke.color = this.model.palette.foreground;
                 this.stroke.brush.set_color(this.stroke.color);
-                this.model.draw(this.tools.active, this.stroke);
                 break;
             case 3:  // Erasing
-                this.eventbus.info(this.tools.active.help);
-                this.model.before_draw(this.tools.active, this.stroke);
-                this.stroke.draw = true;
                 this.stroke.color = this.model.palette.background;
                 this.stroke.brush.set_color(this.stroke.color, true);
-                this.model.draw(this.tools.active, this.stroke);
                 break;
             }
+            this.model.draw(this.tools.active, this.stroke);
         }
         document.onmouseup = this.end_stroke;
     },
@@ -668,7 +664,6 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     // Center the display on a certain image coordinate
     center_on_image_pos: function (ipos, cpos) {
-        //var scale = this.get_scale();
         var offset = {x: Math.round(cpos.x - (ipos.x + 0.5) * this.window.scale),
                       y: Math.round(cpos.y - (ipos.y + 0.5) * this.window.scale)};
         this.update_offset(offset);
@@ -686,27 +681,25 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     zoom_in: function (event, center_mouse) {
         var canvas_pos;
-        if (center_mouse === true) {
+        if (center_mouse === true)
             canvas_pos = Util.event_coords(event);
-        } else {
+        else
             canvas_pos = {
                 x: Math.floor($("#drawing").width() / 2),
                 y: Math.floor($("#drawing").height() / 2)
             };
-        }
         this.set_zoom(this.zoom + 1, canvas_pos);
     },
 
     zoom_out: function (event, center_mouse) {
         var canvas_pos;
-        if (center_mouse === true) {
+        if (center_mouse === true)
             canvas_pos = Util.event_coords(event);
-        } else {
+        else
             canvas_pos = {
                 x: Math.floor($("#drawing").width() / 2),
                 y: Math.floor($("#drawing").height() / 2)
             };
-        }
         this.set_zoom(this.zoom - 1, canvas_pos);
     },
 
