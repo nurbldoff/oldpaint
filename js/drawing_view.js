@@ -645,9 +645,8 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     // Callback for when letting go of a mouse button
     end_stroke: function (event) {
-        if (this.stroke.draw) {
+        if (this.stroke.draw)
             this.model.after_draw(OldPaint.tools.active, this.stroke);
-        }
         if (this.stroke.button === 3)
             this.brush_restore();
         this.stroke = null;
