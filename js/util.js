@@ -260,7 +260,8 @@ Util.load_base64_png = function (data) {
                 0, 0, img.width, img.height).data],
                           palette: [],
                           width: img.width,
-                          height: img.height};
+                          height: img.height,
+                          type: "rgb"};
             //callback(result);
             deferred.resolve(result);
         };
@@ -298,7 +299,8 @@ Util.load_base64_png = function (data) {
         var result = {layers: [pixels],
                       palette: palette,
                       width: image.width,
-                      height: image.height};
+                      height: image.height,
+                      type: "index"};
         //callback(result);
         deferred.resolve(result);
 
@@ -327,9 +329,10 @@ Util.mkXML = function (text) //turns xml string into XMLDOM
 
 // Parses and loads PNG images into a drawing
 // TODO: This is really too tied to the Drawing model. Should it be moved there?
-Util.load_png = function (data, drawing) {
+Util.load_png = function (data, drawing, types) {
     _.each(data.layers, function (image, index) {
         Util.load_base64_png(image).done(function (result) {
+            drawing.image_type = types[result.type];
             drawing.set("height", result.height);
             drawing.set("width", result.width);
             drawing.add_layer(true, {data: result.layers[0],
@@ -344,11 +347,12 @@ Util.load_png = function (data, drawing) {
 };
 
 // Loads PNG images directly into a drawing
-Util.load_raw = function (data, drawing) {
+Util.load_raw = function (data, drawing, types) {
     _.each(data.layers, function (image, index) {
         // TODO: Should be easier to bypass this whole thing and load
         // the canvas directly into the image. Faster too.
         Util.load_base64_png(image.data).done(function (result) {
+            drawing.image_type = types[result.type];  // This could give strange results...
             drawing.set("height", result.height);
             drawing.set("width", result.width);
             // Highly inelegant code follows...

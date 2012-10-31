@@ -332,11 +332,13 @@ OldPaint.DrawingView = Backbone.View.extend({
     },
 
     load_png_data: function (e) {
-        this.model.load(Util.load_png, {layers: [e.target.result.slice(22)]});
+        this.model.load(Util.load_png, {layers: [e.target.result.slice(22)]},
+                        {"rgb": OldPaint.RGBImage, "index": OldPaint.IndexedImage});
     },
 
     load_ora_data: function (e) {
-        this.model.load(Util.load_ora, e.target.result);
+        this.model.load(Util.load_ora, e.target.result,
+                        {"rgb": OldPaint.RGBImage, "index": OldPaint.IndexedImage});
     },
 
     // ========== LocalStorage operations ==========
