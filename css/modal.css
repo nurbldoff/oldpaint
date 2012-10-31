@@ -3,7 +3,7 @@
     position: absolute;
     width: 100%;
     height: 100%;
-    border: 0px;
+    border: 0;
     padding: 0;
     margin: 0;
     top: 0;
@@ -15,6 +15,12 @@
 }
 
 .popup.alert, .popup.select, .popup.input {
+    top: 25px;
+    right: 0;
+    width: 30%;
+}
+
+.popup.frame {
     position: relative;
     border: solid black 2px;
     background: #bbb;
@@ -42,10 +48,10 @@
 
 .popup #message {
     font-size: 11pt;
-    padding: 10px 0;
+    padding: 10px;
 }
 
-.popup.alert #responses {
+.popup #responses {
     text-align: center;
     padding: 10px 0;
 }
@@ -63,7 +69,7 @@
 .popup.block {
     display: block;
     width: 100%;
-    border: 0px;
+    border: 0;
     padding: 0;
     margin: 0;
     background: #606060;
@@ -79,23 +85,28 @@
     width: 80%;
 }
 
-div.filelist {
-    list-style-type: none;
-    background-color: white;
+.popup.itemlist {
+    background-color: #ddd;
 }
 
-div.fileitem {
-    color: grey;
+.popup .fileitem {
+    color: gray;
     cursor: default;
-    padding-left: 10px;
+    padding: 2px;
+
 }
 
-div.fileitem.dir {
+.popup .fileitem:hover {
+    background-color: #fff;
+}
+
+.popup .fileitem.dir {
     color: blue;
     cursor: pointer;
 }
 
-div.fileitem.ora, div.fileitem.png {
+.popup .fileitem {
     color: black;
     cursor: pointer;
 }
+

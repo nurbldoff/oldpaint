@@ -100,6 +100,7 @@ LocalStorage.write = function (args, fs) {
 
 LocalStorage.read = function (args, fs) {
     var filename = (args.path ? args.path + "/" : "") + args.name;
+    console.log("read", filename);
     fs.root.getFile(filename, {}, function(fileEntry) {
         // Get a File object representing the file,
         // then use FileReader to read its contents.
@@ -136,12 +137,13 @@ LocalStorage.read_images = function () {
     var index = 0;
     return function (spec, callback) {
         index += 1;
+        console.log("read_images", spec);
         //LocalStorage(files[index - 1], index, data, callBackCounter);
         LocalStorage.load_bin(
-            {path: spec.title + "/data", name: spec.layers[index-1],
+            {path: spec.title + "/data", name: spec.layers[index-1].name,
              on_load: function (e) {
                  var data = e.target.result.slice(13); // remove the header
-                 spec.layers[index-1] = data;  // put them in the right order
+                 spec.layers[index-1].data = data;  // put them in the right order
                  callBackCounter();
              }});
         function callBackCounter() {

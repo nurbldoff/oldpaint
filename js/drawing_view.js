@@ -57,6 +57,7 @@ OldPaint.DrawingView = Backbone.View.extend({
                     PNG: this.save_as_png,
                     ORA: this.save_as_ora
                 },
+                Delete: this.delete_internal,
                 Resize: this.resize_image,
                 Convert: this.convert_image
             },
@@ -73,6 +74,7 @@ OldPaint.DrawingView = Backbone.View.extend({
             },
             Brush: {
                 Colorize: this.brush_colorize,
+                Delete: this.brush_remove,
                 Flip: {
                     Horizontally: this.brush_flip_x,
                     Vertically: this.brush_flip_y
@@ -259,19 +261,14 @@ OldPaint.DrawingView = Backbone.View.extend({
         }
     },
 
-    on_window_resize: _.throttle(function (ev) {
-        this.model.layers.each(function (layer) {
-            layer.trigger("resize");
-        });
-        this.render(false);
-    }, 250),
-
     show_menu: function (start) {
         this.eventbus.info("Menu mode. Select with keyboard or mouse. Leave with Esc.");
         if (!this.menu) {
             $("#title").linearMenu(this.menuitems, this, start, this.eventbus.clear);
         }
     },
+
+    // ========== Filesystem operations ==========
 
     // Load an user selected file from the normal filesystem
     load: function () {
@@ -342,6 +339,8 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.model.load(Util.load_ora, e.target.result);
     },
 
+    // ========== LocalStorage operations ==========
+
     load_settings: function (e) {
         var model = this.model;
         LocalStorage.request(
@@ -368,10 +367,51 @@ OldPaint.DrawingView = Backbone.View.extend({
                                              {type: 'text/plain'})});
     },
 
+    // Save the image to the browser's internal storage. Let's not do that
+    // while the user is actually drawing though, since it will cause stutter.
+    save_internal: function () {
+        if (this.stroke) {
+            setTimeout(this.model.save_to_storage, 1000);
+        } else {
+            this.model.save_to_storage();
+        }
+    },
+
+    delete_internal: function () {
+        var on_abort = function () {};
+        var on_ok = (function () {
+            this.model.remove_from_storage();
+            this.model.reinitialize();
+        }).bind(this);
+        Modal.alert("Delete drawing", "Are you sure you want to delete this " +
+                    "drawing from internal storage? This action can't be undone.",
+                    on_ok, on_abort);
+    },
+
+    load_internal: function (evt) {
+        this.model.load_from_storage();
+    },
+
+    // Show the saved drawings list
+    load_popup: function (event) {
+        var load = _.bind(function (title) {
+            this.model.save_to_storage();
+            this.model.load_from_storage(title);
+        }, this);
+        var callback = function (result) {
+            var dirs = _.filter(result, function (item) {return item.isDirectory;}),
+                names = _.map(dirs, function (item) {return item.name;});
+            Modal.list(names, load);
+        };
+        var drawings = LocalStorage.list({callback: callback});
+    },
+
     on_load: function () {
         this.render(true);
         this.center();
     },
+
+    // ========== Drawing operations ==========
 
     rename: function () {
         var on_ok = (function (name) {
@@ -400,52 +440,6 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     cleanup: function () {
         this.model.layers.active.clear_temporary();
-    },
-
-    // Save the image to the browser's internal storage. Let's not do that
-    // while the user is actually drawing though, since it will cause stutter.
-    save_internal: function () {
-        if (this.stroke) {
-            setTimeout(this.model.save_to_storage, 1000);
-        } else {
-            this.model.save_to_storage();
-        }
-    },
-
-    delete_internal: function () {
-        if (this.stroke) {
-            setTimeout(this.save_to_storage, 1000);
-        } else {
-            this.model.remove_from_storage();
-        }
-    },
-
-    load_internal: function (evt) {
-        this.model.load_from_storage();
-    },
-
-    // Show the saved drawings list
-    load_popup: function (event) {
-        var load = _.bind(function (title) {
-            this.model.save_to_storage();
-            this.model.load_from_storage(title);
-        }, this);
-        var callback = function (result) {
-            var dirs = _.filter(result, function (item) {return item.isDirectory;}),
-                names = _.map(dirs, function (item) {return item.name;});
-            Modal.list(names, load);
-        };
-        var drawings = LocalStorage.list({callback: callback});
-    },
-
-    // Center the drawing on screen
-    center: function () {
-        this.center_on_image_pos(
-            {x: Math.round(this.model.get("width") / 2),
-             y: Math.round(this.model.get("height") / 2)},
-            {x: Math.round($("#drawing").width() / 2),
-             y: Math.round($("#drawing").height() / 2)});
-        this.render();
     },
 
     resize_image: function () {
@@ -518,12 +512,6 @@ OldPaint.DrawingView = Backbone.View.extend({
         }
     },
 
-    on_resize: function () {
-        this.render();
-        this.center();
-        this.update_title();
-    },
-
     convert_image: function (event) {
         var on_ok = (function () {
             if (!this.model.convert_to_rgb_type())
@@ -539,6 +527,7 @@ OldPaint.DrawingView = Backbone.View.extend({
                     "This is (currently) an irreversible operation, and you will " +
                     "lose your undo history. Proceed?", on_ok, on_abort);
     },
+
 
     // update_brush: function (color) {
     //     this.brushes.active.set_color(color);
@@ -562,6 +551,11 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.brush_update();
     },
 
+    brush_remove: function () {
+        var brush = this.brushes.active;
+        this.brushes.remove(brush);
+    },
+
     brush_update: function () {
         var brush = this.brushes.active;
         if (!brush.type)  // is it a standard brush?
@@ -574,21 +568,8 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.brushes.active.restore_backup();
     },
 
-    // Update the cursor position and draw brush preview
-    update_cursor: _.throttle(function (event, stroke) {
-        var coords = Util.image_coords(Util.event_coords(event), this.window);
-        if (this.stroke && this.stroke.start) {
-            coords.x = Math.abs(coords.x - this.stroke.start.x) + 1;
-            coords.y = Math.abs(coords.y - this.stroke.start.y) + 1;
-        } else {
-            if (this.mouse && this.tools.active.preview_brush) {
-                // Draw the brush preview
-                this.model.preview_brush(this.brushes.active,
-                                         this.model.palette.foreground, coords);
-            }
-        }
-        this.model.update_coords(coords);
-    }, 20),
+
+    // ========== Drawing callbacks ==========
 
     // Callback for when the user presses a mouse button on the canvas
     begin_stroke: function (event) {
@@ -655,6 +636,41 @@ OldPaint.DrawingView = Backbone.View.extend({
         document.onmouseup = null;
     },
 
+
+    // ========== View related stuff ==========
+
+    // Center the drawing on screen
+    center: function () {
+        this.center_on_image_pos(
+            {x: Math.round(this.model.get("width") / 2),
+             y: Math.round(this.model.get("height") / 2)},
+            {x: Math.round($("#drawing").width() / 2),
+             y: Math.round($("#drawing").height() / 2)});
+        this.render();
+    },
+
+    on_resize: function () {
+        this.render();
+        this.center();
+        this.update_title();
+    },
+
+    // Update the cursor position and draw brush preview
+    update_cursor: _.throttle(function (event, stroke) {
+        var coords = Util.image_coords(Util.event_coords(event), this.window);
+        if (this.stroke && this.stroke.start) {
+            coords.x = Math.abs(coords.x - this.stroke.start.x) + 1;
+            coords.y = Math.abs(coords.y - this.stroke.start.y) + 1;
+        } else {
+            if (this.mouse && this.tools.active.preview_brush) {
+                // Draw the brush preview
+                this.model.preview_brush(this.brushes.active,
+                                         this.model.palette.foreground, coords);
+            }
+        }
+        this.model.update_coords(coords);
+    }, 20),
+
     update_offset: function (offset) {
         this.window.offset = {x: Math.floor(offset.x),
                               y: Math.floor(offset.y)};
@@ -667,6 +683,13 @@ OldPaint.DrawingView = Backbone.View.extend({
                       y: Math.round(cpos.y - (ipos.y + 0.5) * this.window.scale)};
         this.update_offset(offset);
     },
+
+    on_window_resize: _.throttle(function (ev) {
+        this.model.layers.each(function (layer) {
+            layer.trigger("resize");
+        });
+        this.render(false);
+    }, 250),
 
     set_zoom: function (zoom, center_pos) {
         var image_pos = Util.image_coords(center_pos, this.window);
