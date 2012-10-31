@@ -356,10 +356,11 @@ Util.load_raw = function (data, drawing, types) {
             drawing.set("height", result.height);
             drawing.set("width", result.width);
             // Highly inelegant code follows...
-            var layer = drawing.add_layer(true);
-            layer.image.put_data(result.layers[0]);
-            layer.set("visible", image.visible);
-            layer.set("animated", image.animated);
+            var layer = drawing.add_layer({data: result.layers[0],
+                                           visible: true, animated: false});
+            // layer.image.put_data(result.layers[0]);
+            // layer.set("visible", image.visible);
+            // layer.set("animated", image.animated);
             layer.cleanup();
             if (data.palette) {
                 drawing.palette.set_colors(data.palette);

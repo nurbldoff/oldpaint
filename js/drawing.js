@@ -38,7 +38,7 @@ OldPaint.Drawing = Backbone.Model.extend({
             this.layers.pop({silent: false});
         }
         this.layers.active = null;
-        loader(data, this);
+        loader(data, this, {"rgb": OldPaint.RGBImage, "index": OldPaint.IndexedImage});
         this.trigger("load");  // I think this must be done in a callback!
         this.trigger("update");
         this.undos = [];

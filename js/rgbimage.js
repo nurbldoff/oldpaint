@@ -31,6 +31,10 @@ OldPaint.RGBImage = function (data) {
         return this.canvas;
     };
 
+    this.put_data = function (data) {
+        this.icontext.putImageData(data, 0, 0);
+    };
+
     this.drawbrush = function (pt, brush, color) {
         var width = brush.image.canvas.width, height = brush.image.canvas.height;
         var rect = this.blit(brush.image.canvas,
@@ -42,7 +46,8 @@ OldPaint.RGBImage = function (data) {
     };
 
     this.drawline = function (startPt, endPt, brush, color) {
-        var erase = !this.palette.colors[color][3];
+        // TODO: this is ugly.
+        var erase = this.palette.colors[color][3] === 0;
         console.log("erase:", erase);
         var rect = Draw.drawLineWithBrush(
             this.context, startPt, endPt, brush.image.canvas, null, erase);

@@ -11,31 +11,6 @@ Draw.putpixel = function (pix, width, x, y, color) {
 };
 
 
-Draw.eraseimage = function (image, context, x, y, width, height) {
-    var from_pix = image.getContext("2d").getImageData(0, 0, width, height);
-    var to_pix = context.getImageData(x, y, width, height);
-    var from_data = from_pix.data, to_data = to_pix.data;
-    for (var i=0, ilen=from_data.length; i < ilen; i+=4) {
-        if (from_data[i+3] > 0) {
-            // to_data[i] = 0;
-            // to_data[i+1] = 0;
-            // to_data[i+2] = 0;
-            to_data[i+3] = 0;
-        }
-    }
-    context.clearRect(x, y, width, height);
-    context.putImageData(to_pix, x, y);
-};
-
-
-Draw.drawimage = function (image, context, x, y, erase) {
-    if (erase) {
-        Draw.eraseimage(image, context, x, y, image.width, image.height);
-    } else {
-        context.drawImage(image, x, y, image.width, image.height);
-    }
-};
-
 // Bresenham line drawing
 Draw.drawline = function (pix, width, startPt, endPt, color) {
     var x1 = startPt.x, y1 = startPt.y, x2 = endPt.x, y2 = endPt.y,
@@ -91,13 +66,20 @@ Draw.drawLineWithBrush = function (context, p0, p1, brush, step, erase) {
         hw = Math.floor(brush.width/2),
         hh = Math.floor(brush.height/2);
 
+    if (erase) {
+        context.save();
+        context.globalCompositeOperation = 'destination-out';
+    }
+
     while (true) {
-        Draw.drawimage(brush, context, x0-hw, y0-hh, erase);
+        context.drawImage(brush, x0-hw, y0-hw, brush.width, brush.height);
         if (x0 === x1 && y0 === y1) break;
         e2 = 2*err;
         if (e2 >= dy) { err += dy; x0 += sx; }
         if (e2 <= dx) { err += dx; y0 += sy; }
     }
+
+    if (erase) context.restore();
 
     return Util.rect(Math.min(p0.x, x1)-hw, Math.min(p0.y, y1)-hh,
                      dx+brush.width, -dy+brush.height);
@@ -105,9 +87,9 @@ Draw.drawLineWithBrush = function (context, p0, p1, brush, step, erase) {
 
 
 Draw.drawEllipseWithBrush = function (context, x0, y0, a, b, brush, step, n, erase) {
-    if (a === 0 || b === 0) {
-        return;
-    } else {
+    // if (a === 0 || b === 0) {
+    //     return;
+    // } else {
 	a = Math.abs(a);
 	b = Math.abs(b);
 	var a2 = 2*a*a, b2  = 2*b*b, error = a*a*b, x = 0, y = b,
@@ -115,23 +97,24 @@ Draw.drawEllipseWithBrush = function (context, x0, y0, a, b, brush, step, n, era
             hw = Math.floor(brush.width / 2),
             hh = Math.floor(brush.height / 2);
 
+        if (erase) {
+            context.save();
+            context.globalCompositeOperation = 'destination-out';
+        }
+
 	while (stopy <= stopx) {
-	    //context.drawImage(brush, x0 + x - hw, y0 + y - hh);
-            Draw.drawimage(brush, context, x0+x-hw, y0+y-hh, erase);
-	    //context.drawImage(brush, x0 - x - hw, y0 + y - hh);
-            Draw.drawimage(brush, context, x0-x-hw, y0+y-hh, erase);
-	    //context.drawImage(brush, x0 - x - hw, y0 - y - hh);
-            Draw.drawimage(brush, context, x0-x-hw, y0-y-hh, erase);
-	    //context.drawImage(brush, x0 + x - hw, y0 - y - hh);
-            Draw.drawimage(brush, context, x0+x-hw, y0-y-hh, erase);
-	    ++x;
-	    error -= b2 * (x - 1);
-	    stopy += b2;
-	    if (error <= 0) {
+            context.drawImage(brush, x0 + x - hw, y0 + y - hh);
+            context.drawImage(brush, x0 - x - hw, y0 + y - hh);
+            context.drawImage(brush, x0 - x - hw, y0 - y - hh);
+            context.drawImage(brush, x0 + x - hw, y0 - y - hh);
+            ++x;
+            error -= b2 * (x - 1);
+            stopy += b2;
+            if (error <= 0) {
 		error += a2 * (y - 1);
 		--y;
 		stopx -= a2;
-	    }
+            }
 	}
         var xo = x;
 	error = b * b * a;
@@ -140,25 +123,23 @@ Draw.drawEllipseWithBrush = function (context, x0, y0, a, b, brush, step, n, era
 	stopy = b2 * a;
 	stopx = 0;
 	while (stopy >= stopx) {
-	    //context.drawImage(brush, x0 + x - hw, y0 + y - hh);
-            Draw.drawimage(brush, context, x0+x-hw, y0+y-hh, erase);
-	    //context.drawImage(brush, x0 - x - hw, y0 + y - hh);
-            Draw.drawimage(brush, context, x0-x-hw, y0+y-hh, erase);
-	    //context.drawImage(brush, x0 - x - hw, y0 - y - hh);
-            Draw.drawimage(brush, context, x0-x-hw, y0-y-hh, erase);
-	    //context.drawImage(brush, x0 + x - hw, y0 - y - hh);
-            Draw.drawimage(brush, context, x0+x-hw, y0-y-hh, erase);
-	    ++y;
-	    error -= a2 * (y - 1);
-	    stopx += a2;
-	    if (error < 0) {
+            context.drawImage(brush, x0 + x - hw, y0 + y - hh);
+            context.drawImage(brush, x0 - x - hw, y0 + y - hh);
+            context.drawImage(brush, x0 - x - hw, y0 - y - hh);
+            context.drawImage(brush, x0 + x - hw, y0 - y - hh);
+            ++y;
+            error -= a2 * (y - 1);
+            stopx += a2;
+            if (error < 0) {
 		error += b2 * (x - 1);
 		--x;
 		stopy -= b2;
 	    }
 	}
-    }
-    return {left:x0-a-hw, top:y0-b-hh, width:2*a+2*hw+1, height:2*b+2*hh+1};
+
+        if (erase) context.restore();
+        return {left:x0-a-hw, top:y0-b-hh, width:2*a+2*hw+1, height:2*b+2*hh+1};
+    //}
 };
 
 Draw.drawFilledEllipse = function (context, x0, y0, a, b, color) {

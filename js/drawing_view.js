@@ -332,13 +332,11 @@ OldPaint.DrawingView = Backbone.View.extend({
     },
 
     load_png_data: function (e) {
-        this.model.load(Util.load_png, {layers: [e.target.result.slice(22)]},
-                        {"rgb": OldPaint.RGBImage, "index": OldPaint.IndexedImage});
+        this.model.load(Util.load_png, {layers: [e.target.result.slice(22)]});
     },
 
     load_ora_data: function (e) {
-        this.model.load(Util.load_ora, e.target.result,
-                        {"rgb": OldPaint.RGBImage, "index": OldPaint.IndexedImage});
+        this.model.load(Util.load_ora, e.target.result);
     },
 
     // ========== LocalStorage operations ==========
@@ -589,20 +587,26 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.stroke.start = this.stroke.last = this.stroke.pos;
         $(".fg").css({"pointer-events": "none"});
         if (!this.scroll_mode) {
-            this.eventbus.info(this.tools.active.help);
-            this.model.before_draw(this.tools.active, this.stroke);
-            this.stroke.draw = true;  // we're drawing, not e.g. panning
+
             switch (this.stroke.button) {
             case 1:  // Drawing
+                this.eventbus.info(this.tools.active.help);
+                this.model.before_draw(this.tools.active, this.stroke);
+                this.stroke.draw = true;  // we're drawing, not e.g. panning
                 this.stroke.color = this.model.palette.foreground;
                 this.stroke.brush.set_color(this.stroke.color);
+                this.model.draw(this.tools.active, this.stroke);
                 break;
             case 3:  // Erasing
+                this.eventbus.info(this.tools.active.help);
+                this.model.before_draw(this.tools.active, this.stroke);
+                this.stroke.draw = true;  // we're drawing, not e.g. panning
                 this.stroke.color = this.model.palette.background;
                 this.stroke.brush.set_color(this.stroke.color, true);
+                this.model.draw(this.tools.active, this.stroke);
                 break;
             }
-            this.model.draw(this.tools.active, this.stroke);
+
         }
         document.onmouseup = this.end_stroke;
     },
