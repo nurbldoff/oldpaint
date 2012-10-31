@@ -173,7 +173,7 @@ div.brushes {
 }
 
 .brush:hover {
-    background-color: #ccc;
+    background-color: #bbb;
 }
 
 .brush.active {
@@ -365,11 +365,11 @@ button {
     display: table-cell;
 }
 
-button:hover, .brush:hover {
+button:hover {
     background-color: #ddd;
 }
 
-button.active, .brush.active {
+button.active {
     border-color: #999;
     background-color: #d0d0d0;
 }

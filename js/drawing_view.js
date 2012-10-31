@@ -553,7 +553,10 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     brush_remove: function () {
         var brush = this.brushes.active;
-        this.brushes.remove(brush);
+        if (brush.type == "user")
+            this.brushes.remove(brush);
+        else
+            this.eventbus.info("Can't remove default brush.");
     },
 
     brush_update: function () {
