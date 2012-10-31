@@ -31,7 +31,7 @@
       function find_shortcut (string) {
           for(var i=0; i<string.length; i++) {
               if (string[i] != " " && string[i] == string[i].toUpperCase())
-                  return string[i].toLowerCase();
+                  return i;
           }
           return null;
       }
@@ -68,10 +68,11 @@
                   else show_menu(item);
                   return false;  // prevents any normal keybindings from firing..?
               };
-              var shortcut = find_shortcut(name);
+              var shortcutpos = find_shortcut(name),
+                  shortcut = name[shortcutpos].toLowerCase();
               Mousetrap.bind(shortcut, action);
               btn.click(action);
-              btn.html(make_label(name, name.indexOf(shortcut.toUpperCase()), !isfunc));
+              btn.html(make_label(name, shortcutpos, !isfunc));
               div.append(btn);
           });
           menu.html(div);
