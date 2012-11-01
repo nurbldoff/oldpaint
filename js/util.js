@@ -425,13 +425,13 @@ Util.create_ora = function (drawing) {
         xw.writeAttributeString("visible", layer.get("visible"));
         xw.writeAttributeString("animated", layer.get("animated"));
         xw.writeEndElement();
-        zip.file("data/layer"+ (index+1) + ".png",
+        zip.file("layer"+ (index+1) + ".png",
                  layer.image.make_png(), {base64: true});
     });
     var xml = xw.flush();
     zip.file("stack.xml", xml);
     zip.file("mimetype", "image/openraster");
-    //var zipfile = zip.generate({compression: "DEFLATE"});
-    var zipfile = zip.generate();
+    var zipfile = zip.generate({compression: "DEFLATE"});
+    //var zipfile = zip.generate();
     return "data:application/zip;base64,"+ zipfile;
 };

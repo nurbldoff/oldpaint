@@ -151,6 +151,9 @@
 	this.getBase64 = function() {
 
 	    var s = this.getDump();
+            if (window.btoa)
+                // Use the builtin btoa function if available
+                return window.btoa(s);
 
 	    var ch = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 	    var c1, c2, c3, e1, e2, e3, e4;
