@@ -4,9 +4,8 @@
 function PNG(data){
     var reader = new Base64Reader(data);
     reader.skip(8);
-    var readChunk = function(){
-	var length = reader.readInt(),
-     type = reader.readChars(4),
+    var readChunk = function () {
+	var length = reader.readInt(), type = reader.readChars(4),
      data = [];
 	if (reader.read(data, 0, length) != length) throw 'Out of bounds';
 	reader.skip(4);
@@ -195,7 +194,7 @@ function PNG(data){
 
     this.readLine = function () {
 	var out, line, x, filter = chunkReader.readByte();
-        console.log("Filter:", filter);
+        //console.log("Filter:", filter);
 	switch (filter) {
         //case -1: return null; break;
 	case 1: return filters[1].apply(this, [chunkReader]); break;

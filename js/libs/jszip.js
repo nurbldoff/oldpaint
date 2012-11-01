@@ -664,6 +664,12 @@ var JSZipBase64 = (function() {
    return {
       // public method for encoding
       encode : function(input, utf8) {
+
+         // This doesn't work. Why?
+         // if (window.btoa) {
+         //     return window.btoa(input);
+         // }
+
          var output = "";
          var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
          var i = 0;
@@ -691,11 +697,16 @@ var JSZipBase64 = (function() {
 
          }
 
+         console.log(output.slice(0, 20));
          return output;
       },
 
       // public method for decoding
       decode : function(input, utf8) {
+
+         if (window.atob)
+             return window.atob(input.slice(1));
+
          var output = "";
          var chr1, chr2, chr3;
          var enc1, enc2, enc3, enc4;

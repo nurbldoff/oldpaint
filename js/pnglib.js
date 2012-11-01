@@ -152,7 +152,6 @@
 
 	    var s = this.getDump();
             if (window.btoa)
-                // Use the builtin btoa function if available
                 return window.btoa(s);
 
 	    var ch = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
