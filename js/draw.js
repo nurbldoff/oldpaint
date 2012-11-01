@@ -11,6 +11,7 @@ Draw.putpixel = function (pix, width, x, y, color) {
 };
 
 
+
 // Bresenham line drawing
 Draw.drawline = function (pix, width, startPt, endPt, color) {
     var x1 = startPt.x, y1 = startPt.y, x2 = endPt.x, y2 = endPt.y,
@@ -87,9 +88,9 @@ Draw.drawLineWithBrush = function (context, p0, p1, brush, step, erase) {
 
 
 Draw.drawEllipseWithBrush = function (context, x0, y0, a, b, brush, step, n, erase) {
-    // if (a === 0 || b === 0) {
-    //     return;
-    // } else {
+    if (a === 0 || b === 0) {
+        return;
+    } else {
 	a = Math.abs(a);
 	b = Math.abs(b);
 	var a2 = 2*a*a, b2  = 2*b*b, error = a*a*b, x = 0, y = b,
@@ -139,7 +140,7 @@ Draw.drawEllipseWithBrush = function (context, x0, y0, a, b, brush, step, n, era
 
         if (erase) context.restore();
         return {left:x0-a-hw, top:y0-b-hh, width:2*a+2*hw+1, height:2*b+2*hh+1};
-    //}
+    }
 };
 
 Draw.drawFilledEllipse = function (context, x0, y0, a, b, color) {

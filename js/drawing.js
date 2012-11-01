@@ -124,8 +124,23 @@ OldPaint.Drawing = Backbone.Model.extend({
             }, this);
             this.undos = [];
             this.redos = [];
+            this.trigger("convert");
             return true;
         } else return false;
+    },
+
+    set_type: function (type) {
+        if (this.type !== type)
+            switch (type) {
+            case OldPaint.IndexedImage:
+                //currently we can't convert RGB -> Indexed
+                return false;
+            case OldPaint.RGBImage:
+                return this.convert_to_rgb_type();
+            default:
+                return false;
+            }
+        else return true;
     },
 
     get_type: function () {

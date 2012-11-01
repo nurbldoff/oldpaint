@@ -352,20 +352,21 @@ Util.load_raw = function (data, drawing, types) {
         // TODO: Should be easier to bypass this whole thing and load
         // the canvas directly into the image. Faster too.
         Util.load_base64_png(image.data).done(function (result) {
-            drawing.image_type = types[result.type];  // This could give strange results...
-            drawing.set("height", result.height);
-            drawing.set("width", result.width);
-            // Highly inelegant code follows...
-            var layer = drawing.add_layer({data: result.layers[0],
-                                           visible: true, animated: false});
-            // layer.image.put_data(result.layers[0]);
-            // layer.set("visible", image.visible);
-            // layer.set("animated", image.animated);
-            layer.cleanup();
-            if (data.palette) {
-                drawing.palette.set_colors(data.palette);
-            } else if (result.palette.length > 0) {
-                drawing.palette.set_colors(result.palette);
+            if (drawing.set_type(result.type)) {  // This could give strange results...
+                drawing.set("height", result.height);
+                drawing.set("width", result.width);
+                // Highly inelegant code follows...
+                var layer = drawing.add_layer({data: result.layers[0],
+                                               visible: true, animated: false});
+                // layer.image.put_data(result.layers[0]);
+                // layer.set("visible", image.visible);
+                // layer.set("animated", image.animated);
+                layer.cleanup();
+                if (data.palette) {
+                    drawing.palette.set_colors(data.palette);
+                } else if (result.palette.length > 0) {
+                    drawing.palette.set_colors(result.palette);
+                }
             }
         });
     });

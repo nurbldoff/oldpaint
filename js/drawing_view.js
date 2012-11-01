@@ -218,6 +218,7 @@ OldPaint.DrawingView = Backbone.View.extend({
 
         this.model.on("resize", this.on_resize);
         this.model.on("selection", this.on_selection);
+        this.model.on("convert", this.on_converted);
         //this.model.on("selection_done", this.edit_selection);
         this.model.on("load", this.on_load);
         this.model.on("change:title", this.on_rename);
@@ -516,16 +517,17 @@ OldPaint.DrawingView = Backbone.View.extend({
         var on_ok = (function () {
             if (!this.model.convert_to_rgb_type())
                 this.eventbus.info("Drawing is not of Indexed type - not converting.");
-            else {
-                this.brushes.each(function (brush) {brush.convert(OldPaint.RGBImage);});
-                this.update_title();
-            }
         }).bind(this);
         var on_abort = function () {};
         Modal.alert("Convert image",
                     "You are about to convert the image to RGB palette format. " +
                     "This is (currently) an irreversible operation, and you will " +
                     "lose your undo history. Proceed?", on_ok, on_abort);
+    },
+
+    on_converted: function (event) {
+        this.brushes.each(function (brush) {brush.convert(OldPaint.RGBImage);});
+        this.update_title();
     },
 
 
