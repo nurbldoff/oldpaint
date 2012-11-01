@@ -43,7 +43,6 @@ OldPaint.Drawing = Backbone.Model.extend({
         this.trigger("update");
         this.undos = [];
         this.redos = [];
-        console.log(JSON.stringify(this.palette.colors));
     },
 
     // Save an ORA file locally.
