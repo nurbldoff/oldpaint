@@ -704,8 +704,8 @@ var JSZipBase64 = (function() {
       // public method for decoding
       decode : function(input, utf8) {
 
-         if (window.atob)
-             return window.atob(input.slice(1));
+         // if (window.atob)
+         //     return window.atob(input.slice(1));
 
          var output = "";
          var chr1, chr2, chr3;
