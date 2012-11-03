@@ -62,7 +62,24 @@ OldPaint.BrushesView = Backbone.View.extend({
         this.collection.on("activate", this.activate);
         this.collection.on("add", this.render);
         this.collection.on("remove", this.render);
+
+        //this.eventbus.on("brush:active", this.on_active_brush_event);
+        //this.eventbus.on("brush:all", this.on_all_brushes_event);
         this.render();
+    },
+
+    on_active_brush_event: function (method) {
+        var args = Array.prototype.slice.call(arguments).slice(1);
+        console.log("brush event", args);
+        this.collection.active[method](args);
+    },
+
+    on_all_brushes_event: function (method) {
+        var args = Array.prototype.slice.call(arguments).slice(1);
+        console.log("brush event", method, args);
+        this.collection.each(function (brush) {
+            brush[method](args);
+        });
     },
 
     render: function () {

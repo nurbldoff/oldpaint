@@ -12,6 +12,7 @@ OldPaint.Brush = OldPaint.Image.extend ({
     activate: function () {this.trigger("activate", this);},
 
     set_color: function (color) {
+        console.log(this);
         this.make_backup();
         this.color = color;
         this.image.colorize(color, true);
@@ -82,20 +83,23 @@ OldPaint.ImageBrush = OldPaint.Brush.extend ({
     },
 
     set_color: function (color, force) {
+        console.log("brush set_color", color, force);
         this.color = color;
-        if (force) {
+        if (force)
             this.image.colorize(color, true);
-        }
+        this.trigger("change");
     },
 
     flip_x: function () {
         OldPaint.Layer.__super__.flip_x.apply(this);
         this.make_backup();
+        this.trigger("change");
     },
 
     flip_y: function () {
         OldPaint.Layer.__super__.flip_y.apply(this);
         this.make_backup();
+        this.trigger("change");
     },
 
     get_info: function () {
@@ -109,8 +113,9 @@ OldPaint.Brushes = Backbone.Collection.extend ({
     previous: null,
     max_n: 3,
 
-    initialize: function () {
-        this.on("activate", this.on_activate);
+    initialize: function (options) {
+        _.bindAll(this);
+        this.on("activate", this.on_activate);  // catch if a model gets activated
     },
 
     on_activate: function (brush) {

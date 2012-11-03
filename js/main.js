@@ -203,6 +203,8 @@ $(function () {
 
     var info_view = new OldPaint.InfoView({model: drawing, eventbus: eventbus});
     var layers_view = new OldPaint.MiniLayersView({model: drawing, eventbus: eventbus});
+    var status_view = new OldPaint.StatusView({model: drawing, brushes: brushes,
+                                               tools: tools, eventbus: eventbus});
 
     drawing.add_layer(true);
 

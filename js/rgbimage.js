@@ -152,6 +152,18 @@ OldPaint.RGBImage = function (data) {
         return rect;
     };
 
+    this.flipx = function() {
+        var canvas = Util.copy_canvas(this.canvas, null, {x: true}),
+            rect = Util.rect(0, 0, canvas.width, canvas.height);
+        return this.blit(canvas, rect, rect, true);
+    };
+
+    this.flipy = function() {
+        var canvas = Util.copy_canvas(this.canvas, null, {y: true}),
+            rect = Util.rect(0, 0, canvas.width, canvas.height);
+        return this.blit(canvas, rect, rect, true);
+    };
+
     // this.clear = function(rect) {
     //     if (rect) {
     //         this.context.clearRect(rect.left, rect.top,

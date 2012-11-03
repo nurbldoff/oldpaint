@@ -34,15 +34,28 @@ OldPaint.Drawing = Backbone.Model.extend({
     // TODO: guess it should be possible to undo loading..?
     load: function (loader, data) {
         // Remove all the present layers
-        while (this.layers.models.length > 0) {
+        while (this.layers.models.length > 0)
             this.layers.pop({silent: false});
-        }
         this.layers.active = null;
-        loader(data, this, {"rgb": OldPaint.RGBImage, "index": OldPaint.IndexedImage});
-        this.trigger("load");  // I think this must be done in a callback!
-        this.trigger("update");
-        this.undos = [];
-        this.redos = [];
+
+        var on_loaded = (function (result) {
+            this.set_type(result.type);
+            this.set({height: result.height, width: result.width});
+            for (var i=0; i<result.layers.length; i++)
+                this.add_layer(true, result.layers[i]);
+            if (data.palette)
+                this.palette.set_colors(data.palette);
+            else if (result.palette && result.palette.length > 0)
+                this.palette.set_colors(result.palette);
+            this.trigger("load");
+            //this.trigger("update");
+            this.undos = [];
+            this.redos = [];
+
+        }).bind(this);
+
+        loader(data, on_loaded);
+
     },
 
     // Save an ORA file locally.
@@ -115,9 +128,9 @@ OldPaint.Drawing = Backbone.Model.extend({
             var layer_data = [], canvas;
             var active_layer = this.layers.indexOf(this.layers.active);
             this.image_type = OldPaint.RGBImage;
-            this.layers.active.clear_temporary();
             this.layers.each(function (layer) {
                 console.log("layer:", layer);
+                layer.clear_temporary();
                 layer.convert(this.image_type);
                 layer.redraw();
                 layer.cleanup();
@@ -130,17 +143,17 @@ OldPaint.Drawing = Backbone.Model.extend({
     },
 
     set_type: function (type) {
-        if (this.type !== type)
+        if (this.image_type != type) {
             switch (type) {
             case OldPaint.IndexedImage:
-                //currently we can't convert RGB -> Indexed
-                return false;
+                this.image_type = OldPaint.IndexedImage;
+                this.trigger("convert");
+                break;
             case OldPaint.RGBImage:
-                return this.convert_to_rgb_type();
-            default:
-                return false;
+                this.convert_to_rgb_type();
+                break;
             }
-        else return true;
+        }
     },
 
     get_type: function () {

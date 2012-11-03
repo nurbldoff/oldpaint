@@ -73,7 +73,7 @@ Draw.drawLineWithBrush = function (context, p0, p1, brush, step, erase) {
     }
 
     while (true) {
-        context.drawImage(brush, x0-hw, y0-hw, brush.width, brush.height);
+        context.drawImage(brush, x0-hw, y0-hh, brush.width, brush.height);
         if (x0 === x1 && y0 === y1) break;
         e2 = 2*err;
         if (e2 >= dy) { err += dy; x0 += sx; }

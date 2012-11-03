@@ -140,6 +140,7 @@ Util.canvas_coords = function (image_coords, window) {
 // Returns a canvas containing a copy of the input canvas,
 // optionally only the part contained by rect, and optionally flipped.
 Util.copy_canvas = function (canvas, rect, flip) {
+    console.log(canvas);
     var new_canvas = document.createElement('canvas'),
         context = new_canvas.getContext('2d'), left = 0, top = 0;
     if (rect) {
@@ -208,7 +209,7 @@ Util.buffer = function(func, wait, scope) {
 };
 
 Util.strip_data_header = function (data) {
-    return data.slice(data.indexOf(","));
+    return data.slice(data.indexOf(",")+1);
 };
 
 
@@ -256,13 +257,17 @@ Util.load_base64_png = function (data) {
         var img = new Image();
         img.onload = function() {
             var canvas = Util.copy_canvas(img);
-            var result = {layers: [canvas.getContext('2d').getImageData(
-                0, 0, img.width, img.height).data],
-                          palette: [],
-                          width: img.width,
-                          height: img.height,
-                          type: "rgb"};
-            //callback(result);
+            var result = {
+                type: OldPaint.RGBImage,
+                layers: [{
+                    data: canvas.getContext('2d').getImageData(
+                        0, 0, img.width, img.height).data,
+                    visible: true,
+                    animated: false
+                }],
+                palette: [],
+                width: img.width,
+                height: img.height};
             deferred.resolve(result);
         };
         img.src = "data:image/png;base64," + data;
@@ -296,11 +301,11 @@ Util.load_base64_png = function (data) {
             }
         }
 
-        var result = {layers: [pixels],
+        var result = {layers: [{data: pixels, visible: true, animated: false}],
                       palette: palette,
                       width: image.width,
                       height: image.height,
-                      type: "index"};
+                      type: OldPaint.IndexedImage};
         //callback(result);
         deferred.resolve(result);
 
@@ -327,16 +332,27 @@ Util.mkXML = function (text) //turns xml string into XMLDOM
     }
 };
 
-// Parses and loads PNG images into a drawing
-// TODO: This is really too tied to the Drawing model. Should it be moved there?
-Util.load_png = function (data, drawing, types) {
+// Parses and loads PNG images
+Util.png_loader = function (data, callback) {
+    Util.load_base64_png(Util.strip_data_header(data)).done(callback);
+};
+
+// Loads PNG images directly into a drawing
+Util.raw_loader = function (data, drawing, types) {
     _.each(data.layers, function (image, index) {
-        Util.load_base64_png(image).done(function (result) {
-            drawing.image_type = types[result.type];
+        // TODO: Should be easier to bypass this whole thing and load
+        // the canvas directly into the image. Faster too.
+        Util.load_base64_png(image.data).done(function (result) {
+            drawing.set_type(result.type);  // This could give strange results...
             drawing.set("height", result.height);
             drawing.set("width", result.width);
-            drawing.add_layer(true, {data: result.layers[0],
-                                     visible: true, animated: false});
+            // Highly inelegant code follows...
+            var layer = drawing.add_layer({data: result.layers[0],
+                                           visible: true, animated: false});
+            // layer.image.put_data(result.layers[0]);
+            // layer.set("visible", image.visible);
+            // layer.set("animated", image.animated);
+            layer.cleanup();
             if (data.palette) {
                 drawing.palette.set_colors(data.palette);
             } else if (result.palette.length > 0) {
@@ -346,37 +362,11 @@ Util.load_png = function (data, drawing, types) {
     });
 };
 
-// Loads PNG images directly into a drawing
-Util.load_raw = function (data, drawing, types) {
-    _.each(data.layers, function (image, index) {
-        // TODO: Should be easier to bypass this whole thing and load
-        // the canvas directly into the image. Faster too.
-        Util.load_base64_png(image.data).done(function (result) {
-            if (drawing.set_type(result.type)) {  // This could give strange results...
-                drawing.set("height", result.height);
-                drawing.set("width", result.width);
-                // Highly inelegant code follows...
-                var layer = drawing.add_layer({data: result.layers[0],
-                                               visible: true, animated: false});
-                // layer.image.put_data(result.layers[0]);
-                // layer.set("visible", image.visible);
-                // layer.set("animated", image.animated);
-                layer.cleanup();
-                if (data.palette) {
-                    drawing.palette.set_colors(data.palette);
-                } else if (result.palette.length > 0) {
-                    drawing.palette.set_colors(result.palette);
-                }
-            }
-        });
-    });
-};
-
 
 // Routines for parsing and creating OpenRaster (ORA) files
 
-// Loads an OpenRaster file into a drawing
-Util.load_ora = function (data, drawing) {
+// Loads an OpenRaster file
+Util.ora_loader = function (data, callback) {
     var zip = new JSZip();
     //Need to do some more checking here, seems like the mimetype can
     //be confused. Here we assume it's "image/openraster"
@@ -384,29 +374,27 @@ Util.load_ora = function (data, drawing) {
     var stack_file = zip.file("stack.xml"),
         xml = Util.mkXML(stack_file.data),
         layer_nodes = xml.getElementsByTagName("layer"),
-        layers = [], folder = zip.folder("data");
-    drawing.set("width", xml.getElementsByTagName("image")[0].getAttribute("w"));
-    drawing.set("height", xml.getElementsByTagName("image")[0].getAttribute("h"));
-    _.each(layer_nodes, function (node, index) {
-        var filename = node.getAttribute("src"),
+        folder = zip.folder("data"),
+        result = {layers: []}, layers_added = 0;
+    result.width = xml.getElementsByTagName("image")[0].getAttribute("w");
+    result.height = xml.getElementsByTagName("image")[0].getAttribute("h");
+    for (var i=0; i<layer_nodes.length; i++) {
+        var node = layer_nodes[i], filename = node.getAttribute("src"),
             visible = Util.string_to_boolean(
                 node.getAttribute("visible") || "true"),
             animated = Util.string_to_boolean(
                 node.getAttribute("animated") || "false"),
             image = zip.file(filename);
         console.log("ORA: visible:", visible, "animated:", animated);
-        Util.load_base64_png(btoa(image.data)).done(function (data) {
-            drawing.add_layer(true, {data: data.layers[0],
-                                     visible: visible,
-                                     animated: animated});
-            // TODO: this isn't a pretty way of loading the palette...
-            if (data.palette.length > 0) {
-                drawing.palette.set_colors(data.palette);
-            }
+        Util.load_base64_png(btoa(image.data)).done(function (tmp) {
+            tmp.layers[0].visible = visible;
+            tmp.layers[0].animated = animated;
+            result.layers[i] = tmp.layers[0];
+            // Checking if all layers have been loaded
+            if (++layers_added == layer_nodes.length)
+                callback(result);
         });
-    });
-    drawing.palette.set_background(0);
-    drawing.palette.set_foreground(1);
+    }
 };
 
 // Create an ORA file as a data URI.

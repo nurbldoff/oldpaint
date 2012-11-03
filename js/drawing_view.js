@@ -33,9 +33,6 @@ OldPaint.DrawingView = Backbone.View.extend({
         document.querySelector('#drawing_window').oncontextmenu = no_context_menu;
         document.querySelector('#drawing').oncontextmenu = no_context_menu;
 
-        // Load settings from local storage
-        this.load_settings();
-
         this.center();
 
         // Let's save to local storage periodically
@@ -43,65 +40,22 @@ OldPaint.DrawingView = Backbone.View.extend({
         // have been changed since last save.
         //var intervalID = setInterval(this.save_internal, 60000);
 
-        // === Menu ===
-        // Items are defined by name and function/subitems
-        // Keyboard shortcut is the first Uppercase letter in the name,
-        // don't put overlapping keybindings in the same level!
-        this.menuitems = {
-            Drawing: {
-                reName: this.rename,
-                Load: this.load_popup,
-                Save: this.save_internal,
-                Import: this.load,
-                Export: {
-                    PNG: this.save_as_png,
-                    ORA: this.save_as_ora
-                },
-                Delete: this.delete_internal,
-                Resize: this.resize_image,
-                Convert: this.convert_image
-            },
-            Layer: {
-                Add: function () {this.model.add_layer(true);},
-                Delete: function () {
-                    this.model.remove_layer(this.model.layers.active);
-                },
-                Flip: {
-                    Horizontally: this.model.flip_layer_horizontal,
-                    Vertically: this.model.flip_layer_vertical
-                },
-                Export: this.save_layer_as_png
-            },
-            Brush: {
-                Colorize: this.brush_colorize,
-                Delete: this.brush_remove,
-                Flip: {
-                    Horizontally: this.brush_flip_x,
-                    Vertically: this.brush_flip_y
-                },
-            }
-        };
-
         // Keyboard bindings.
         var keybindings = [
-            ["return", this.show_menu.bind(this, null)],
-
             ["-", this.zoom_out, "Zoom out."],
             ["+", this.zoom_in, "Zoom in."],
-            ["z", this.on_undo, "Undo last change."],
-            ["y", this.on_redo, "Redo last undo."],
+            // ["z", this.on_undo, "Undo last change."],
+            // ["y", this.on_redo, "Redo last undo."],
 
             ["r", function () {this.model.redraw();}, "Redraw the screen."],
 
             // Experimental save to internal storage
-            ["i s", this.save_internal, "Save drawing to browser's local storage."],
-            ["i l", this.load_internal, "Load drawing from browser's local storage."],
-            ["i d", this.delete_internal, "Delete drawing from browser's local storage."],
-            ["i i", this.save_settings, "Save settings."],
-            ["i o", this.load_settings, "Load settings."],
+            // ["i s", this.save_internal, "Save drawing to browser's local storage."],
+            // ["i l", this.load_internal, "Load drawing from browser's local storage."],
+            // ["i d", this.delete_internal, "Delete drawing from browser's local storage."],
+            // ["i i", this.save_settings, "Save settings."],
+            // ["i o", this.load_settings, "Load settings."],
 
-            // Layer key actions
-            ["l", function () {this.show_menu("Layer");}],
             // ["l a", function () {this.model.add_layer(true);}, "Add a new layer."],
 
             // ["l d", function () {
@@ -154,32 +108,6 @@ OldPaint.DrawingView = Backbone.View.extend({
                 }
             }, "Jump to next animation frame."],
 
-            // ["f h", function () {
-            //     this.model.flip_layer_horizontal(this.model.layers.active);
-            // }, "Flip the current layer horizontally."],
-
-            // ["f v", function () {
-            //     this.model.flip_layer_vertical(this.model.layers.active);
-            // }, "Flip the current layer vertically."],
-            ["b", function () {this.show_menu("Brush");}],
-            // ["b h", function () {
-            //     var brush = this.brushes.active;
-            //     brush.flip_x();
-            //     this.model.preview_brush(brush, this.model.palette.foreground);
-            // }, "Flip the current brush horizontally."],
-
-            // ["b v", function () {
-            //     var brush = this.brushes.active;
-            //     brush.flip_y();
-            //     this.model.preview_brush(brush, this.model.palette.foreground);
-            // }, "Flip the current brush vertically"],
-
-            // ["b c", function () {
-            //     var brush = this.brushes.active;
-            //     brush.set_color(this.model.palette.foreground, true);
-            //     this.model.preview_brush(brush, this.model.palette.foreground);
-            // }, "Flip the current brush vertically"],
-
             ["0", this.center, "Center the view."]
         ];
         _.each(keybindings, function (binding) {
@@ -228,12 +156,8 @@ OldPaint.DrawingView = Backbone.View.extend({
         //this.model.palette.on("transparency", this.on_palette_transparency_changed);
 
         this.brushes.on("activate", this.brush_update);
+        this.brushes.on("change", this.brush_update);
         this.tools.on("activate", this.cleanup);
-
-        $('#files').on('change', this.on_file_select);
-        $("#logo").click(this.show_menu.bind(this, null));
-        $("#undo").click(this.on_undo);
-        $("#redo").click(this.on_redo);
     },
 
     render: function (update_image) {
@@ -248,7 +172,7 @@ OldPaint.DrawingView = Backbone.View.extend({
             height: this.model.get("height") * this.window.scale
         });
 
-        this.update_title();
+        //this.update_title();
     },
 
     on_mouse_enter: function (ev) {
@@ -262,177 +186,12 @@ OldPaint.DrawingView = Backbone.View.extend({
         }
     },
 
-    show_menu: function (start) {
-        this.eventbus.info("Menu mode. Select with keyboard or mouse. Leave with Esc.");
-        if (!this.menu) {
-            $("#title").linearMenu(this.menuitems, this, start, this.eventbus.clear);
-        }
-    },
-
-    // ========== Filesystem operations ==========
-
-    // Load an user selected file from the normal filesystem
-    load: function () {
-        if (chrome.fileSystem) this.chrome_open();
-        else $('#files').click();
-    },
-
-    // Save as PNG to the normal filesystem. If we can, let the user choose where.
-    save_as_png: function () {
-        if (chrome.fileSystem) this.chrome_save_as_png();
-        else this.model.export_png();
-    },
-
-    // Save layer as PNG to the normal filesystem. If we can, let the user choose where.
-    save_layer_as_png: function () {
-        if (chrome.fileSystem) this.chrome_save_as_png(true);
-        else this.model.export_png(true);
-    },
-
-    // Save as ORA to the normal filesystem. If we can, let the user choose where.
-    save_as_ora: function () {
-        if (chrome.fileSystem) this.chrome_save_as_ora();
-        else this.model.export_ora();
-    },
-
-    chrome_open: function () {
-        ChromeApp.fileLoadChooser({"png": this.load_png_data,
-                                   "ora": this.load_ora_data});
-    },
-
-    chrome_save_as_ora: function () {
-        ChromeApp.fileSaveChooser(Util.change_extension(this.model.get("title"), "ora"),
-                                  Util.convertDataURIToBlob(Util.create_ora(this.model)),
-                                  "image/ora",
-                                  function () {console.log("write done");});
-    },
-
-    chrome_save_as_png: function (single) {
-        var model = this.model;
-        ChromeApp.fileSaveChooser(
-            Util.change_extension(this.model.get("title"), "png"),
-            single ? this.layers.active.image.make_png(true) :
-                this.model.flatten_visible_layers().make_png(true),
-            "image/png",
-            function (something) {console.log(something);});
-    },
-
-    on_file_select: function (evt) {
-        var files = evt.target.files;
-        if (files.length > 0) {
-            var f = files[0];
-            var reader = new FileReader();
-            if (f.type.match('image/png')) {
-                reader.onload = this.load_png_data;
-            } else {
-                reader.onload = this.load_ora_data;
-            }
-            reader.readAsDataURL(f);
-            this.model.set("title", f.name.split(".")[0]);
-        }
-    },
-
-    load_png_data: function (e) {
-        this.model.load(Util.load_png, {layers: [e.target.result.slice(22)]});
-    },
-
-    load_ora_data: function (e) {
-        this.model.load(Util.load_ora, e.target.result);
-    },
-
-    // ========== LocalStorage operations ==========
-
-    load_settings: function (e) {
-        var model = this.model;
-        LocalStorage.request(
-            LocalStorage.read_txt,
-            {name: "settings.json",
-             on_load: function (e) {
-                 var settings = JSON.parse(e.target.result);
-                 console.log("settings:", settings);
-                 if (settings.last_drawing) {
-                     model.load_from_storage(settings.last_drawing);
-                 }
-             }
-            });
-    },
-
-    save_settings: function () {
-        console.log("save settings");
-        var settings = {
-            last_drawing: this.model.get("title")
-        };
-        LocalStorage.request(LocalStorage.write,
-                             {name: "settings.json",
-                              blob: new Blob([JSON.stringify(settings)],
-                                             {type: 'text/plain'})});
-    },
-
-    // Save the image to the browser's internal storage. Let's not do that
-    // while the user is actually drawing though, since it will cause stutter.
-    save_internal: function () {
-        if (this.stroke) {
-            setTimeout(this.model.save_to_storage, 1000);
-        } else {
-            this.model.save_to_storage();
-        }
-    },
-
-    delete_internal: function () {
-        var on_abort = function () {};
-        var on_ok = (function () {
-            this.model.remove_from_storage();
-            this.model.reinitialize();
-        }).bind(this);
-        Modal.alert("Delete drawing", "Are you sure you want to delete this " +
-                    "drawing from internal storage? This action can't be undone.",
-                    on_ok, on_abort);
-    },
-
-    load_internal: function (evt) {
-        this.model.load_from_storage();
-    },
-
-    // Show the saved drawings list
-    load_popup: function (event) {
-        var load = _.bind(function (title) {
-            this.model.save_to_storage();
-            this.model.load_from_storage(title);
-        }, this);
-        var callback = function (result) {
-            var dirs = _.filter(result, function (item) {return item.isDirectory;}),
-                names = _.map(dirs, function (item) {return item.name;});
-            Modal.list(names, load);
-        };
-        var drawings = LocalStorage.list({callback: callback});
-    },
-
     on_load: function () {
         this.render(true);
         this.center();
     },
 
     // ========== Drawing operations ==========
-
-    rename: function () {
-        var on_ok = (function (name) {
-            this.model.set("title", name);
-        }).bind(this);
-        var on_abort = function () {};
-        Modal.input("Rename drawing", "What do you want to name it?", on_ok, on_abort);
-    },
-
-    on_rename: function (model, value) {
-        this.update_title();
-    },
-
-    update_title: function () {
-        var text = this.model.get("title") + " " +
-                "(" + this.model.get("width") + "x" + this.model.get("height") + ", " +
-                this.model.get_type() + ") " +
-                Math.pow(2, this.zoom) + "x";
-        $("#title").text(text);  // Probably better to make a view for this
-    },
 
     update_scale: function() {
         this.window.scale = Math.pow(2, this.zoom);
@@ -442,33 +201,6 @@ OldPaint.DrawingView = Backbone.View.extend({
     cleanup: function () {
         this.model.layers.active.clear_temporary();
     },
-
-    resize_image: function () {
-        var resize = (function () {
-            this.model.resize(this.model.selection.rect);
-            this.eventbus.info("Resized to (" + this.model.selection.width + ", " +
-                               this.model.selection.height + ")");
-            this.tools.previous.activate();
-            this.model.end_selection();
-        }).bind(this);
-        this.model.make_selection(resize, this.model.get_rect());
-        this.eventbus.info("Resize the image by dragging the corner handles. " +
-                           "Click anywhere to finish.");
-        this.tools.where({name: "select"})[0].activate();
-    },
-
-    on_undo: function () {
-        if (this.model.undo()) {
-            this.eventbus.info("Undo");
-        } else this.eventbus.info("Nothing more to undo!");
-    },
-
-    on_redo: function () {
-        if (this.model.redo()) {
-            this.eventbus.info("Redo");
-        } else this.eventbus.info("Nothing more to redo!");
-    },
-
 
     // Callback for when the user changes the palette
     on_palette_changed: function (changes) {
@@ -500,7 +232,7 @@ OldPaint.DrawingView = Backbone.View.extend({
     },
 
     // Callback for when the user changes the position of a layer in
-    // the stack
+    // The stack
     on_layer_reordered: function (from, to) {
         var layer_views = $("#layers_container").children("canvas");
         var $from_layer = $(layer_views[from]);
@@ -513,55 +245,18 @@ OldPaint.DrawingView = Backbone.View.extend({
         }
     },
 
-    convert_image: function (event) {
-        var on_ok = (function () {
-            if (!this.model.convert_to_rgb_type())
-                this.eventbus.info("Drawing is not of Indexed type - not converting.");
-        }).bind(this);
-        var on_abort = function () {};
-        Modal.alert("Convert image",
-                    "You are about to convert the image to RGB palette format. " +
-                    "This is (currently) an irreversible operation, and you will " +
-                    "lose your undo history. Proceed?", on_ok, on_abort);
+    on_converted: function () {
+        this.brushes.each(function (brush) {
+            brush.convert(this.model.image_type);
+        }, this);
     },
-
-    on_converted: function (event) {
-        this.brushes.each(function (brush) {brush.convert(OldPaint.RGBImage);});
-        this.update_title();
-    },
-
 
     // update_brush: function (color) {
     //     this.brushes.active.set_color(color);
     // },
 
-    brush_flip_x: function () {
-        var brush = this.brushes.active;
-        brush.flip_x();
-        this.model.preview_brush(brush, this.model.palette.foreground);
-    },
-
-    brush_flip_y: function () {
-        var brush = this.brushes.active;
-        brush.flip_y();
-        this.model.preview_brush(brush, this.model.palette.foreground);
-    },
-
-    brush_colorize: function () {
-        var brush = this.brushes.active;
-        brush.set_color(this.model.palette.foreground, true);
-        this.brush_update();
-    },
-
-    brush_remove: function () {
-        var brush = this.brushes.active;
-        if (brush.type == "user")
-            this.brushes.remove(brush);
-        else
-            this.eventbus.info("Can't remove default brush.");
-    },
-
     brush_update: function () {
+        console.log("brush_update");
         var brush = this.brushes.active;
         if (!brush.type)  // is it a standard brush?
             brush.set_color(this.model.palette.foreground, true);
@@ -589,7 +284,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.stroke.start = this.stroke.last = this.stroke.pos;
         $(".fg").css({"pointer-events": "none"});
         if (!this.scroll_mode) {
-
+1
             switch (this.stroke.button) {
             case 1:  // Drawing
                 this.eventbus.info(this.tools.active.help);
@@ -663,7 +358,6 @@ OldPaint.DrawingView = Backbone.View.extend({
     on_resize: function () {
         this.render();
         this.center();
-        this.update_title();
     },
 
     // Update the cursor position and draw brush preview
@@ -709,7 +403,6 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.update_scale();
         this.center_on_image_pos(image_pos, center_pos);
         this.render();
-        this.update_title();
     },
 
     zoom_in: function (event, center_mouse) {
