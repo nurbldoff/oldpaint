@@ -30,7 +30,8 @@ OldPaint.Drawing = Backbone.Model.extend({
         this.set("title", "Untitled");
     },
 
-    // Load image data
+    // Load image. Takes a "loader" function and feeds it the data and
+    // a callback that expects a nice drawing data object.
     // TODO: guess it should be possible to undo loading..?
     load: function (loader, data) {
         // Remove all the present layers
@@ -39,6 +40,7 @@ OldPaint.Drawing = Backbone.Model.extend({
         this.layers.active = null;
 
         var on_loaded = (function (result) {
+            console.log(result);
             this.set_type(result.type);
             this.set({height: result.height, width: result.width});
             for (var i=0; i<result.layers.length; i++)
@@ -48,7 +50,7 @@ OldPaint.Drawing = Backbone.Model.extend({
             else if (result.palette && result.palette.length > 0)
                 this.palette.set_colors(result.palette);
             this.trigger("load");
-            //this.trigger("update");
+
             this.undos = [];
             this.redos = [];
 
@@ -107,12 +109,15 @@ OldPaint.Drawing = Backbone.Model.extend({
             this.set("title", title);
         }
         var model = this;
+
         var read_spec = function (e) {
             var spec = JSON.parse(e.target.result);
             console.log("spec", spec);
             var data = [];
-            LocalStorage.read_images(spec, model.load.bind(this, Util.load_raw));
+            LocalStorage.read_images(spec, model.load.bind(model, Util.raw_loader));
         };
+
+        // load the spec...
         LocalStorage.load_txt({path: this.get("title"), name: "spec",
                                on_load: read_spec});
     },

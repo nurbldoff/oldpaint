@@ -259,12 +259,8 @@ Util.load_base64_png = function (data) {
             var canvas = Util.copy_canvas(img);
             var result = {
                 type: OldPaint.RGBImage,
-                layers: [{
-                    data: canvas.getContext('2d').getImageData(
-                        0, 0, img.width, img.height).data,
-                    visible: true,
-                    animated: false
-                }],
+                data: canvas.getContext('2d').getImageData(
+                    0, 0, img.width, img.height).data,
                 palette: [],
                 width: img.width,
                 height: img.height};
@@ -301,7 +297,7 @@ Util.load_base64_png = function (data) {
             }
         }
 
-        var result = {layers: [{data: pixels, visible: true, animated: false}],
+        var result = {data: pixels,
                       palette: palette,
                       width: image.width,
                       height: image.height,
@@ -332,34 +328,43 @@ Util.mkXML = function (text) //turns xml string into XMLDOM
     }
 };
 
-// Parses and loads PNG images
+// Parses an array of PNG images into OldPaint drawing format
 Util.png_loader = function (data, callback) {
-    Util.load_base64_png(Util.strip_data_header(data)).done(callback);
+    var image = {layers: []};
+    var load_next = function (result) {
+        if (result)
+            image.layers.push({data: result.data, visible: true, animated: false});
+        if (data.length >= 0)
+            Util.load_base64_png(Util.strip_data_header(data.pop())).done(load_next);
+        else {
+            image.width = result.width;
+            image.height = result.height;
+            image.palette = result.palette;
+            image.type = result.type;
+            callback(image);
+        }
+    };
+    load_next();
 };
 
-// Loads PNG images directly into a drawing
-Util.raw_loader = function (data, drawing, types) {
-    _.each(data.layers, function (image, index) {
-        // TODO: Should be easier to bypass this whole thing and load
-        // the canvas directly into the image. Faster too.
-        Util.load_base64_png(image.data).done(function (result) {
-            drawing.set_type(result.type);  // This could give strange results...
-            drawing.set("height", result.height);
-            drawing.set("width", result.width);
-            // Highly inelegant code follows...
-            var layer = drawing.add_layer({data: result.layers[0],
-                                           visible: true, animated: false});
-            // layer.image.put_data(result.layers[0]);
-            // layer.set("visible", image.visible);
-            // layer.set("animated", image.animated);
-            layer.cleanup();
-            if (data.palette) {
-                drawing.palette.set_colors(data.palette);
-            } else if (result.palette.length > 0) {
-                drawing.palette.set_colors(result.palette);
-            }
-        });
-    });
+// Convert a "raw" spec object with PNG data into loadable drawing data
+Util.raw_loader = function (spec, callback) {
+    var image = {layers: []}, layers = spec.layers, layer, i=0;
+    var load_next = function (result) {
+        if (result) {
+            layer = spec.layers[i-1];
+            layer.data = result.data;
+        }
+        if (i < layers.length)
+            Util.load_base64_png(Util.strip_data_header(layers[i++].data)).done(load_next);
+        else {
+            spec.width = result.width;
+            spec.height = result.height;
+            spec.type = result.type;
+            callback(spec);
+        }
+    };
+    load_next();
 };
 
 

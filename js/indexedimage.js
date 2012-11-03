@@ -16,9 +16,13 @@ OldPaint.IndexedImage = function (data) {
     this.type = "Indexed";
 
     // the "real" indexed, internal canvas
-    this.icanvas = document.createElement('canvas');
-    this.icanvas.width = data.width;
-    this.icanvas.height = data.height;
+    if (data.canvas) {
+        this.icanvas = data.canvas;
+    } else {
+        this.icanvas = document.createElement('canvas');
+        this.icanvas.width = data.width;
+        this.icanvas.height = data.height;
+    }
     this.icontext = this.icanvas.getContext("2d");
 
     // the RGBA representation
