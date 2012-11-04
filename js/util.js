@@ -251,7 +251,7 @@ Util.load_base64_png = function (data) {
     // Let's take a look at the file first
     var image = new PNG(data);
     var deferred = $.Deferred();
-    console.log("Loading PNG of type:", image.colorType);
+
     // Use browser to decode non-palette types
     if (image.colorType != 3) {
         var img = new Image();
@@ -268,6 +268,7 @@ Util.load_base64_png = function (data) {
         };
         img.src = "data:image/png;base64," + data;
     } else {
+        var start = (new Date()).getTime();
         // Convert the data into oldpaint formats
         var line, pixels = [];
         for (var y = 0; y < image.height; y++) {
@@ -304,7 +305,9 @@ Util.load_base64_png = function (data) {
                       type: OldPaint.IndexedImage};
         //callback(result);
         deferred.resolve(result);
-
+        /* Run a test. */
+        var diff = (new Date()).getTime() - start;
+        console.log("loading PNG took", diff, "ms.");
     }
     return deferred;
 };
@@ -380,8 +383,10 @@ Util.ora_loader = function (data, callback) {
             result.layers[n] = {data: tmp.data, visible: visible, animated: animated};
             // Checking if all layers have been loaded
             if (++layers_added == max) {
-                result.palette = tmp.palette;
-                result.type = tmp.type;
+                result.palette = tmp.palette;  // we assume that all layers have the
+                                               // same palette. They have to.
+                result.type = tmp.type;        // Same type (index/rgb) too.
+                console.log("importing ORA took", (new Date()).getTime() - start, "ms.");
                 callback(result);
             }
         });
@@ -405,16 +410,18 @@ Util.ora_loader = function (data, callback) {
     };
 
     var result = {layers: []}, layers_added = 0;
+    var start = (new Date()).getTime();
     zipfs.importData64URI(data, function () {
         zipfs.find("stack.xml").getText(read_stack);
     });
 };
 
 
-// Create an ORA file as a data URI.
+// Create an ORA file
+// TODO: not quite up to the ORA standard; lacks thumbnail, adds "animated" attribute
 Util.create_ora = function (drawing, callback) {
     var zipfs = new zip.fs.FS(),
-        zipdir = zipfs.entries[0],
+        zipdir = zipfs.root,
         datadir = zipdir.addDirectory("data"),
         xw = new XMLWriter( 'UTF-8', '1.0' );
     xw.writeStartDocument();
@@ -422,15 +429,13 @@ Util.create_ora = function (drawing, callback) {
     xw.writeAttributeString("w", drawing.get("width"));
     xw.writeAttributeString("h", drawing.get("height"));
     xw.writeStartElement("stack");
-    var visibility_string = function (visib) {
-        return visib? "visible" : "hidden";
-    };
+
     drawing.layers.each(function (layer, index) {
         xw.writeStartElement("layer");
         xw.writeAttributeString("name", "layer" + (index+1));
         xw.writeAttributeString("src", "data/layer" + (index+1) + ".png");
-        xw.writeAttributeString("visibility", visibility_string(layer.get("visible")));
-        xw.writeAttributeString("animated", layer.get("animated"));
+        xw.writeAttributeString("visibility", layer.get("visible")? "visible" : "hidden");
+        xw.writeAttributeString("animated", layer.get("animated"));  // Not in ORA standard!
         xw.writeEndElement();
         datadir.addData64URI("layer"+ (index+1) + ".png",
                             layer.image.make_png());

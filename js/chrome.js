@@ -44,7 +44,7 @@ ChromeApp.writeFileEntry = function (writableEntry, blob, callback) {
         };
         writer.onerror = ChromeApp.errorHandler;
         writer.onwriteend = writeblob;
-        writer.truncate(0);
+        writer.truncate(0);  // if the file already exists, we need to empty it first
     }, ChromeApp.errorHandler);
 };
 
@@ -52,7 +52,7 @@ ChromeApp.fileLoadChooser = function(callbacks) {
     // "type/*" mimetypes aren't respected. Explicitly use extensions for now.
     // See crbug.com/145112.
     var accepts = [{
-        //mimeTypes: ['text/*'],
+        //mimeTypes: ['image/png', 'image/openraster']
         extensions: _.keys(callbacks)
     }];
     chrome.fileSystem.chooseEntry(
@@ -73,9 +73,4 @@ ChromeApp.fileLoadChooser = function(callbacks) {
 ChromeApp.fileSaveChooser = function(name, callback) {
     var config = {type: 'saveFile', suggestedName: name};
     return chrome.fileSystem.chooseEntry(config, callback);
-
-    // function(writableEntry) {
-    //     var blob = new Blob([data], {type: type});
-    //     ChromeApp.writeFileEntry(writableEntry, blob, callback);
-    // });
 };

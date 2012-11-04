@@ -169,7 +169,7 @@ function PNG(data){
 
     } while(chunk.type != 'IEND');
 
-    console.log("Image header:", this);
+    //console.log("Image header:", this);
 
     var chunkReader = new Inflator({
 	chunk: 0,
