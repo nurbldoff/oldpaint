@@ -51,6 +51,19 @@ Util.restrict_size = function (width, height, limit) {
     return {x: height * ratio, y: height};
 };
 
+Util.restrict_size = function (width, height, limit) {
+    var ratio = width / height;
+    if (ratio >= 1) {
+        width = Math.min(limit, width);
+        height = width / ratio;
+    } else {
+        height = Math.min(limit, height);
+        width = height * ratio;
+    }
+    return {x: width, y: height};
+};
+
+
 // Returns the smallest rect that contains both given rects.
 Util.union = function (rect1, rect2) {
     var left, top;

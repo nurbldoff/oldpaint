@@ -164,6 +164,7 @@ OldPaint.Layer = OldPaint.Image.extend ({
                             {left: -rect.left, top: -rect.top,
                              width: orig_width, height: orig_height});
         this.cleanup();
+        this.trigger("resize");
     },
 
     activate: function () {

@@ -13,8 +13,8 @@ OldPaint.LayerView = Backbone.View.extend({
         _.bindAll(this);
 
         this.window = options.window;
-        this.model.on("update", this.update);
-        this.model.on("resize", this.resize);
+        this.model.on("update", this.on_update);
+        this.model.on("resize", this.on_resize);
         this.model.on("redraw", this.on_redraw);
         this.model.on("remove", this.on_remove);
         this.model.on("change:visible", this.on_visible);
@@ -22,7 +22,7 @@ OldPaint.LayerView = Backbone.View.extend({
         this.model.on("activate", this.on_activate);
         this.model.on("deactivate", this.on_deactivate);
 
-        this.resize();
+        this.on_resize();
         this.render(true);
     },
 
@@ -83,7 +83,7 @@ OldPaint.LayerView = Backbone.View.extend({
     },
 
     // Resize the view, e.g. because the window size changed
-    resize: function () {
+    on_resize: function () {
         this.el.width = $("#drawing").width();
         this.el.height = $("#drawing").height();
         this.context = this.el.getContext('2d');
@@ -93,7 +93,7 @@ OldPaint.LayerView = Backbone.View.extend({
     },
 
     // Redraw part of the view
-    update: function (rect, clear) {
+    on_update: function (rect, clear) {
         //console.log("update", this.cid, rect.left, rect.top, rect.width, rect.height);
         var scale = this.window.scale;
         var left = Math.floor(this.window.offset.x + rect.left * scale),

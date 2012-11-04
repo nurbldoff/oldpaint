@@ -213,7 +213,7 @@ td.minilayers {
 
 .minilayer {
     position: relative;
-    width: 90px;
+    max-width: 90px;
 }
 
 canvas.minilayer {

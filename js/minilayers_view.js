@@ -15,9 +15,10 @@ OldPaint.MiniLayerView = Backbone.View.extend({
         _.bindAll(this);
         this.render();
         this.model.on("remove", this.on_remove);
-        this.model.on("activate", this.activate);
+        this.model.on("activate", this.on_activate);
         this.model.on("deactivate", this.deactivate);
         this.model.on("redraw_preview", this.redraw);
+        this.model.on("resize", this.render);
         this.model.on("change:visible", this.on_visibility);
         this.model.on("change:animated", this.on_animatedness);
         this.model.image.palette.on("change", this.redraw);
@@ -25,6 +26,7 @@ OldPaint.MiniLayerView = Backbone.View.extend({
     },
 
     render: function () {
+        console.log("minilayer: render");
         var template = _(Ashe.parse( $("#minilayer_template").html(), {})).clone();
         this.$el.html(template);
         this.$el.data("cid", this.model.cid);
@@ -48,7 +50,7 @@ OldPaint.MiniLayerView = Backbone.View.extend({
         this.model.activate();
     },
 
-    activate: function () {
+    on_activate: function () {
         $(this.canvas).addClass("active");
     },
 
@@ -107,7 +109,7 @@ OldPaint.MiniLayersView = Backbone.View.extend({
         _.bindAll(this);
         this.model.layers.on("add", this.on_add);
 
-        this.model.layers.on("resize", this.render);
+        //this.model.layers.on("resize", this.render);
         this.model.on("load", this.render);
         this.model.on("remove", this.on_remove);
 
@@ -125,7 +127,7 @@ OldPaint.MiniLayersView = Backbone.View.extend({
             var container = new OldPaint.MiniLayerView({model: layer});
             this.$el.prepend(container.$el);
             if (layer == this.model.layers.active) {
-                container.activate();
+                container.on_activate();
             }
         }, this);
         this.$el.sortable({
