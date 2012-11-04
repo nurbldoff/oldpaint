@@ -32,9 +32,21 @@ OldPaint.LayerView = Backbone.View.extend({
         var animated = this.model.get("animated"),
             visible = this.model.get("visible");
         if (force || visible && (!animated || (animated && this.active))) {
-            //var scale = this.get_scale();
-            var canvas = this.model.image.canvas;
+
+            // Scaling behavior: when scaling UP, use nearest, when scaling
+            // DOWN, use linear or whatever the browser thinks is smooth.
+            if (this.window.scale >= 1) {
+                this.context.mozImageSmoothingEnabled = false;
+                this.context.webkitImageSmoothingEnabled = false;
+                this.context.imageSmoothingEnabled = false;
+            } else {
+                this.context.mozImageSmoothingEnabled = true;
+                this.context.webkitImageSmoothingEnabled = true;
+                this.context.imageSmoothingEnabled = true;
+            }
+
             this.context.clearRect(0, 0, this.el.width, this.el.height);
+            var canvas = this.model.image.canvas;
             this.context.drawImage(canvas, 0, 0, canvas.width, canvas.height,
                                    this.window.offset.x, this.window.offset.y,
                                    canvas.width * this.window.scale,
@@ -61,6 +73,7 @@ OldPaint.LayerView = Backbone.View.extend({
             //     this.update(rect);
             // }
         } else {
+            // We still may need to refresh the layer before it becomes visible
             this.deferred_render = true;
         }
     },
@@ -74,15 +87,6 @@ OldPaint.LayerView = Backbone.View.extend({
         this.el.width = $("#drawing").width();
         this.el.height = $("#drawing").height();
         this.context = this.el.getContext('2d');
-        if (this.window.scale >= 1) {
-            this.context.mozImageSmoothingEnabled = false;
-            this.context.webkitImageSmoothingEnabled = false;
-            this.context.imageSmoothingEnabled = false;
-        } else {
-            this.context.mozImageSmoothingEnabled = true;
-            this.context.webkitImageSmoothingEnabled = true;
-            this.context.imageSmoothingEnabled = true;
-        }
         $(".drawing").css({width: this.el.width,
                                      height: this.el.height});
         //this.topleft = $("#drawing").offset();
