@@ -7,6 +7,9 @@ $(function () {
     eventbus.info = function (msg) {eventbus.trigger("info", msg);};
     eventbus.clear = function () {eventbus.trigger("clear");};
 
+    // For zip.js to find deflate.js and inflate.js
+    zip.workerScriptsPath = "js/libs/";
+
     // Tools
     var tools = OldPaint.tools = new OldPaint.Tools();
     var Tool = OldPaint.Tool;

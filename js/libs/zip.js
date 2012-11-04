@@ -44,6 +44,18 @@
 
 	var BlobBuilder = obj.WebKitBlobBuilder || obj.MozBlobBuilder || obj.MSBlobBuilder || obj.BlobBuilder;
 
+	var appendABViewSupported;
+
+	function isAppendABViewSupported() {
+		if (typeof appendABViewSupported == "undefined") {
+			var blobBuilder;
+			blobBuilder = new BlobBuilder();
+			blobBuilder.append(getDataHelper(0).view);
+			appendABViewSupported = blobBuilder.getBlob().size == 0;
+		}
+		return appendABViewSupported;
+	}
+
 	function Crc32() {
 		var crc = -1, that = this;
 		that.append = function(data) {
@@ -70,14 +82,14 @@
 	})();
 
 	function blobSlice(blob, index, length) {
-		if (blob.webkitSlice)
+		if (blob.slice)
+			return blob.slice(index, index + length);
+		else if (blob.webkitSlice)
 			return blob.webkitSlice(index, index + length);
 		else if (blob.mozSlice)
 			return blob.mozSlice(index, index + length);
 		else if (blob.msSlice)
 			return blob.msSlice(index, index + length);
-		else
-			return blob.slice(index, index + length);
 	}
 
 	function getDataHelper(byteLength, bytes) {
@@ -279,7 +291,7 @@
 		}
 
 		function writeUint8Array(array, callback, onerror) {
-			blobBuilder.append(array.buffer);
+			blobBuilder.append(isAppendABViewSupported() ? array : array.buffer);
 			callback();
 		}
 
@@ -344,7 +356,7 @@
 
 		function writeUint8Array(array, callback, onerror) {
 			var blobBuilder = new BlobBuilder();
-			blobBuilder.append(array.buffer);
+			blobBuilder.append(isAppendABViewSupported() ? array : array.buffer);
 			writer.onwrite = function() {
 				writer.onwrite = null;
 				callback();
@@ -373,7 +385,7 @@
 		}
 
 		function writeUint8Array(array, callback, onerror) {
-			blobBuilder.append(array.buffer);
+			blobBuilder.append(isAppendABViewSupported() ? array : array.buffer);
 			callback();
 		}
 
@@ -455,7 +467,7 @@
 				reader.readUint8Array(offset + index, Math.min(CHUNK_SIZE, size - index), function(inputData) {
 					var outputData = process.append(inputData, function() {
 						if (onprogress)
-							onprogress(index + message.current, size);
+							onprogress(offset + index, size);
 					});
 					outputSize += outputData.length;
 					onappend(true, inputData);
@@ -618,7 +630,7 @@
 		}
 	}
 
-	function readCommonHeader(entry, data, index, centralDirectory) {
+	function readCommonHeader(entry, data, index, centralDirectory, onerror) {
 		entry.version = data.view.getUint16(index, true);
 		entry.bitFlag = data.view.getUint16(index + 2, true);
 		entry.compressionMethod = data.view.getUint16(index + 4, true);
@@ -685,7 +697,10 @@
 					onerror(ERR_BAD_FORMAT);
 					return;
 				}
-				readCommonHeader(that, data, 4);
+				readCommonHeader(that, data, 4, false, function(error) {
+					onerror(error);
+					return;
+				});
 				dataOffset = that.offset + 30 + that.filenameLength + that.extraFieldLength;
 				writer.init(function() {
 					if (that.compressionMethod === 0)
@@ -696,18 +711,27 @@
 			}, onreaderror);
 		};
 
+		function seekEOCDR(offset, entriesCallback) {
+			reader.readUint8Array(reader.size - offset, offset, function(bytes) {
+				var dataView = getDataHelper(bytes.length, bytes).view, datalength, fileslength;
+				if (dataView.getUint32(0) != 0x504b0506) {
+					seekEOCDR(offset+1, entriesCallback);
+				} else {
+					entriesCallback(dataView);
+				}
+			}, function() {
+				onerror(ERR_READ);
+			});
+		}
+		
 		return {
 			getEntries : function(callback) {
 				if (reader.size < 22) {
 					onerror(ERR_BAD_FORMAT);
 					return;
 				}
-				reader.readUint8Array(reader.size - 22, 22, function(bytes) {
-					var dataView = getDataHelper(bytes.length, bytes).view, datalength, fileslength;
-					if (dataView.getUint32(0) != 0x504b0506) {
-						onerror(ERR_BAD_FORMAT);
-						return;
-					}
+				// look for End of central directory record
+				seekEOCDR(22, function(dataView) {
 					datalength = dataView.getUint32(16, true);
 					fileslength = dataView.getUint16(8, true);
 					reader.readUint8Array(datalength, reader.size - datalength, function(bytes) {
@@ -718,7 +742,10 @@
 								onerror(ERR_BAD_FORMAT);
 								return;
 							}
-							readCommonHeader(entry, data, index + 6, true);
+							readCommonHeader(entry, data, index + 6, true, function(error) {
+								onerror(error);
+								return;
+							});
 							entry.commentLength = data.view.getUint16(index + 32, true);
 							entry.directory = ((data.view.getUint8(index + 38) & 0x10) == 0x10);
 							entry.offset = data.view.getUint32(index + 42, true);
@@ -736,8 +763,6 @@
 					}, function() {
 						onerror(ERR_READ);
 					});
-				}, function() {
-					onerror(ERR_READ);
 				});
 			},
 			close : function(callback) {
@@ -906,6 +931,32 @@
 					});
 				}, onwriteerror);
 			}
+		};
+	}
+
+	if (typeof BlobBuilder == "undefined") {
+		BlobBuilder = function() {
+			var that = this, blobParts;
+
+			function initBlobParts() {
+				if (!blobParts) {
+					blobParts = [ new Blob() ]
+				}
+			}
+
+			that.append = function(data) {
+				initBlobParts();
+				blobParts.push(data);
+			};
+			that.getBlob = function(contentType) {
+				initBlobParts();
+				if (blobParts.length > 1 || blobParts[0].type != contentType) {
+					blobParts = [ contentType ? new Blob(blobParts, {
+						type : contentType
+					}) : new Blob(blobParts) ];
+				}
+				return blobParts[0];
+			};
 		};
 	}
 

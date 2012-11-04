@@ -330,24 +330,25 @@ Util.mkXML = function (text) //turns xml string into XMLDOM
 
 // Parses an array of PNG images into OldPaint drawing format
 Util.png_loader = function (data, callback) {
-    var image = {layers: []};
+    var spec = {layers: []};
     var load_next = function (result) {
         if (result)
-            image.layers.push({data: result.data, visible: true, animated: false});
+            spec.layers.push({data: result.data, visible: true, animated: false});
         if (data.length >= 0)
             Util.load_base64_png(Util.strip_data_header(data.pop())).done(load_next);
         else {
-            image.width = result.width;
-            image.height = result.height;
-            image.palette = result.palette;
-            image.type = result.type;
-            callback(image);
+            spec.width = result.width;
+            spec.height = result.height;
+            spec.palette = result.palette;
+            spec.type = result.type;
+            callback(spec);
         }
     };
     load_next();
 };
 
 // Convert a "raw" spec object with PNG data into loadable drawing data
+// Could be made more efficient.
 Util.raw_loader = function (spec, callback) {
     var image = {layers: []}, layers = spec.layers, layer, i=0;
     var load_next = function (result) {
@@ -372,40 +373,48 @@ Util.raw_loader = function (spec, callback) {
 
 // Loads an OpenRaster file
 Util.ora_loader = function (data, callback) {
-    var zip = new JSZip();
-    //Need to do some more checking here, seems like the mimetype can
-    //be confused. Here we assume it's "image/openraster"
-    zip.load(Util.strip_data_header(data), {base64: true});
-    var stack_file = zip.file("stack.xml"),
-        xml = Util.mkXML(stack_file.data),
-        layer_nodes = xml.getElementsByTagName("layer"),
-        folder = zip.folder("data"),
-        result = {layers: []}, layers_added = 0;
-    result.width = xml.getElementsByTagName("image")[0].getAttribute("w");
-    result.height = xml.getElementsByTagName("image")[0].getAttribute("h");
-    for (var i=0; i<layer_nodes.length; i++) {
-        var node = layer_nodes[i], filename = node.getAttribute("src"),
-            visible = Util.string_to_boolean(
-                node.getAttribute("visible") || "true"),
-            animated = Util.string_to_boolean(
-                node.getAttribute("animated") || "false"),
-            image = zip.file(filename);
-        console.log("ORA: visible:", visible, "animated:", animated);
-        Util.load_base64_png(btoa(image.data)).done(function (tmp) {
-            tmp.layers[0].visible = visible;
-            tmp.layers[0].animated = animated;
-            result.layers[i] = tmp.layers[0];
+    var zipfs = new zip.fs.FS();
+
+    var read_layer = function (n, visible, animated, max, data) {
+        Util.load_base64_png(Util.strip_data_header(data)).done(function (tmp) {
+            result.layers[n] = {data: tmp.data, visible: visible, animated: animated};
             // Checking if all layers have been loaded
-            if (++layers_added == layer_nodes.length)
+            if (++layers_added == max)
                 callback(result);
         });
-    }
+    };
+
+    var read_stack = function (stack) {
+        var xml = Util.mkXML(stack),
+            layer_nodes = xml.getElementsByTagName("layer");
+        result.width = xml.getElementsByTagName("image")[0].getAttribute("w");
+        result.height = xml.getElementsByTagName("image")[0].getAttribute("h");
+        for (var i=0; i<layer_nodes.length; i++) {
+            var node = layer_nodes[i], filename = node.getAttribute("src"),
+                visible = Util.string_to_boolean(
+                    node.getAttribute("visible") || "true"),
+                animated = Util.string_to_boolean(
+                    node.getAttribute("animated") || "false"),
+                image = zipfs.find(filename),
+                layer = result.layers[i] = {};
+            image.getData64URI("image/png", read_layer.bind(
+                this, i, visible, animated, layer_nodes.length));
+        }
+    };
+
+    var result = {layers: []}, layers_added = 0;
+    zipfs.importData64URI(data, function () {
+        zipfs.find("stack.xml").getText(read_stack);
+    });
 };
 
+
 // Create an ORA file as a data URI.
-// TODO: Doesn't deflate, because that results in bad zip files for some reason.
-Util.create_ora = function (drawing) {
-    var zip = new JSZip(), xw = new XMLWriter( 'UTF-8', '1.0' );
+Util.create_ora = function (drawing, callback) {
+    var zipfs = new zip.fs.FS(),
+        zipdir = zipfs.entries[0],
+        datadir = zipdir.addDirectory("data"),
+        xw = new XMLWriter( 'UTF-8', '1.0' );
     xw.writeStartDocument();
     xw.writeStartElement("image");
     xw.writeAttributeString("w", drawing.get("width"));
@@ -418,13 +427,11 @@ Util.create_ora = function (drawing) {
         xw.writeAttributeString("visible", layer.get("visible"));
         xw.writeAttributeString("animated", layer.get("animated"));
         xw.writeEndElement();
-        zip.file("data/layer"+ (index+1) + ".png",
-                 layer.image.make_png(), {base64: true});
+        datadir.addData64URI("layer"+ (index+1) + ".png",
+                            layer.image.make_png());
     });
     var xml = xw.flush();
-    zip.file("stack.xml", xml);
-    zip.file("mimetype", "image/openraster");
-    //var zipfile = zip.generate({compression: "DEFLATE"});
-    var zipfile = zip.generate();
-    return "data:application/zip;base64,"+ zipfile;
+    zipdir.addText("stack.xml", xml);
+    zipdir.addText("mimetype", "image/openraster");
+    zipdir.exportBlob(callback);
 };

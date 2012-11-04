@@ -38,14 +38,13 @@ ChromeApp.writeFileEntry = function (writableEntry, blob, callback) {
     }
 
     writableEntry.createWriter(function(writer) {
-
+        var writeblob = function () {
+            writer.onwriteend = null;
+            writer.write(blob);
+        };
         writer.onerror = ChromeApp.errorHandler;
-        writer.onwriteend = callback;
-
-        // If we have data, write it to the file. Otherwise, just use the file we
-        // loaded.
-        writer.write(blob);
-
+        writer.onwriteend = writeblob;
+        writer.truncate(0);
     }, ChromeApp.errorHandler);
 };
 
@@ -71,10 +70,12 @@ ChromeApp.fileLoadChooser = function(callbacks) {
         });
 };
 
-ChromeApp.fileSaveChooser = function(name, data, type, callback) {
+ChromeApp.fileSaveChooser = function(name, callback) {
     var config = {type: 'saveFile', suggestedName: name};
-    return chrome.fileSystem.chooseEntry(config, function(writableEntry) {
-        var blob = new Blob([data], {type: type});
-        ChromeApp.writeFileEntry(writableEntry, blob, callback);
-    });
+    return chrome.fileSystem.chooseEntry(config, callback);
+
+    // function(writableEntry) {
+    //     var blob = new Blob([data], {type: type});
+    //     ChromeApp.writeFileEntry(writableEntry, blob, callback);
+    // });
 };

@@ -40,7 +40,7 @@ OldPaint.Drawing = Backbone.Model.extend({
         this.layers.active = null;
 
         var on_loaded = (function (result) {
-            console.log(result);
+            console.log("loader result:", result);
             this.set_type(result.type);
             this.set({height: result.height, width: result.width});
             for (var i=0; i<result.layers.length; i++)
@@ -62,9 +62,10 @@ OldPaint.Drawing = Backbone.Model.extend({
 
     // Save an ORA file locally.
     export_ora: function () {
-        var ora = Util.create_ora(this);
-        saveAs(Util.convertDataURIToBlob(ora, "image/ora"),
-               Util.change_extension(this.get("title"), "ora"));
+        var finished = (function (orablob) {
+            saveAs(orablob, Util.change_extension(this.get("title"), "ora"));
+        }).bind(this);
+        Util.create_ora(this, finished);
     },
 
     // Save locally as PNG file. By default flattens all layers into one.
