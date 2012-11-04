@@ -60,25 +60,6 @@ OldPaint.Drawing = Backbone.Model.extend({
 
     },
 
-    // Save an ORA file locally.
-    export_ora: function () {
-        var finished = (function (orablob) {
-            saveAs(orablob, Util.change_extension(this.get("title"), "ora"));
-        }).bind(this);
-        Util.create_ora(this, finished);
-    },
-
-    // Save locally as PNG file. By default flattens all layers into one.
-    export_png: function (name, single) {
-        var blob;
-        if (!!single) {
-            blob = this.layers.active.image.make_png(true);
-        } else {
-            blob = this.flatten_visible_layers().make_png(true);
-        }
-        saveAs(blob, Util.change_extension(this.get("title"), "png"));
-    },
-
     // save to internal browser storage
     save_to_storage: function () {
         console.log("Saving", this.get("title"), "to localstorage");
