@@ -41,6 +41,8 @@ OldPaint.Drawing = Backbone.Model.extend({
 
         var on_loaded = (function (result) {
             console.log("loader result:", result);
+            if (result.title)
+                this.set("title", result.title);
             this.set_type(result.type);
             this.set({height: result.height, width: result.width});
             for (var i=0; i<result.layers.length; i++)
@@ -67,6 +69,7 @@ OldPaint.Drawing = Backbone.Model.extend({
             title: this.get("title"),
             current_layer_number: this.layers.number,
             layers: [],
+            type: this.get_type(),
             palette: this.palette.colors
         };
         this.layers.each(function (layer, index) {
@@ -93,6 +96,7 @@ OldPaint.Drawing = Backbone.Model.extend({
         }
         var read_spec = function (e) {
             var spec = JSON.parse(e.target.result);
+
             LocalStorage.read_images(spec, this.load.bind(this, Util.raw_loader));
         };
 

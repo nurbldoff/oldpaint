@@ -44,15 +44,6 @@ Util.memcpy = function (dst, dstOffset, src, srcOffset, length) {
 
 Util.restrict_size = function (width, height, limit) {
     var ratio = width / height;
-    height = Math.min(height, limit);
-    if (width > limit && ratio > 1) {
-        height = limit / ratio;
-    }
-    return {x: height * ratio, y: height};
-};
-
-Util.restrict_size = function (width, height, limit) {
-    var ratio = width / height;
     if (ratio >= 1) {
         width = Math.min(limit, width);
         height = width / ratio;
@@ -272,6 +263,7 @@ Util.load_base64_png = function (data) {
             var canvas = Util.copy_canvas(img);
             var result = {
                 type: OldPaint.RGBImage,
+                canvas: canvas,
                 data: canvas.getContext('2d').getImageData(
                     0, 0, img.width, img.height).data,
                 palette: [],
@@ -370,14 +362,14 @@ Util.raw_loader = function (spec, callback) {
     var load_next = function (result) {
         if (result) {
             layer = spec.layers[i-1];
-            layer.data = result.data;
+            layer.data = result.canvas;
         }
         if (i < layers.length)
             Util.load_base64_png(Util.strip_data_header(layers[i++].data)).done(load_next);
         else {
             spec.width = result.width;
             spec.height = result.height;
-            spec.type = result.type;
+            spec.type = OldPaint[spec.type + "Image"];
             callback(spec);
         }
     };

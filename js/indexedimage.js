@@ -16,13 +16,9 @@ OldPaint.IndexedImage = function (data) {
     this.type = "Indexed";
 
     // the "real" indexed, internal canvas
-    if (data.canvas) {
-        this.icanvas = data.canvas;
-    } else {
-        this.icanvas = document.createElement('canvas');
-        this.icanvas.width = data.width;
-        this.icanvas.height = data.height;
-    }
+    this.icanvas = document.createElement('canvas');
+    this.icanvas.width = data.width;
+    this.icanvas.height = data.height;
     this.icontext = this.icanvas.getContext("2d");
 
     // the RGBA representation
@@ -33,19 +29,22 @@ OldPaint.IndexedImage = function (data) {
 
     this.palette = data.palette;
 
-    //this.tmpbuffer = new ArrayBuffer(this.icanvas.width*this.icanvas.height*4);
-
     if (data.image) {
-        //console.log("Loading image data");
-        var pixbuf = this.icontext.getImageData(
-            0, 0, this.icanvas.width, this.icanvas.height);
-        for (var i=0; i<data.image.length; i++) {
-            pixbuf.data[i*4] = data.image[i];
-            pixbuf.data[i*4+3] = 255;
+        // If the data is a canvas, use it directly...
+        if (data.image.nodeName == "CANVAS") {
+            this.icanvas = data.image;
+            this.icontext = this.icanvas.getContext("2d");
+        // ...otherwise load it as raw pixel data
+        } else {
+            var pixbuf = this.icontext.getImageData(
+                0, 0, this.icanvas.width, this.icanvas.height);
+            for (var i=0; i<data.image.length; i++) {
+                pixbuf.data[i*4] = data.image[i];
+                pixbuf.data[i*4+3] = 255;
+            }
+            this.icontext.putImageData(pixbuf, 0, 0);
         }
-
-        this.icontext.putImageData(pixbuf, 0, 0);
-    };
+    }
 
     // this.get_pos = function (pos) {
     //     return {x: this.flip.x ? this.canvas.width - pos.x : pos.x,
