@@ -65,11 +65,10 @@ OldPaint.Drawing = Backbone.Model.extend({
     // Convert the whole drawing from Indexed to RGB format.
     convert_to_rgb_type: function () {
         if (this.image_type == OldPaint.IndexedImage) {
-            var layer_data = [], canvas;
-            var active_layer = this.layers.indexOf(this.layers.active);
+            var layer_data = [],
+                active_layer = this.layers.indexOf(this.layers.active);
             this.image_type = OldPaint.RGBImage;
             this.layers.each(function (layer) {
-                console.log("layer:", layer);
                 layer.clear_temporary();
                 layer.convert(this.image_type);
                 layer.redraw();
