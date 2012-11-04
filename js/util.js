@@ -391,8 +391,7 @@ Util.ora_loader = function (data, callback) {
         result.height = xml.getElementsByTagName("image")[0].getAttribute("h");
         for (var i=0; i<layer_nodes.length; i++) {
             var node = layer_nodes[i], filename = node.getAttribute("src"),
-                visible = Util.string_to_boolean(
-                    node.getAttribute("visible") || "true"),
+                visible =  node.getAttribute("visibility") == "visible",
                 animated = Util.string_to_boolean(
                     node.getAttribute("animated") || "false"),
                 image = zipfs.find(filename),
@@ -420,11 +419,14 @@ Util.create_ora = function (drawing, callback) {
     xw.writeAttributeString("w", drawing.get("width"));
     xw.writeAttributeString("h", drawing.get("height"));
     xw.writeStartElement("stack");
+    var visibility_string = function (visib) {
+        return visib? "visible" : "hidden";
+    };
     drawing.layers.each(function (layer, index) {
         xw.writeStartElement("layer");
         xw.writeAttributeString("name", "layer" + (index+1));
         xw.writeAttributeString("src", "data/layer" + (index+1) + ".png");
-        xw.writeAttributeString("visible", layer.get("visible"));
+        xw.writeAttributeString("visibility", visibility_string(layer.get("visible")));
         xw.writeAttributeString("animated", layer.get("animated"));
         xw.writeEndElement();
         datadir.addData64URI("layer"+ (index+1) + ".png",
