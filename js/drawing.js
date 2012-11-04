@@ -152,10 +152,12 @@ OldPaint.Drawing = Backbone.Model.extend({
         if (this.image_type != type) {
             switch (type) {
             case OldPaint.IndexedImage:
+                console.log("convert to indexed");
                 this.image_type = OldPaint.IndexedImage;
                 this.trigger("convert");
                 break;
             case OldPaint.RGBImage:
+                console.log("convert to RGB");
                 this.convert_to_rgb_type();
                 break;
             }

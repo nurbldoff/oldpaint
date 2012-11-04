@@ -334,7 +334,7 @@ Util.png_loader = function (data, callback) {
     var load_next = function (result) {
         if (result)
             spec.layers.push({data: result.data, visible: true, animated: false});
-        if (data.length >= 0)
+        if (data.length > 0)
             Util.load_base64_png(Util.strip_data_header(data.pop())).done(load_next);
         else {
             spec.width = result.width;
@@ -379,8 +379,11 @@ Util.ora_loader = function (data, callback) {
         Util.load_base64_png(Util.strip_data_header(data)).done(function (tmp) {
             result.layers[n] = {data: tmp.data, visible: visible, animated: animated};
             // Checking if all layers have been loaded
-            if (++layers_added == max)
+            if (++layers_added == max) {
+                result.palette = tmp.palette;
+                result.type = tmp.type;
                 callback(result);
+            }
         });
     };
 
