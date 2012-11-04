@@ -42,9 +42,9 @@ OldPaint.MiniLayerView = Backbone.View.extend({
         this.on_animatedness();
     },
 
-    redraw: function () {
+    redraw: _.throttle(function () {
         Util.draw_canvas(this.model.image.canvas, this.canvas);
-    },
+    }, 1000),
 
     select: function () {
         this.model.activate();
