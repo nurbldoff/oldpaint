@@ -62,54 +62,6 @@ OldPaint.Drawing = Backbone.Model.extend({
 
     },
 
-    // save to internal browser storage
-    save_to_storage: function () {
-        console.log("Saving", this.get("title"), "to localstorage");
-        var spec = {
-            title: this.get("title"),
-            current_layer_number: this.layers.number,
-            layers: [],
-            type: this.get_type(),
-            palette: this.palette.colors
-        };
-        this.layers.each(function (layer, index) {
-            console.log("Saving", this.get("title"), layer.id);
-            var name = "layer" + layer.id;
-            spec.layers.push({name: name,
-                              visible: layer.get("visible"),
-                              animated: layer.get("animated")});
-            layer.clear_temporary(true);
-            LocalStorage.save({path: this.get("title") + "/data",
-                               name: name,
-                               blob: layer.image.get_raw()});
-        }, this);
-        // save the spec
-        LocalStorage.save({path: this.get("title"), name: "spec",
-                           blob: new Blob([JSON.stringify(spec)],
-                                          {type: 'text/plain'})});
-    },
-
-    load_from_storage: function (title) {
-        console.log("Loading", title, "from localstorage");
-        if (title) {
-            this.set("title", title);
-        }
-        var read_spec = function (e) {
-            var spec = JSON.parse(e.target.result);
-
-            LocalStorage.read_images(spec, this.load.bind(this, Util.raw_loader));
-        };
-
-        // load the spec...
-        LocalStorage.load_txt({path: this.get("title"), name: "spec",
-                               on_load: read_spec.bind(this)});
-    },
-
-    remove_from_storage: function (title) {
-        if (!title) title =  this.get("title");
-        LocalStorage.remove_dir({path: title});
-    },
-
     // Convert the whole drawing from Indexed to RGB format.
     convert_to_rgb_type: function () {
         if (this.image_type == OldPaint.IndexedImage) {
