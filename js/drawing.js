@@ -99,6 +99,7 @@ OldPaint.Drawing = Backbone.Model.extend({
                                name: name,
                                blob: layer.image.get_raw()});
         }, this);
+        // save the spec
         LocalStorage.save({path: this.get("title"), name: "spec",
                            blob: new Blob([JSON.stringify(spec)],
                                           {type: 'text/plain'})});
@@ -109,18 +110,14 @@ OldPaint.Drawing = Backbone.Model.extend({
         if (title) {
             this.set("title", title);
         }
-        var model = this;
-
         var read_spec = function (e) {
             var spec = JSON.parse(e.target.result);
-            console.log("spec", spec);
-            var data = [];
-            LocalStorage.read_images(spec, model.load.bind(model, Util.raw_loader));
+            LocalStorage.read_images(spec, this.load.bind(this, Util.raw_loader));
         };
 
         // load the spec...
         LocalStorage.load_txt({path: this.get("title"), name: "spec",
-                               on_load: read_spec});
+                               on_load: read_spec.bind(this)});
     },
 
     remove_from_storage: function (title) {
