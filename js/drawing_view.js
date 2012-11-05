@@ -172,7 +172,6 @@ OldPaint.DrawingView = Backbone.View.extend({
             height: this.model.get("height") * this.window.scale
         });
 
-        //this.update_title();
     },
 
     on_mouse_enter: function (ev) {
@@ -403,6 +402,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.update_scale();
         this.center_on_image_pos(image_pos, center_pos);
         this.render();
+        this.eventbus.trigger("zoom", Math.pow(2, this.zoom));
     },
 
     zoom_in: function (event, center_mouse) {

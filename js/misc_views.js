@@ -138,14 +138,19 @@ OldPaint.InfoView = Backbone.View.extend({
         this.eventbus = options.eventbus;
         this.eventbus.on("info", this.set_message);
         this.eventbus.on("clear", this.set_message);
+        this.eventbus.on("zoom", this.set_zoom);
+
         this.$message = $("#message");
         this.$coordinates = $("#coordinates");
+        this.$zoom = $("#zoom");
+
         this.render();
     },
 
     render: function () {
         this.set_message("Welcome to OldPaint!");
         this.set_coordinates({x: -1, y: -1});
+        this.set_zoom(1);
     },
 
     set_message: function (message) {
@@ -160,5 +165,9 @@ OldPaint.InfoView = Backbone.View.extend({
         } else {
             this.$coordinates.text("w:" + coords.width + "\xa0h:" + coords.height);
         }
+    },
+
+    set_zoom: function (zoom) {
+        this.$zoom.text(zoom + "x");
     }
 });

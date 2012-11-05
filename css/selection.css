@@ -6,7 +6,6 @@
     width: 100%;
     height: 100%;
     visibility: hidden;
-    cursor: default;
 }
 
 #selection_main  {
@@ -15,6 +14,7 @@
 }
 
 #selection_center {
+    cursor: pointer;
     position: relative;
 }
 

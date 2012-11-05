@@ -63,7 +63,7 @@ OldPaint.SelectionView = Backbone.View.extend({
         $("#selection_center").css({"pointer-events": "auto"})
             .on("mousedown", this.finish);
 
-        this.eventbus.info("Select an area by dragging the mouse.");
+        this.eventbus.info("Edit the by dragging the corner handles. Click on the area to finish, outside to cancel.");
     },
 
     // callback for dragging a corner handle
