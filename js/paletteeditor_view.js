@@ -9,7 +9,8 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
         "mousemove .colors.cell": "on_range",
         "mouseup .colors.cell": "on_range_finish",
         "click #color_spread": "on_spread",
-        "click #color_transp": "on_set_transparent"
+        "click #color_transp": "on_set_transparent",
+        "click #color_backdrop": "on_set_backdrop"
     },
 
     initialize: function (spec) {
@@ -67,12 +68,13 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
                 inner.addClass("transparent");
             outer.addClass("colors cell");
             outer.attr("data", index);
-            outer.css({background: "#"+hex});
+            outer.css({"background-color": "#"+hex});
             outer.attr("title", index);
             row.append(outer);
 
             inner.addClass("color");
             inner.attr("data", index);
+            outer.css({"background-color": "#"+hex});
             inner.attr({id: "color" + index, title: index});
             outer.append(inner);
         }
@@ -84,8 +86,8 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
             _.each(colors, function (color) {
                 var hex = "#" + Util.colorToHex(color.rgba);
                 var swatch = $("#color" + color.index);
-                swatch.css("background", hex);
-                swatch.parent().css("background", hex);
+                swatch.css("background-color", hex);
+                swatch.parent().css("background-color", hex);
             });
         } else {
             this.render();
@@ -220,6 +222,19 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
             }
         }
     },
+
+    on_set_backdrop: function (event) {
+        if (event.which == 1) {
+            var index = this.model.foreground,
+                $bg = $("#drawing_frame"),
+                color = this.model.colors[index];
+            if (color[3] > 0)
+                $bg.css({"background-color": "rgb("+color[0]+","+color[1]+","+color[2]+")"});
+            else
+                $bg.css("background-color");
+        }
+    },
+
 
     on_foreground: function (index) {
         $(".colors.cell.foreground").removeClass("foreground");

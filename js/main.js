@@ -81,12 +81,11 @@ $(function () {
 
     tools.add(new Tool(
         {name: "select", key: "u", preview: false,
-         help: "Click and drag to select the area you want to copy.",
+         help: "Create a brush by selecting an area of the drawing.",
          before: function (drawing, stroke) {
              // Are we making a selection, or editing one that is already present?
              if (!drawing.selection) {
-                 var layer = drawing.layers.active,
-                     rect = Util.rectify(stroke.start,
+                 var rect = Util.rectify(stroke.start,
                                          {x: stroke.pos.x + 1,
                                           y: stroke.pos.y + 1});
                  var action = function (rect) {

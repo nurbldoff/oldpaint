@@ -286,7 +286,6 @@ OldPaint.DrawingView = Backbone.View.extend({
 1
             switch (this.stroke.button) {
             case 1:  // Drawing
-                this.eventbus.info(this.tools.active.help);
                 this.model.before_draw(this.tools.active, this.stroke);
                 this.stroke.draw = true;  // we're drawing, not e.g. panning
                 this.stroke.color = this.model.palette.foreground;
@@ -294,7 +293,6 @@ OldPaint.DrawingView = Backbone.View.extend({
                 this.model.draw(this.tools.active, this.stroke);
                 break;
             case 3:  // Erasing
-                this.eventbus.info(this.tools.active.help);
                 this.model.before_draw(this.tools.active, this.stroke);
                 this.stroke.draw = true;  // we're drawing, not e.g. panning
                 this.stroke.color = this.model.palette.background;
@@ -337,7 +335,7 @@ OldPaint.DrawingView = Backbone.View.extend({
             this.brush_restore();
         this.stroke = null;
         $(".fg").css({"pointer-events": "auto"});
-        this.eventbus.clear();
+        //this.eventbus.clear();
         document.onmouseup = null;
     },
 

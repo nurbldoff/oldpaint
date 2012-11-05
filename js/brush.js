@@ -9,10 +9,12 @@ OldPaint.Brush = OldPaint.Image.extend ({
         this.color = spec.color;
     },
 
-    activate: function () {this.trigger("activate", this);},
+    activate: function () {
+        this.trigger("activate", this);
+    },
 
     set_color: function (color) {
-        console.log(this);
+
         this.make_backup();
         this.color = color;
         this.image.colorize(color, true);

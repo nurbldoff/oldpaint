@@ -255,7 +255,6 @@ OldPaint.Layers = Backbone.Collection.extend({
 
 // Part of a Layer, e.g. for storage
 OldPaint.Patch = function (source, rect, layerid, palette) {
-    console.log("Patch:", rect, source, layerid, palette);
     this.canvas = Util.copy_canvas(source, rect);
     this.rect = rect;
     this.layerid = layerid;

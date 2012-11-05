@@ -28,16 +28,15 @@ OldPaint.ToolsView = Backbone.View.extend({
             el.hover(
                 (function () {
                     this.eventbus.info("Tool: " + tool.name + " - " + tool.help);
-                }).bind(this),
-                (function () {
-                    this.eventbus.clear();
                 }).bind(this));
+
         }, this);
     },
 
     on_activate: function (tool) {
         $(".tool.active").removeClass("active");
         $("#" + tool.name).addClass("active");
+        this.eventbus.info(tool.name + " - " + tool.help);
     },
 
     select: function (event) {
@@ -97,13 +96,7 @@ OldPaint.BrushesView = Backbone.View.extend({
                                "vertical-align": "middle"});
                 $(btn).append(canvas);
                 $(btn).hover(
-                    (function () {
-                        this.eventbus.info(brush.get_info());
-                    }).bind(this),
-                    (function () {
-                        this.eventbus.clear();
-                    }).bind(this));
-
+                    (function () {this.eventbus.info(brush.get_info());}).bind(this));
             }
         }, this);
     },
