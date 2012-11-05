@@ -283,7 +283,6 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.stroke.start = this.stroke.last = this.stroke.pos;
         $(".fg").css({"pointer-events": "none"});
         if (!this.scroll_mode) {
-1
             switch (this.stroke.button) {
             case 1:  // Drawing
                 this.model.before_draw(this.tools.active, this.stroke);
@@ -307,7 +306,6 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     // Callback for when the user is moving the mouse
     update_stroke: function (event) {
-        //console.log(this.stroke.draw);
         this.update_cursor(event);
         if (this.stroke) {
             var cpos = Util.event_coords(event);

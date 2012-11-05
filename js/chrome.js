@@ -1,5 +1,10 @@
 var ChromeApp = ChromeApp || {};
 
+// Check if we have filesystem access
+ChromeApp.check = function (e) {
+    return (typeof chrome !== "undefined" && chrome.fileSystem);
+};
+
 ChromeApp.errorHandler = function (e) {
   console.error(e);
 };
