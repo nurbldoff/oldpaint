@@ -200,7 +200,7 @@ OldPaint.StatusView = Backbone.View.extend({
             this.chrome_save_as_ora();
         else 
             Util.create_ora(this.model, (function (blob) {
-                saveAs(blob, Util.change_extension(this.model.get("title"), "png"));
+                saveAs(blob, Util.change_extension(this.model.get("title"), "ora"));
             }).bind(this));
     },
 
