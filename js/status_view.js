@@ -170,13 +170,13 @@ OldPaint.StatusView = Backbone.View.extend({
 
     // Load an user selected file from the normal filesystem
     load: function () {
-        if (chrome.fileSystem) this.chrome_open();
+        if (chrome && chrome.fileSystem) this.chrome_open();
         else $('#files').click();
     },
 
     // Save as PNG to the normal filesystem. If we can, let the user choose where.
     save_as_png: function () {
-        if (chrome.fileSystem)
+        if (chrome && chrome.fileSystem)
             this.chrome_save_as_png();
         else {
             var blob = this.model.flatten_visible_layers().make_png(true);
@@ -186,7 +186,7 @@ OldPaint.StatusView = Backbone.View.extend({
 
     // Save layer as PNG to the normal filesystem. If we can, let the user choose where.
     save_layer_as_png: function () {
-        if (chrome.fileSystem)
+        if (chrome && chrome.fileSystem)
             this.chrome_save_as_png(true);
         else {
             var blob = this.model.layers.active.image.make_png(true);
@@ -196,7 +196,8 @@ OldPaint.StatusView = Backbone.View.extend({
 
     // Save as ORA to the normal filesystem. If we can, let the user choose where.
     save_as_ora: function () {
-        if (chrome.fileSystem) this.chrome_save_as_ora();
+        console.log("chrome");
+        if ((typeof chrome !== 'undefined') && chrome.fileSystem) this.chrome_save_as_ora();
         else this.model.export_ora();
     },
 
@@ -221,9 +222,9 @@ OldPaint.StatusView = Backbone.View.extend({
     chrome_save_as_png: function (single) {
 
         var on_chosen = function (writable) {
-            blob = single ?
-                this.model.layers.active.image.make_png(true) :
-                this.model.flatten_visible_layers().make_png(true),
+            var blob = single ?
+                    this.model.layers.active.image.make_png(true) :
+                    this.model.flatten_visible_layers().make_png(true);
             ChromeApp.writeFileEntry(writable, blob);
         };
 

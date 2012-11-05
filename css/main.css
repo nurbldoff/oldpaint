@@ -139,7 +139,7 @@ td.toolbar {
 }
 
 div.toolbar {
-
+    display: block;
     height: 0%;
     background: #888;
     padding: 5px;

@@ -111,7 +111,7 @@ Util.event_coords = function (event) {
     //     console.log("TargetTouches:", event.TargetTouches)
     //     event = event.targetTouches[0];
     // }
-    return {x: event.offsetX, y: event.offsetY};
+    return {x: event.pageX, y: event.pageY};
 };
 
 Util.rect = function (left, top, width, height) {
