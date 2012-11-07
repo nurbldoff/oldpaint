@@ -52,6 +52,7 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
         document.querySelector('td.palette').oncontextmenu = no_context_menu;
     },
 
+    // Construct the palette display
     build_palette: function (colors, size) {
         var table = $("<div>"), row;
         table.addClass("palette colors table");
@@ -70,13 +71,14 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
             outer.attr("data", index);
             outer.css({"background-color": "#"+hex});
             outer.attr("title", index);
-            row.append(outer);
 
             inner.addClass("color");
             inner.attr("data", index);
-            outer.css({"background-color": "#"+hex});
+            inner.css({"background-color": "#"+hex});
             inner.attr({id: "color" + index, title: index});
+
             outer.append(inner);
+            row.append(outer);
         }
         return table;
     },
@@ -84,6 +86,7 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
     update: function (colors) {
         if (colors) {
             _.each(colors, function (color) {
+                console.log(color);
                 var hex = "#" + Util.colorToHex(color.rgba);
                 var swatch = $("#color" + color.index);
                 swatch.css("background-color", hex);
@@ -151,20 +154,21 @@ OldPaint.PaletteEditorView = Backbone.View.extend({
 
     on_spread: function (event) {
         if (this.range) {
-            var n = this.range.end - this.range.start;
-            var start_color = this.model.colors[this.range.start];
-            var end_color = this.model.colors[this.range.end];
-            var r_delta = (end_color[0] - start_color[0]) / n;
-            var g_delta = (end_color[1] - start_color[1]) / n;
-            var b_delta = (end_color[2] - start_color[2]) / n;
-            var index, colors = [];
+            var n = this.range.end - this.range.start,
+                start_color = this.model.colors[this.range.start],
+                end_color = this.model.colors[this.range.end],
+                r_delta = (end_color[0] - start_color[0]) / n,
+                g_delta = (end_color[1] - start_color[1]) / n,
+                b_delta = (end_color[2] - start_color[2]) / n,
+                index, colors = [], rgb;
             for (var i=0; i < n; i++) {
                 index = this.range.start + i;
-                var rgb = {r: Math.round(start_color[0] + i*r_delta),
-                           g: Math.round(start_color[1] + i*g_delta),
-                           b: Math.round(start_color[2] + i*b_delta)};
+                rgb = Util.rgb([Math.round(start_color[0] + i*r_delta),
+                                Math.round(start_color[1] + i*g_delta),
+                                Math.round(start_color[2] + i*b_delta)]);
+                console.log("on_spread", Math.round(i), start_color, i, r_delta, rgb);
                 this.model.change_color(index, rgb, true);
-                colors.push([index, rgb]);
+                colors.push({index: index, rgba: rgb});
             }
             this.model.trigger("change", colors);
         }
