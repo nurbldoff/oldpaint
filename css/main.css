@@ -197,18 +197,20 @@ td.minilayers {
     margin: 0;
 }
 
-#minilayers {
+#minilayers_ {
     position: absolute;
     bottom: 0px;
     left: 0px;
     right: 0px;
     max-height: 100%;
+    border-top: solid black 2px;
+}
+
+#minilayers {
+    border-left: solid black 2px;
     padding: 5px;
     background-color: #808080;
-
-    border-width: 2px 0 0 2px;
-    border-style: solid;
-    border-color: black;
+    max-height: 100%;
 }
 
 .minilayer {
