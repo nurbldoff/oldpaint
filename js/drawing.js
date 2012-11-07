@@ -30,6 +30,7 @@ OldPaint.Drawing = Backbone.Model.extend({
         this.set("title", "Untitled");
     },
 
+
     // Load image. Takes a "loader" function and feeds it the data and
     // a callback that expects a nice drawing data object.
     // TODO: guess it should be possible to undo loading..?

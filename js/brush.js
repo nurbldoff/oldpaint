@@ -25,7 +25,6 @@ OldPaint.Brush = OldPaint.Image.extend ({
 // A Brush containing an ellipse of the given radii
 OldPaint.EllipseBrush = OldPaint.Brush.extend ({
     initialize: function (spec) {
-        console.log("ellipsebrush:", spec);
         this.spec = spec;
         OldPaint.EllipseBrush.__super__.initialize.apply(
             this, [{width: spec.width * 2 + 1,
@@ -71,7 +70,6 @@ OldPaint.RectangleBrush = OldPaint.Brush.extend ({
 // A Brush created from a Patch
 OldPaint.ImageBrush = OldPaint.Brush.extend ({
     initialize: function (spec) {
-        console.log("imagebrush:", spec);
         this.spec = {width: spec.patch.rect.width, height: spec.patch.rect.height,
                      patch: spec.patch, color: 1, palette: spec.patch.palette,
                      image_type: spec.image_type, type: spec.type};
