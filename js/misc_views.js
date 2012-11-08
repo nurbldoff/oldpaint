@@ -135,10 +135,10 @@ OldPaint.InfoView = Backbone.View.extend({
         this.eventbus.on("zoom", this.set_zoom);
         this.eventbus.on("", this.set_zoom);
 
-        this.$message = $("#message");
-        this.$coordinates = $("#coordinates");
-        this.$layer_number = $("#layer_number");
-        this.$zoom = $("#zoom");
+        this.$message = $(".bottom .message");
+        this.$coordinates = $(".bottom .coordinates");
+        this.$layer_number = $(".bottom .layer_number");
+        this.$zoom = $(".bottom .zoom");
 
         this.render();
     },
