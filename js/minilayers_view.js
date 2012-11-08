@@ -13,7 +13,8 @@ OldPaint.MiniLayerView = Backbone.View.extend({
 
     initialize: function (options) {
         _.bindAll(this);
-        this.render();
+        this.eventbus = options.eventbus;
+
         this.model.on("remove", this.on_remove);
         this.model.on("activate", this.on_activate);
         this.model.on("deactivate", this.deactivate);
@@ -23,11 +24,11 @@ OldPaint.MiniLayerView = Backbone.View.extend({
         this.model.on("change:animated", this.on_animatedness);
         this.model.collection.on("add remove move", this.on_change);
         this.model.image.palette.on("change", _.throttle(this.redraw, 1000));
+
         this.render();
     },
 
     render: function () {
-        console.log("minilayer: render");
         var template = _(Ashe.parse( $("#minilayer_template").html(), {})).clone();
         this.$el.html(template);
         this.$el.data("cid", this.model.cid);
@@ -72,7 +73,6 @@ OldPaint.MiniLayerView = Backbone.View.extend({
     },
 
     on_remove: function () {
-        console.log("minilayer remove", this.model.cid);
         this.remove();
         this.unbind();
 
@@ -83,7 +83,6 @@ OldPaint.MiniLayerView = Backbone.View.extend({
         this.model.unbind("change:visible", this.on_visibility);
         this.model.unbind("change:animated", this.on_animatedness);
         this.model.image.palette.unbind("change", this.redraw);
-        console.log("minilayer done");
     },
 
     change_visibility: function (event) {
@@ -99,7 +98,6 @@ OldPaint.MiniLayerView = Backbone.View.extend({
     },
 
     on_change: function (arg, collection) {
-        console.log("layer number", arguments);
         this.update_number(collection);
     }
 
@@ -116,11 +114,13 @@ OldPaint.MiniLayersView = Backbone.View.extend({
 
     initialize: function (options) {
         _.bindAll(this);
+        this.eventbus = options.eventbus;
+        
         this.model.layers.on("add", this.on_add);
 
         //this.model.layers.on("resize", this.render);
         this.model.on("load", this.render);
-        this.model.on("remove", this.on_remove);
+        this.model.layers.on("remove", this.on_remove);
 
         $("#layer_add").on("click", this.add_layer);
         $("#layer_delete").on("click", this.remove_layer);
@@ -149,7 +149,8 @@ OldPaint.MiniLayersView = Backbone.View.extend({
     },
 
     on_add: function (layer, layers, options) {
-        var container = new OldPaint.MiniLayerView({model: layer});
+        var container = new OldPaint.MiniLayerView({model: layer,
+                                                    eventbus: this.eventbus});
         var minis = this.$el.children();
         if (minis.length === 0) {
             this.$el.prepend(container.$el);
@@ -169,8 +170,6 @@ OldPaint.MiniLayersView = Backbone.View.extend({
             this.model.layers.move(
                 n - this.start_index, n - ui.item.index(), true);
         }
-        console.log(_.map(this.model.layers.models,
-                          function (layer, index) {return layer.cid;}));
     },
 
     select: function (event) {
