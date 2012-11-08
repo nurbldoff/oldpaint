@@ -127,14 +127,17 @@ OldPaint.InfoView = Backbone.View.extend({
 
     initialize: function (options) {
         _.bindAll(this);
-        this.model.on("coordinates", this.set_coordinates);
         this.eventbus = options.eventbus;
+        this.model.on("coordinates", this.set_coordinates);
+        this.model.layers.on("activate", this.set_layer);
         this.eventbus.on("info", this.set_message);
         this.eventbus.on("clear", this.set_message);
         this.eventbus.on("zoom", this.set_zoom);
+        this.eventbus.on("", this.set_zoom);
 
         this.$message = $("#message");
         this.$coordinates = $("#coordinates");
+        this.$layer_number = $("#layer_number");
         this.$zoom = $("#zoom");
 
         this.render();
@@ -151,13 +154,17 @@ OldPaint.InfoView = Backbone.View.extend({
         else this.$message.text("");
     },
 
-    set_coordinates: function (coords) {
+    set_coordinates: _.throttle(function (coords) {
         // Kinda crappy way to check if we got a position or a rect...
         if (coords.x !== undefined) {
             this.$coordinates.text("x:" + coords.x + "\xa0y:" + coords.y);
         } else {
             this.$coordinates.text("w:" + coords.width + "\xa0h:" + coords.height);
         }
+    }, 200),
+
+    set_layer: function (layer) {
+        this.$layer_number.text("z:" + this.model.layers.indexOf(layer));
     },
 
     set_zoom: function (zoom) {

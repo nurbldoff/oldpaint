@@ -356,7 +356,7 @@ OldPaint.DrawingView = Backbone.View.extend({
         this.center();
     },
 
-    // Update the cursor position and draw brush preview
+    // Update the cursor position and draw brush preview (if appropriate)
     update_cursor: _.throttle(function (event, stroke) {
         var coords = Util.image_coords(Util.event_coords(event), this.window);
         if (this.stroke && this.stroke.start) {

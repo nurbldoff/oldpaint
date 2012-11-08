@@ -346,8 +346,8 @@ OldPaint.Drawing = Backbone.Model.extend({
         this.selection = null;
     },
 
-    update_coords: _.throttle(function (data) {
+    update_coords: function (data) {
         this.trigger("coordinates", data);
-    }, 200)
+    }
 
 });
