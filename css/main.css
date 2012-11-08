@@ -215,43 +215,51 @@ td.minilayers {
 
 .minilayer {
     position: relative;
-    max-width: 90px;
 }
 
-canvas.minilayer {
-    background: #D0D0D0 url("../images/chequered_transp.png");
+.minilayer canvas {
     border: solid #505050 2px;
-    padding: 0;
+    background: #D0D0D0 url("../images/chequered_transp.png");
 }
 
-.minilayer.animated {
+.minilayer.animated canvas {
     border: dashed #505050 2px;
 }
 
-
-.minilayer.active {
-    border: solid white 2px;
-}
-
-.minilayer.invisible {
+.minilayer.invisible canvas {
     opacity: 0.5;
 }
 
-.minilayer.unviewed_frame {
-    opacity: 0.75;
+.minilayer.active canvas {
+    border: solid white 2px;
 }
 
-.layerVisibleCheck {
+.minilayer .number {
+    padding: 2px;
     z-index: 100;
     position: absolute;
-    right: -5px;
+    left: 0;
+    top: 0;
+    background: #555;
+    color: white;
+}
+
+.minilayer.active .number {
+    background: white;
+    color: #555;    
+}
+
+.minilayer .visible_check {
+    z-index: 100;
+    position: absolute;
+    right: 0px;
     top: 0px;
 }
 
-.layerAnimatedCheck {
+.minilayer .animated_check {
     z-index: 100;
     position: absolute;
-    right: -5px;
+    right: 0px;
     top: 20px;
 }
 
@@ -398,4 +406,5 @@ button.active {
 .cell {
     display: table-cell;
 }
+
 

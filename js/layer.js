@@ -178,6 +178,10 @@ OldPaint.Layer = OldPaint.Image.extend ({
         return visible && (!animated || (animated && active));
     },
 
+    get_position: function () {
+        return this.collection.indexOf(this);
+    },
+
     // This should be overridden with the function to update the view.
     update: function () {console.log("Update function missing!");},
 
@@ -223,7 +227,7 @@ OldPaint.Layers = Backbone.Collection.extend({
         tmp = this.at(from);
         this.models.splice(from, 1);
         this.models.splice(to, 0, tmp);
-        if (trigger) this.trigger("move", from, to);
+        if (trigger) this.trigger("move", [from, to], this);
     },
 
     // Overriding the add method to keep track of numbering

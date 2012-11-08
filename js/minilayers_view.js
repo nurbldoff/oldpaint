@@ -6,9 +6,9 @@ OldPaint.MiniLayerView = Backbone.View.extend({
     canvas: null,
 
     events: {
-        "click .layerVisibleCheck": "change_visibility",
-        "click .layerAnimatedCheck": "change_animatedness",
-        "click .minilayer": "select"
+        "click .visible_check": "change_visibility",
+        "click .animated_check": "change_animatedness",
+        "click canvas": "select"
     },
 
     initialize: function (options) {
@@ -21,6 +21,7 @@ OldPaint.MiniLayerView = Backbone.View.extend({
         this.model.on("resize", this.render);
         this.model.on("change:visible", this.on_visibility);
         this.model.on("change:animated", this.on_animatedness);
+        this.model.collection.on("add remove move", this.on_change);
         this.model.image.palette.on("change", _.throttle(this.redraw, 1000));
         this.render();
     },
@@ -32,7 +33,6 @@ OldPaint.MiniLayerView = Backbone.View.extend({
         this.$el.data("cid", this.model.cid);
         var canvas = this.model.image.canvas;
         this.canvas = document.createElement('canvas');
-        $(this.canvas).addClass('minilayer');
         var size = Util.restrict_size(canvas.width, canvas.height, 90);
         this.canvas.width = size.x;
         this.canvas.height = size.y;
@@ -40,6 +40,7 @@ OldPaint.MiniLayerView = Backbone.View.extend({
         this.$el.append(this.canvas);
         this.on_visibility();
         this.on_animatedness();
+        this.update_number(this.model.collection);
     },
 
     redraw: function () {
@@ -51,23 +52,22 @@ OldPaint.MiniLayerView = Backbone.View.extend({
     },
 
     on_activate: function () {
-        $(this.canvas).addClass("active");
+        $(this.$el).addClass("active");
     },
 
     deactivate: function () {
-        $(this.canvas).removeClass("active");
+        $(this.$el).removeClass("active");
     },
 
     on_animatedness: function () {
         var animatedness = this.model.get("animated");
-        this.$el.children("canvas").toggleClass("animated", animatedness);
+        this.$el.toggleClass("animated", animatedness);
         this.$el.children(".layerAnimatedCheck").prop("checked", animatedness);
     },
 
     on_visibility: function () {
         var visibility = this.model.get("visible");
-        console.log("visibility", visibility);
-        this.$el.children("canvas").toggleClass("invisible", !visibility);
+        this.$el.toggleClass("invisible", !visibility);
         this.$el.children(".layerVisibleCheck").prop("checked", visibility);
     },
 
@@ -93,6 +93,15 @@ OldPaint.MiniLayerView = Backbone.View.extend({
     change_animatedness: function (event) {
         this.model.set("animated", event.currentTarget.checked);
     },
+
+    update_number: function (collection) {
+        this.$el.children(".number").text(collection.indexOf(this.model));
+    },
+
+    on_change: function (arg, collection) {
+        console.log("layer number", arguments);
+        this.update_number(collection);
+    }
 
 });
 
@@ -201,6 +210,6 @@ OldPaint.MiniLayersView = Backbone.View.extend({
         this.model.clear_layer(this.model.layers.active,
                                this.model.palette.foreground);
         this.model.layers.active.trigger("redraw_preview");
-    }
+    },
 
 });

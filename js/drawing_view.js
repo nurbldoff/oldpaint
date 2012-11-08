@@ -232,10 +232,11 @@ OldPaint.DrawingView = Backbone.View.extend({
 
     // Callback for when the user changes the position of a layer in
     // The stack
-    on_layer_reordered: function (from, to) {
-        var layer_views = $("#layers_container").children("canvas");
-        var $from_layer = $(layer_views[from]);
-        var $to_layer = $(layer_views[to]);
+    on_layer_reordered: function (layers) {
+        var from = layers[0], to = layers[1],
+            layer_views = $("#layers_container").children("canvas"),
+            $from_layer = $(layer_views[from]),
+            $to_layer = $(layer_views[to]);
         $from_layer.remove();
         if ($to_layer.index() == to) {
             $from_layer.insertBefore($to_layer);
