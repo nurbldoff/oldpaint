@@ -40,42 +40,41 @@ OldPaint.Layer = OldPaint.Image.extend ({
             this.last_brush_position = start;
             this.trigger_update(
                 OldPaint.Layer.__super__.draw_brush.apply(this, arguments),
-                true, temporary);
+                temporary);
         }
     },
 
     draw_line: function (start, end, brush, color, temporary) {
         this.trigger_update(
             OldPaint.Layer.__super__.draw_line.apply(this, arguments),
-            true, temporary);
+            temporary);
     },
     draw_rectangle: function (topleft, size, brush, color, filled, temporary) {
         this.trigger_update(
             OldPaint.Layer.__super__.draw_rectangle.apply(this, arguments),
-            true, temporary);
+            temporary);
     },
 
     draw_ellipse: function (center, radii, brush, color, filled, temporary) {
         this.trigger_update(
             OldPaint.Layer.__super__.draw_ellipse.apply(this, arguments),
-            true, temporary);
+            temporary);
     },
 
     draw_fill: function (start, color) {
         this.trigger_update(
-            OldPaint.Layer.__super__.draw_fill.apply(this, arguments), true);
+            OldPaint.Layer.__super__.draw_fill.apply(this, arguments));
     },
 
     draw_gradientfill: function (start, colors) {
         this.trigger_update(
-            OldPaint.Layer.__super__.draw_gradientfill.apply(this, arguments),
-            true);
+            OldPaint.Layer.__super__.draw_gradientfill.apply(this, arguments));
     },
 
     draw_clear: function () {
         this.temporary_rect = null;
         this.trigger_update(
-            OldPaint.Layer.__super__.draw_clear.apply(this), true);
+            OldPaint.Layer.__super__.draw_clear.apply(this));
         this.cleanup();
     },
 
@@ -84,26 +83,24 @@ OldPaint.Layer = OldPaint.Image.extend ({
                     height: this.image.canvas.height};
         var patch = layer.make_patch(rect);
         this.trigger_update(
-            this.draw_patch(patch, rect, true),
-            true);
+            this.draw_patch(patch, rect, true));
         this.cleanup();
     },
 
     draw_patch: function () {
         this.trigger_update(
-            OldPaint.Layer.__super__.draw_patch.apply(this, arguments),
-            true);
+            OldPaint.Layer.__super__.draw_patch.apply(this, arguments));
     },
 
     flip_x: function () {
         this.clear_temporary();
-        this.trigger_update(OldPaint.Layer.__super__.flip_x.apply(this), true);
+        this.trigger_update(OldPaint.Layer.__super__.flip_x.apply(this));
         this.cleanup();
     },
 
     flip_y: function () {
         this.clear_temporary();
-        this.trigger_update(OldPaint.Layer.__super__.flip_y.apply(this), true);
+        this.trigger_update(OldPaint.Layer.__super__.flip_y.apply(this));
         this.cleanup();
     },
 
@@ -185,7 +182,7 @@ OldPaint.Layer = OldPaint.Image.extend ({
     // This should be overridden with the function to update the view.
     update: function () {console.log("Update function missing!");},
 
-    trigger_update: function (rect, clear, temporary) {
+    trigger_update: function (rect, temporary) {
         if (!rect) return;
         // add 1 pixel padding
         //rect.left -= 1; rect.top -= 1; rect.width += 2; rect.height += 2;
@@ -197,7 +194,7 @@ OldPaint.Layer = OldPaint.Image.extend ({
                 this.last_change = rect;
                 this.dirty_rect = Util.union(rect, this.dirty_rect);
             }
-            this.trigger("update", rect, clear);
+            this.trigger("update", rect);
         }
     }
 });

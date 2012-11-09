@@ -63,13 +63,13 @@ OldPaint.MiniLayerView = Backbone.View.extend({
     on_animatedness: function () {
         var animatedness = this.model.get("animated");
         this.$el.toggleClass("animated", animatedness);
-        this.$el.children(".layerAnimatedCheck").prop("checked", animatedness);
+        this.$el.children(".animated_check").prop("checked", animatedness);
     },
 
     on_visibility: function () {
         var visibility = this.model.get("visible");
         this.$el.toggleClass("invisible", !visibility);
-        this.$el.children(".layerVisibleCheck").prop("checked", visibility);
+        this.$el.children(".visible_check").prop("checked", visibility);
     },
 
     on_remove: function () {

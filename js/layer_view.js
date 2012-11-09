@@ -93,14 +93,14 @@ OldPaint.LayerView = Backbone.View.extend({
     },
 
     // Redraw part of the view
-    on_update: function (rect, clear) {
+    on_update: function (rect) {
         //console.log("update", this.cid, rect.left, rect.top, rect.width, rect.height);
         var scale = this.window.scale;
         var left = Math.floor(this.window.offset.x + rect.left * scale),
             top = Math.floor(this.window.offset.y + rect.top * scale),
             width = Math.ceil(rect.width * scale),
             height = Math.ceil(rect.height * scale);
-        if (clear) this.context.clearRect(left, top, width, height);
+        this.context.clearRect(left, top, width, height);
         this.context.drawImage(this.model.image.canvas,
                                rect.left, rect.top, rect.width, rect.height,
                                left, top, width, height);
