@@ -6,6 +6,7 @@ $(function () {
     OldPaint.eventbus = eventbus = _.extend({}, Backbone.Events);
     eventbus.info = function (msg) {eventbus.trigger("info", msg);};
     eventbus.clear = function () {eventbus.trigger("clear");};
+    eventbus.coordinates = function (coords) {eventbus.trigger("coordinates", coords);};
 
     // For zip.js to find deflate.js and inflate.js
     zip.workerScriptsPath = "js/libs/";

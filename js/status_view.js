@@ -44,6 +44,7 @@ OldPaint.StatusView = Backbone.View.extend({
             Brush: {
                 Colorize: this.brush_colorize,
                 Delete: this.brush_remove,
+                Export: this.save_brush_as_png,
                 Flip: {
                     Horizontally: this.brush_flip_x,
                     Vertically: this.brush_flip_y
@@ -176,9 +177,13 @@ OldPaint.StatusView = Backbone.View.extend({
 
     // Save as PNG to the normal filesystem. If we can, let the user choose where.
     save_as_png: function () {
-        if (ChromeApp.check())
-            this.chrome_save_as_png();
-        else {
+        if (ChromeApp.check()) {
+            var save = function (writable) {
+                var blob = this.model.flatten_visible_layers().make_png(true);
+                ChromeApp.writeFileEntry(writable, blob);
+            };
+            this.chrome_save_as_png(self.get("title"), save);
+        } else {
             var blob = this.model.flatten_visible_layers().make_png(true);
             saveAs(blob, Util.change_extension(this.model.get("title"), "png"));
         }
@@ -186,13 +191,31 @@ OldPaint.StatusView = Backbone.View.extend({
 
     // Save layer as PNG to the normal filesystem. If we can, let the user choose where.
     save_layer_as_png: function () {
-        if (ChromeApp.check())
-            this.chrome_save_as_png(true);
-        else {
+        if (ChromeApp.check()) {
+            var save = function (writable) {
+                var blob = this.model.layers.active.image.make_png(true);
+                ChromeApp.writeFileEntry(writable, blob);
+            };
+            this.chrome_save_as_png(self.get("title"), save);
+        } else {
             var blob = this.model.layers.active.image.make_png(true);
             saveAs(blob, Util.change_extension(this.model.get("title"), "png"));
         }
     },
+
+    save_brush_as_png: function () {
+        if (ChromeApp.check()) {
+            var save = function (writable) {
+                var blob = this.brushes.active.image.make_png(true);
+                ChromeApp.writeFileEntry(writable, blob);
+            };
+            this.chrome_save_as_png(self.get("title"), save);
+        } else {
+            var blob = this.brushes.active.image.make_png(true);
+            saveAs(blob, Util.change_extension(this.model.get("title"), "png"));
+        }
+    },
+
 
     // Save as ORA to the normal filesystem. If we can, let the user choose where.
     save_as_ora: function () {
@@ -222,17 +245,9 @@ OldPaint.StatusView = Backbone.View.extend({
                                   on_chosen.bind(this));
     },
 
-    chrome_save_as_png: function (single) {
-
-        var on_chosen = function (writable) {
-            var blob = single ?
-                    this.model.layers.active.image.make_png(true) :
-                    this.model.flatten_visible_layers().make_png(true);
-            ChromeApp.writeFileEntry(writable, blob);
-        };
-
+    chrome_save_as_png: function (title, callback) {
         ChromeApp.fileSaveChooser(
-            Util.change_extension(this.model.get("title"), "png"),
+            Util.change_extension(title, "png"),
             on_chosen.bind(this));
     },
 

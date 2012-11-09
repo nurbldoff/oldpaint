@@ -128,8 +128,8 @@ OldPaint.InfoView = Backbone.View.extend({
     initialize: function (options) {
         _.bindAll(this);
         this.eventbus = options.eventbus;
-        this.model.on("coordinates", this.set_coordinates);
         this.model.layers.on("activate", this.set_layer);
+        this.eventbus.on("coordinates", this.set_coordinates);
         this.eventbus.on("info", this.set_message);
         this.eventbus.on("clear", this.set_message);
         this.eventbus.on("zoom", this.set_zoom);

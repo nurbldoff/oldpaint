@@ -46,6 +46,7 @@ OldPaint.SelectionView = Backbone.View.extend({
                                   height: end.y - start.y + 2*handle_height});
         $(".selection.frame").css({width: end.x - start.x,
                                    height: end.y - start.y});
+        self.eventbus.coordinates(this.model.rect);
     },
 
     // Make the selection editable
@@ -102,6 +103,7 @@ OldPaint.SelectionView = Backbone.View.extend({
             break;
         }
         this.model.resize(sel);
+        self.eventbus.coordinates(this.model.rect);
     },
 
     // Callback for releasing a corner handle

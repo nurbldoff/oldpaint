@@ -369,8 +369,13 @@ OldPaint.DrawingView = Backbone.View.extend({
                                          this.model.palette.foreground, coords);
             }
         }
-        this.model.update_coords(coords);
+        this.update_cursor_coords(coords);
     }, 20),
+
+    update_cursor_coords: function (coords) {
+        if (!this.model.selection)
+            this.eventbus.coordinates(coords);
+    },
 
     update_offset: function (offset) {
         this.window.offset = {x: Math.floor(offset.x),
