@@ -75,7 +75,8 @@ ChromeApp.fileLoadChooser = function(callbacks) {
         });
 };
 
-ChromeApp.fileSaveChooser = function(name, callback) {
-    var config = {type: 'saveFile', suggestedName: name};
+ChromeApp.fileSaveChooser = function(name, extension, callback) {
+    name = Util.change_extension(name, extension);
+    var config = {type: 'saveFile', accepts: [{extensions: [extension]}], suggestedName: name};
     return chrome.fileSystem.chooseEntry(config, callback);
 };

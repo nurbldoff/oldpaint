@@ -8,6 +8,7 @@ OldPaint.StatusView = Backbone.View.extend({
         this.eventbus = options.eventbus;
         this.tools = options.tools;
         this.brushes = options.brushes;
+        this.writable = null;  // if the user has saved the drawing, the writable is kept here
 
         // Load settings from local storage
         this.load_settings();
@@ -182,7 +183,7 @@ OldPaint.StatusView = Backbone.View.extend({
                 var blob = this.model.flatten_visible_layers().make_png(true);
                 ChromeApp.writeFileEntry(writable, blob);
             };
-            this.chrome_save_as_png(this.model.get("title"), save);
+            this.chrome_save_as_png(this.model.get("title"), save.bind(this));
         } else {
             var blob = this.model.flatten_visible_layers().make_png(true);
             saveAs(blob, Util.change_extension(this.model.get("title"), "png"));
@@ -232,22 +233,24 @@ OldPaint.StatusView = Backbone.View.extend({
                                    "ora": this.load_ora_data});
     },
 
-    chrome_save_as_ora: function () {
+    chrome_save_as_ora: function (rewrite) {
         var on_created = function (writable, orablob) {
             ChromeApp.writeFileEntry(writable, orablob);
         };
 
         var on_chosen = function (writable) {
+            this.writable = writable;
             Util.create_ora(this.model, on_created.bind(this, writable));
-        };
+        }.bind(this);
 
-        ChromeApp.fileSaveChooser(
-            Util.change_extension(this.model.get("title"), "ora"),
-            on_chosen.bind(this));
+        if (rewrite && this.writable)  // Don't show the file chooser
+            on_chosen(this.writable);
+        else
+            ChromeApp.fileSaveChooser(this.model.get("title"), "ora", on_chosen);
     },
 
     chrome_save_as_png: function (title, callback) {
-        ChromeApp.fileSaveChooser(Util.change_extension(title, "png"), callback);
+        ChromeApp.fileSaveChooser(title, "png", callback);
     },
 
     on_file_select: function (evt) {
