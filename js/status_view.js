@@ -182,7 +182,7 @@ OldPaint.StatusView = Backbone.View.extend({
                 var blob = this.model.flatten_visible_layers().make_png(true);
                 ChromeApp.writeFileEntry(writable, blob);
             };
-            this.chrome_save_as_png(self.get("title"), save);
+            this.chrome_save_as_png(this.model.get("title"), save);
         } else {
             var blob = this.model.flatten_visible_layers().make_png(true);
             saveAs(blob, Util.change_extension(this.model.get("title"), "png"));
@@ -196,7 +196,7 @@ OldPaint.StatusView = Backbone.View.extend({
                 var blob = this.model.layers.active.image.make_png(true);
                 ChromeApp.writeFileEntry(writable, blob);
             };
-            this.chrome_save_as_png(self.get("title"), save);
+            this.chrome_save_as_png(this.model.get("title"), save.bind(this));
         } else {
             var blob = this.model.layers.active.image.make_png(true);
             saveAs(blob, Util.change_extension(this.model.get("title"), "png"));
@@ -209,7 +209,7 @@ OldPaint.StatusView = Backbone.View.extend({
                 var blob = this.brushes.active.image.make_png(true);
                 ChromeApp.writeFileEntry(writable, blob);
             };
-            this.chrome_save_as_png(self.get("title"), save);
+            this.chrome_save_as_png(this.model.get("title"), save.bind(this));
         } else {
             var blob = this.brushes.active.image.make_png(true);
             saveAs(blob, Util.change_extension(this.model.get("title"), "png"));
@@ -241,14 +241,13 @@ OldPaint.StatusView = Backbone.View.extend({
             Util.create_ora(this.model, on_created.bind(this, writable));
         };
 
-        ChromeApp.fileSaveChooser(Util.change_extension(this.model.get("title"), "ora"),
-                                  on_chosen.bind(this));
+        ChromeApp.fileSaveChooser(
+            Util.change_extension(this.model.get("title"), "ora"),
+            on_chosen.bind(this));
     },
 
     chrome_save_as_png: function (title, callback) {
-        ChromeApp.fileSaveChooser(
-            Util.change_extension(title, "png"),
-            on_chosen.bind(this));
+        ChromeApp.fileSaveChooser(Util.change_extension(title, "png"), callback);
     },
 
     on_file_select: function (evt) {
