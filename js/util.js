@@ -144,7 +144,7 @@ Util.canvas_coords = function (image_coords, window) {
 // Returns a canvas containing a copy of the input canvas,
 // optionally only the part contained by rect, and optionally flipped.
 Util.copy_canvas = function (canvas, rect, flip) {
-    console.log(canvas);
+    //console.log(canvas);
     var new_canvas = document.createElement('canvas'),
         context = new_canvas.getContext('2d'), left = 0, top = 0;
     if (rect) {
@@ -258,6 +258,7 @@ Util.load_base64_png = function (data) {
 
     // Use browser to decode non-palette types
     if (image.colorType != 3) {
+        console.log("Loading RGB PNG");
         var img = new Image();
         img.onload = function() {
             var canvas = Util.copy_canvas(img);
@@ -273,6 +274,7 @@ Util.load_base64_png = function (data) {
         };
         img.src = "data:image/png;base64," + data;
     } else {
+        console.log("Loading indexed PNG");
         var start = (new Date()).getTime();
         // Convert the data into oldpaint formats
         var line, pixels = [];
@@ -384,15 +386,18 @@ Util.ora_loader = function (data, callback) {
     var zipfs = new zip.fs.FS();
 
     var read_layer = function (n, visible, animated, max, data) {
-        Util.load_base64_png(Util.strip_data_header(data)).done(function (tmp) {
-            result.layers[n] = {data: tmp.data, visible: visible, animated: animated};
+        Util.load_base64_png(Util.strip_data_header(data)).done(function (result) {
+            spec.layers[n] = {data: result.data, visible: visible, animated: animated};
             // Checking if all layers have been loaded
             if (++layers_added == max) {
-                result.palette = tmp.palette;  // we assume that all layers have the
-                                               // same palette. They have to.
-                result.type = tmp.type;        // Same type (index/rgb) too.
+                spec.palette = result.palette;  // we assume that all layers have the
+                                                // same palette. They have to.
+                spec.type = result.type;        // Same type (index/rgb) too.
+                //spec.width = result.width;    // And size.
+                //spec.height = result.height;  // This loader really needs some love.
+                spec.layers.reverse();  // Openraster defines the first layer as the top one...
                 console.log("importing ORA took", (new Date()).getTime() - start, "ms.");
-                callback(result);
+                callback(spec);
             }
         });
     };
@@ -400,21 +405,21 @@ Util.ora_loader = function (data, callback) {
     var read_stack = function (stack) {
         var xml = Util.mkXML(stack),
             layer_nodes = xml.getElementsByTagName("layer");
-        result.width = xml.getElementsByTagName("image")[0].getAttribute("w");
-        result.height = xml.getElementsByTagName("image")[0].getAttribute("h");
+        spec.width = xml.getElementsByTagName("image")[0].getAttribute("w");
+        spec.height = xml.getElementsByTagName("image")[0].getAttribute("h");
         for (var i=0; i<layer_nodes.length; i++) {
             var node = layer_nodes[i], filename = node.getAttribute("src"),
                 visible =  node.getAttribute("visibility") == "visible",
                 animated = Util.string_to_boolean(
                     node.getAttribute("animated") || "false"),
                 image = zipfs.find(filename),
-                layer = result.layers[i] = {};
+                layer = spec.layers[i] = {};
             image.getData64URI("image/png", read_layer.bind(
                 this, i, visible, animated, layer_nodes.length));
         }
     };
 
-    var result = {layers: []}, layers_added = 0;
+    var spec = {layers: []}, layers_added = 0;
     var start = (new Date()).getTime();
     zipfs.importData64URI(data, function () {
         zipfs.find("stack.xml").getText(read_stack);
@@ -435,16 +440,16 @@ Util.create_ora = function (drawing, callback) {
     xw.writeAttributeString("h", drawing.get("height"));
     xw.writeStartElement("stack");
 
-    drawing.layers.each(function (layer, index) {
+    for (var i=drawing.layers.length-1; i>=0; i--) {
+        var layer = drawing.layers.at(i);
         xw.writeStartElement("layer");
-        xw.writeAttributeString("name", "layer" + (index+1));
-        xw.writeAttributeString("src", "data/layer" + (index+1) + ".png");
+        xw.writeAttributeString("name", "layer" + (i+1));
+        xw.writeAttributeString("src", "data/layer" + (i+1) + ".png");
         xw.writeAttributeString("visibility", layer.get("visible")? "visible" : "hidden");
         xw.writeAttributeString("animated", layer.get("animated"));  // Not in ORA standard!
         xw.writeEndElement();
-        datadir.addData64URI("layer"+ (index+1) + ".png",
-                            layer.image.make_png());
-    });
+        datadir.addData64URI("layer"+ (i+1) + ".png", layer.image.make_png());
+    }
     var xml = xw.flush();
     zipdir.addText("stack.xml", xml);
     zipdir.addText("mimetype", "image/openraster");

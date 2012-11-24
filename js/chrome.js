@@ -66,7 +66,7 @@ ChromeApp.fileLoadChooser = function(callbacks) {
                 console.log("no file selected");
                 return;
             }
-            console.log(readOnlyEntry);
+            //console.log(readOnlyEntry);
             var chosenFileEntry = readOnlyEntry;
 
             chosenFileEntry.file(function(file) {
