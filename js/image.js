@@ -8,7 +8,10 @@ OldPaint.Image = Backbone.Model.extend ({
         this.image = new spec.image_type(
             {width: spec.width, height: spec.height,
              palette: palette, image: spec.image});
-        if (!spec.data && spec.background) this.clear(spec.background);
+        if (!spec.image && (spec.background >= 0)) {
+            console.log("background", spec.background);
+            this.draw_clear(spec.background);
+        }
         if (spec.patch) {
             this.draw_patch(spec.patch, {left: 0, top:0});
         }
@@ -96,9 +99,9 @@ OldPaint.Image = Backbone.Model.extend ({
     },
 
     draw_clear: function (color) {
+        console.log("color", color);
         var rect = this.image.clear();
-        if (color >= 0)
-            this.draw_fill({x: 0, y: 0}, color);
+        this.draw_fill({x: 0, y: 0}, color);
         return rect;
     },
 

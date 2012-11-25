@@ -71,10 +71,10 @@ OldPaint.Layer = OldPaint.Image.extend ({
             OldPaint.Layer.__super__.draw_gradientfill.apply(this, arguments));
     },
 
-    draw_clear: function () {
+    draw_clear: function (color) {
         this.temporary_rect = null;
         this.trigger_update(
-            OldPaint.Layer.__super__.draw_clear.apply(this));
+            OldPaint.Layer.__super__.draw_clear.apply(this, arguments));
         this.cleanup();
     },
 
