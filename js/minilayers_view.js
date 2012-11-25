@@ -206,9 +206,7 @@ OldPaint.MiniLayersView = Backbone.View.extend({
     },
 
     clear_layer: function (event) {
-        this.model.clear_layer(this.model.layers.active,
-                               this.model.palette.foreground);
-        this.model.layers.active.trigger("redraw_preview");
+        this.model.clear_layer();
     },
 
 });

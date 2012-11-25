@@ -60,7 +60,8 @@ OldPaint.StatusView = Backbone.View.extend({
             ["d", function () {this.show_menu("Drawing");}],
 
             ["z", this.undo, "Undo last change."],
-            ["y", this.redo, "Redo last undo."]
+            ["y", this.redo, "Redo last undo."],
+            ["delete", this.clear, "Clear layer."]
         ];
         _.each(keybindings, function (binding) {
             Mousetrap.bind(binding[0], _.bind(binding[1], this));
@@ -144,6 +145,10 @@ OldPaint.StatusView = Backbone.View.extend({
         if (this.model.redo()) {
             this.eventbus.info("Redo");
         } else this.eventbus.info("Nothing more to redo!");
+    },
+
+    clear: function () {
+        this.model.clear_layer();
     },
 
     // ========== Brush operations ==========

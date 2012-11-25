@@ -142,10 +142,12 @@ OldPaint.Drawing = Backbone.Model.extend({
     },
 
     clear_layer: function (layer, color) {
+        layer = layer || this.layers.active;
+        color = color || this.palette.background;
         this.push_undo(this.make_action("draw", {
             patch: layer.make_patch(null, true), layer: layer}));
         layer.draw_clear(color);
-        layer.trigger("redraw_preview");
+        //layer.trigger("redraw_preview");
     },
 
 
