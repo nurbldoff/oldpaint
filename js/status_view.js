@@ -67,6 +67,13 @@ OldPaint.StatusView = Backbone.View.extend({
             Mousetrap.bind(binding[0], _.bind(binding[1], this));
         }, this);
 
+        function on_exit() {
+            return "Leaving so soon?\nThis means all unsaved progress with " +
+                "your work will be lost.";
+        }
+        if (!ChromeApp.check())
+            window.onbeforeunload = on_exit;
+
         $('#files').on('change', this.on_file_select);
         $("#logo").click(this.show_menu.bind(this, null));
         $("#undo").click(this.undo);
@@ -81,7 +88,8 @@ OldPaint.StatusView = Backbone.View.extend({
     },
 
     render: function () {
-        var text = this.model.get("title") + " " +
+        var title = this.model.get("title") || "<Untitled>",
+            text = title + " " + 
                 "(" + this.model.get("width") + "x" + this.model.get("height") + ", " +
                 this.model.get_type() + ") ";
         $("#title").text(text);
@@ -96,10 +104,13 @@ OldPaint.StatusView = Backbone.View.extend({
 
     // ========== Drawing  operations ==========
 
-    rename: function () {
+    rename: function (callback) {
         var on_ok = (function (name) {
             this.model.set("title", name);
             this.render();
+            this.save_settings();
+            if (callback)
+                callback(name);
         }).bind(this);
         var on_abort = function () {};
         Modal.input("Rename model", "What do you want to name it?", on_ok, on_abort);
@@ -175,6 +186,24 @@ OldPaint.StatusView = Backbone.View.extend({
 
     // ========== Filesystem operations ==========
 
+    // Make sure the drawing has a name, if not, prompt the user
+    ensure_title: function (callback) {
+        var title = this.model.get("title");
+        if (!title)
+            this.rename(callback);
+        else
+            callback(this.get_title());
+    },
+
+    // Return a usable title, whether it's set or not
+    get_title: function () {
+        var title = this.model.get("title");
+        if (!title)
+            return "Untitled";
+        else
+            return title;
+    },
+
     // Load an user selected file from the normal filesystem
     load: function () {
         if (ChromeApp.check()) this.chrome_open();
@@ -183,53 +212,57 @@ OldPaint.StatusView = Backbone.View.extend({
 
     // Save as PNG to the normal filesystem. If we can, let the user choose where.
     save_as_png: function () {
+        var title = this.get_title();
         if (ChromeApp.check()) {
             var save = function (writable) {
                 var blob = this.model.flatten_visible_layers().make_png(true);
                 ChromeApp.writeFileEntry(writable, blob);
-            };
-            this.chrome_save_as_png(this.model.get("title"), save.bind(this));
+            }.bind(this);
+            this.chrome_save_as_png(title, save);
         } else {
             var blob = this.model.flatten_visible_layers().make_png(true);
-            saveAs(blob, Util.change_extension(this.model.get("title"), "png"));
+            saveAs(blob, Util.change_extension(title, "png"));
         }
     },
 
     // Save layer as PNG to the normal filesystem. If we can, let the user choose where.
     save_layer_as_png: function () {
+        var title = this.get_title();
         if (ChromeApp.check()) {
             var save = function (writable) {
                 var blob = this.model.layers.active.image.make_png(true);
                 ChromeApp.writeFileEntry(writable, blob);
-            };
-            this.chrome_save_as_png(this.model.get("title"), save.bind(this));
+            }.bind(this);
+            this.chrome_save_as_png(title, save);
         } else {
             var blob = this.model.layers.active.image.make_png(true);
-            saveAs(blob, Util.change_extension(this.model.get("title"), "png"));
+            saveAs(blob, Util.change_extension(title, "png"));
         }
     },
 
     save_brush_as_png: function () {
+        var title = this.get_title();
         if (ChromeApp.check()) {
             var save = function (writable) {
                 var blob = this.brushes.active.image.make_png(true);
                 ChromeApp.writeFileEntry(writable, blob);
-            };
-            this.chrome_save_as_png(this.model.get("title"), save.bind(this));
+            }.bind(this);
+            this.chrome_save_as_png(title, save);
         } else {
             var blob = this.brushes.active.image.make_png(true);
-            saveAs(blob, Util.change_extension(this.model.get("title"), "png"));
+            saveAs(blob, Util.change_extension(title, "png"));
         }
     },
 
 
     // Save as ORA to the normal filesystem. If we can, let the user choose where.
     save_as_ora: function () {
+        var title = this.get_title();
         if (ChromeApp.check()) 
             this.chrome_save_as_ora();
         else 
             Util.create_ora(this.model, (function (blob) {
-                saveAs(blob, Util.change_extension(this.model.get("title"), "ora"));
+                saveAs(blob, Util.change_extension(title, "ora"));
             }).bind(this));
     },
 
@@ -251,7 +284,7 @@ OldPaint.StatusView = Backbone.View.extend({
         if (rewrite && this.writable)  // Don't show the file chooser
             on_chosen(this.writable);
         else
-            ChromeApp.fileSaveChooser(this.model.get("title"), "ora", on_chosen);
+            ChromeApp.fileSaveChooser(this.get_title(), "ora", on_chosen);
     },
 
     chrome_save_as_png: function (title, callback) {
@@ -294,16 +327,17 @@ OldPaint.StatusView = Backbone.View.extend({
     load_settings: function (e) {
         var model = this.model;
         LocalStorage.request(
-            LocalStorage.read_txt,
-            {name: "settings.json",
-             on_load: function (e) {
-                 var settings = JSON.parse(e.target.result);
-                 console.log("settings:", settings);
-                 if (settings.last_model) {
-                     model.load_from_storage(settings.last_drawing);
-                 }
-             }
-            });
+            LocalStorage.read_txt, {
+                name: "settings.json",
+                on_load: function (e) {
+                    var settings = JSON.parse(e.target.result);
+                    console.log("settings:", settings);
+                    if (settings.last_drawing) {
+                        this.load_internal(settings.last_drawing);
+                    }
+                }.bind(this)
+            }
+        );
     },
 
     save_settings: function () {
@@ -323,28 +357,32 @@ OldPaint.StatusView = Backbone.View.extend({
         if (this.stroke) {
             setTimeout(this.model.save_to_storage, 1000);
         } else {
+            var on_titled = function (title) {
+                var spec = {
+                    title: title,
+                    current_layer_number: this.model.layers.number,
+                    layers: [],
+                    type: this.model.get_type(),
+                    palette: this.model.palette.colors
+                };
+                this.model.layers.each(function (layer, index) {
+                    var name = "layer" + layer.id;
+                    spec.layers.push({name: name,
+                                      visible: layer.get("visible"),
+                                      animated: layer.get("animated")});
+                    layer.clear_temporary(true);
+                    LocalStorage.save({path: title + "/data",
+                                       name: name,
+                                       blob: layer.image.get_raw()});
+                }, this);
+                // save the spec
+                LocalStorage.save({path: title, name: "spec",
+                                   blob: new Blob([JSON.stringify(spec)],
+                                                  {type: 'text/plain'})});
+            }.bind(this);
             var title = this.model.get("title");
-            var spec = {
-                title: title,
-                current_layer_number: this.model.layers.number,
-                layers: [],
-                type: this.model.get_type(),
-                palette: this.model.palette.colors
-            };
-            this.model.layers.each(function (layer, index) {
-                var name = "layer" + layer.id;
-                spec.layers.push({name: name,
-                                  visible: layer.get("visible"),
-                                  animated: layer.get("animated")});
-                layer.clear_temporary(true);
-                LocalStorage.save({path: title + "/data",
-                                   name: name,
-                                   blob: layer.image.get_raw()});
-            }, this);
-            // save the spec
-            LocalStorage.save({path: title, name: "spec",
-                               blob: new Blob([JSON.stringify(spec)],
-                                              {type: 'text/plain'})});
+            if (!title)
+                this.ensure_title(on_titled);
         }
     },
 
@@ -368,11 +406,11 @@ OldPaint.StatusView = Backbone.View.extend({
             var spec = JSON.parse(e.target.result);
             console.log("spec", spec);
             LocalStorage.read_images(spec, this.model.load.bind(this, Util.raw_loader));
-        };
+        }.bind(this);
 
         // load the spec...
         LocalStorage.load_txt({path: title, name: "spec",
-                               on_load: read_spec.bind(this)});
+                               on_load: read_spec});
     },
 
     // Show the saved drawings list

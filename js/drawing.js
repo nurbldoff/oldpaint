@@ -6,7 +6,7 @@ OldPaint.Drawing = Backbone.Model.extend({
     max_undos: 20,  // maximum length of undo history
 
     defaults: {
-        title: "Untitled",
+        title: null,
         width: 640,
         height: 512
     },
@@ -27,12 +27,11 @@ OldPaint.Drawing = Backbone.Model.extend({
             this.layers.pop({silent: false});
         }
         this.add_layer();
-        this.set("title", "Untitled");
+        this.set("title", null);
     },
 
-
     // Load image. Takes a "loader" function and feeds it the data and
-    // a callback that expects a nice drawing data object.
+    // a callback that expects a nice drawing spec object.
     // TODO: guess it should be possible to undo loading..?
     load: function (loader, data) {
         // Remove all the present layers
