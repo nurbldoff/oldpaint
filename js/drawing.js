@@ -26,7 +26,7 @@ OldPaint.Drawing = Backbone.Model.extend({
         while (this.layers.models.length > 0) {
             this.layers.pop({silent: false});
         }
-        this.add_layer();
+        this.add_layer(true);
         this.set("title", null);
     },
 

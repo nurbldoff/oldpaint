@@ -19,13 +19,15 @@ OldPaint.StatusView = Backbone.View.extend({
         // don't put overlapping keybindings in the same level!
         this.menuitems = {
             Drawing: {
-                reName: this.rename,
+                New: this.new_drawing,
+                Rename: this.rename_drawing,
                 Load: this.load_popup,
                 Save: this.save_internal,
                 Import: this.load,
                 Export: {
                     PNG: this.save_as_png,
-                    ORA: this.save_as_ora
+                    ORA: this.save_as_ora,
+                    GIF: this.save_as_gifanim
                 },
                 Delete: this.delete_internal,
                 resiZe: this.resize_image,
@@ -104,6 +106,10 @@ OldPaint.StatusView = Backbone.View.extend({
 
     // ========== Drawing  operations ==========
 
+    new_drawing: function (ev) {
+        this.model.reinitialize();
+    },
+
     rename: function (callback) {
         var on_ok = (function (name) {
             this.model.set("title", name);
@@ -114,6 +120,10 @@ OldPaint.StatusView = Backbone.View.extend({
         }).bind(this);
         var on_abort = function () {};
         Modal.input("Rename model", "What do you want to name it?", on_ok, on_abort);
+    },
+
+    rename_drawing: function (ev) {
+        this.rename();
     },
 
     resize_image: function () {
@@ -221,6 +231,7 @@ OldPaint.StatusView = Backbone.View.extend({
             this.chrome_save_as_png(title, save);
         } else {
             var blob = this.model.flatten_visible_layers().make_png(true);
+            console.log("blob", blob);
             saveAs(blob, Util.change_extension(title, "png"));
         }
     },
@@ -254,16 +265,25 @@ OldPaint.StatusView = Backbone.View.extend({
         }
     },
 
+   // Save as ORA to the normal filesystem. If we can, let the user choose where.
+    save_as_ora: function () {
+        var title = this.get_title();
+        if (ChromeApp.check())
+            this.chrome_save_as_ora();
+        else 
+            Util.create_ora(this.model, (function (blob) {
+                saveAs(blob, Util.change_extension(title, "gif"));
+            }).bind(this));
+    },
 
     // Save as ORA to the normal filesystem. If we can, let the user choose where.
-    save_as_ora: function () {
+    save_as_gifanim: function () {
         var title = this.get_title();
         if (ChromeApp.check()) 
             this.chrome_save_as_ora();
         else 
-            Util.create_ora(this.model, (function (blob) {
-                saveAs(blob, Util.change_extension(title, "ora"));
-            }).bind(this));
+            saveAs(Util.create_gifanim(this.model, 0, 0, 5), 
+                   Util.change_extension(title, "gif"));
     },
 
     chrome_open: function () {

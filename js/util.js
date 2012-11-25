@@ -455,3 +455,34 @@ Util.create_ora = function (drawing, callback) {
     zipdir.addText("mimetype", "image/openraster");
     zipdir.exportBlob(callback);
 };
+
+Util.create_gifanim = function (drawing, transparent, repeat, fps) {
+    var encoder = GIFEncoder(), i;
+    encoder.start();
+    encoder.setRepeat(repeat);
+    encoder.setFrameRate(fps);
+    encoder.setTransparent(transparent);
+    
+    var colors = null;
+    if (drawing.image_type == OldPaint.IndexedImage) {
+        colors = [];
+        for (i=0; i<drawing.palette.colors.length; i++) {
+            colors.push(drawing.palette.colors[i][0]);
+            colors.push(drawing.palette.colors[i][1]);
+            colors.push(drawing.palette.colors[i][2]);
+        }
+    }
+    for (i=0; i<drawing.layers.length; i++) {
+        var layer = drawing.layers.at(i);
+        if (layer.get("animated")) {
+            if (colors)
+                encoder.addFrame(layer.image.icontext, colors);
+            else
+                encoder.addFrame(layer.image.context);
+        }
+    }
+    encoder.finish(); 
+    var binary_gif = encoder.stream().getData();
+    var data_url = 'data:image/gif;base64,' + encode64(binary_gif);
+    return Util.convertDataURIToBlob(data_url);
+};
