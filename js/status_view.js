@@ -63,9 +63,9 @@ OldPaint.StatusView = Backbone.View.extend({
             ["y", this.redo, "Redo last undo."],
             ["delete", this.clear, "Clear layer."]
         ];
-        _.each(keybindings, function (binding) {
-            Mousetrap.bind(binding[0], _.bind(binding[1], this));
-        }, this);
+        keybindings.forEach(function (binding) {
+            Mousetrap.bind(binding[0], binding[1].bind(this));
+        }.bind(this));
 
         function on_exit() {
             return "Leaving so soon?\nThis means all unsaved progress with " +
@@ -341,10 +341,10 @@ OldPaint.StatusView = Backbone.View.extend({
     },
 
     save_settings: function () {
-        console.log("save settings");
         var settings = {
             last_drawing: this.model.get("title")
         };
+        console.log("save settings", settings);
         LocalStorage.request(LocalStorage.write,
                              {name: "settings.json",
                               blob: new Blob([JSON.stringify(settings)],
@@ -358,6 +358,7 @@ OldPaint.StatusView = Backbone.View.extend({
             setTimeout(this.model.save_to_storage, 1000);
         } else {
             var on_titled = function (title) {
+                this.save_settings();
                 var spec = {
                     title: title,
                     current_layer_number: this.model.layers.number,
@@ -381,8 +382,8 @@ OldPaint.StatusView = Backbone.View.extend({
                                                   {type: 'text/plain'})});
             }.bind(this);
             var title = this.model.get("title");
-            if (!title)
-                this.ensure_title(on_titled);
+            console.log("save internal", title);
+            this.ensure_title(on_titled);
         }
     },
 
@@ -392,6 +393,7 @@ OldPaint.StatusView = Backbone.View.extend({
         var on_ok = (function () {
             LocalStorage.remove_dir({path: title});
             this.model.reinitialize();
+            this.save_settings();
         }).bind(this);
         Modal.alert("Delete drawing", "Are you sure you want to delete this " +
                     "drawing from internal storage? This action can't be undone.",
@@ -400,17 +402,19 @@ OldPaint.StatusView = Backbone.View.extend({
 
     load_internal: function (title) {
         if (!title)
-            this.model.get("title");
+            title = this.model.get("title");
 
         var read_spec = function (e) {
             var spec = JSON.parse(e.target.result);
             console.log("spec", spec);
             LocalStorage.read_images(spec, this.model.load.bind(this, Util.raw_loader));
-        }.bind(this);
-
+        }.bind(this);    
+                         
         // load the spec...
-        LocalStorage.load_txt({path: title, name: "spec",
-                               on_load: read_spec});
+        if (title) {
+            LocalStorage.load_txt({path: title, name: "spec",
+                                   on_load: read_spec});
+        }
     },
 
     // Show the saved drawings list
