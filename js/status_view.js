@@ -325,6 +325,9 @@ OldPaint.StatusView = Backbone.View.extend({
             case 'image/openraster':
                 reader.onload = this.load_ora_data;
                 break;
+            case 'image/gif':
+                reader.onload = this.load_gif_data;
+                break;
             default:
                 this.eventbus.info("Sorry, only PNG and ORA files are supported.");
                 return;
@@ -340,6 +343,10 @@ OldPaint.StatusView = Backbone.View.extend({
 
     load_ora_data: function (e) {
         this.model.load(Util.ora_loader, e.target.result);
+    },
+
+    load_gif_data: function (e) {
+        this.model.load(Util.gif_loader, e.target.result);
     },
 
     // ========== LocalStorage operations ==========

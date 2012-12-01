@@ -7,7 +7,7 @@ OldPaint.Image = Backbone.Model.extend ({
         var palette = spec.palette || new OldPaint.Palette({});
         this.image = new spec.image_type(
             {width: spec.width, height: spec.height,
-             palette: palette, image: spec.image});
+             palette: palette, image: spec.image, rect: spec.rect});
         if (!spec.image && (spec.background >= 0)) {
             console.log("background", spec.background);
             this.draw_clear(spec.background);

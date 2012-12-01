@@ -36,13 +36,22 @@ OldPaint.IndexedImage = function (data) {
             this.icontext = this.icanvas.getContext("2d");
         // ...otherwise load it as raw pixel data
         } else {
-            var pixbuf = this.icontext.getImageData(
-                0, 0, this.icanvas.width, this.icanvas.height);
+            var pixbuf;
+            if (data.rect) 
+                pixbuf = this.icontext.getImageData(
+                    data.rect.left, data.rect.top, 
+                    data.rect.width, data.rect.height);
+            else
+                pixbuf = this.icontext.getImageData(
+                    0, 0, this.icanvas.width, this.icanvas.height);
             for (var i=0; i<data.image.length; i++) {
                 pixbuf.data[i*4] = data.image[i];
                 pixbuf.data[i*4+3] = 255;
             }
-            this.icontext.putImageData(pixbuf, 0, 0);
+            if (data.rect) 
+                this.icontext.putImageData(pixbuf, data.rect.left, data.rect.top);
+            else
+                this.icontext.putImageData(pixbuf, 0, 0);
         }
     }
 

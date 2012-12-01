@@ -56,6 +56,10 @@ OldPaint.Palette =  Backbone.Model.extend ({
     },
 
     set_colors: function (colors) {
+        for (var i=0; i<colors.length; i++) {
+            if (colors[i][3] === undefined)
+                colors[i][3] = 255;
+        }
         this.colors = colors;
         this._update_color32();
         this.trigger("change");

@@ -111,14 +111,19 @@ OldPaint.Drawing = Backbone.Model.extend({
     // === Layer operations ===
 
     add_layer: function (activate, spec) {
+        console.log("add_layer", spec);
         var image = (!spec ? null : spec.data),
             visible = (!spec ? true : spec.visible),
-            animated = (!spec ? false : spec.animated);
+            animated = (!spec ? false : spec.animated), rect;
+        if (spec && spec.offset)
+            rect = Util.rect(spec.offset.x, spec.offset.y,
+                             spec.width, spec.height);
         var new_layer = new OldPaint.Layer({width: this.get("width"),
                                             height: this.get("height"),
                                             palette: this.palette,
                                             image_type: this.image_type,
                                             image: image,
+                                            rect: rect,
                                             visible: visible,
                                             animated: animated,
                                             background: this.palette.background});

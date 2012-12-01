@@ -426,6 +426,121 @@ Util.ora_loader = function (data, callback) {
     });
 };
 
+Util.gif_loader = function (data, callback) {
+    var stream = new Stream(atob(Util.strip_data_header(data))),
+        colors = [], spec = {};
+
+    spec.type = OldPaint.IndexedImage;  // GIFs are always indexed
+    spec.layers = [];
+
+    var showBool = function(b) {
+        return b ? 'yes' : 'no';
+    };
+
+    var showColor = function(rgb) {
+        // FIXME When I have an Internet connection.
+        var showHex = function(n) { // Two-digit code.
+            var hexChars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
+            return hexChars[(n >>> 4) & 0xF] + hexChars[n & 0xF];
+        };
+        return '#' + showHex(rgb[0]) + showHex(rgb[1]) + showHex(rgb[2]);
+    };
+
+    var showDisposalMethod = function(dm) {
+        var map = {
+            0: 'None',
+            1: 'Do not dispose',
+            2: 'Restore to background',
+            3: 'Restore to previous'
+        };
+        return map[dm] || 'Unknown';
+    }
+
+    var make_palette = function (colors, transparent) {
+        var palette = [];
+        for (var i=0; i<colors.length; i++) {
+            palette[i] = colors[i].slice();
+            if (palette[i][3] === undefined)
+                palette[i][3] = (i == transparent)? 0 : 255;
+        }
+        return palette;
+    };
+
+    var doHdr = function(hdr) {
+        console.log('Header:');
+        console.log(' Version: %s', hdr.ver);
+        console.log(' Size: %dx%d', hdr.width, hdr.height);
+        console.log(' GCT? %s%s', showBool(hdr.gctFlag), hdr.gctFlag ? ' (' + hdr.gct.length + ' entries)' : '');
+        console.log(' Color resolution: %d', hdr.colorRes);
+        console.log(' Sorted? %s', showBool(hdr.sorted));
+        console.log(' Background color: %s (%d)', hdr.gctFlag ? showColor(hdr.bgColor) : 'no GCT', hdr.bgColor);
+        console.log(' Pixel aspect ratio: %d FIXME', hdr.pixelAspectRatio);
+        
+        spec.width = hdr.width;
+        spec.height = hdr.height;
+        // Note: Always uses the global color table
+        spec.palette = make_palette(hdr.gct);  
+    };
+
+    var doGCE = function(gce) {
+        console.log('GCE:');
+        console.log(' Disposal method: %d (%s)', gce.disposalMethod, showDisposalMethod(gce.disposalMethod));
+        console.log(' User input expected? %s', showBool(gce.userInput));
+        console.log(' Transparency given? %s%s', showBool(gce.transparencyGiven),
+            gce.transparencyGiven ? ' (index: ' + gce.transparencyIndex + ')' : '');
+        console.log(' Delay time: %d', gce.delayTime);
+        //spec.palette[gce.transparencyIndex][3] = 0;
+    };
+
+    var doImg = function(img) {
+        console.log('Image descriptor:');
+        console.log(' Geometry: %dx%d+%d+%d', img.width, img.height, img.leftPos, img.topPos);
+        console.log(' LCT? %s%s', showBool(img.lctFlag), img.lctFlag ? ' (' + img.lct.length + ' entries)' : '');
+        console.log(' Interlaced? %s', showBool(img.interlaced));
+        console.log(' %d pixels', img.pixels.length);
+
+        spec.layers.push({data: img.pixels, 
+                          width: img.width, height: img.height,
+                          offset: {x: img.leftPos, y: img.topPos},
+                          visible: true, animated: true});
+    };
+
+    var doNetscape = function(block) {
+        console.log('Netscape application extension:');
+        console.log(' Iterations: %d%s', block.iterations, block.iterations === 0 ? ' (infinite)' : '');
+    };
+
+    var doCom = function(com) {
+        console.log('Comment extension:');
+        console.log(' Comment: [31m%s[0m', com.comment);
+    };
+
+    var doEOF = function(eof) {
+        console.log('EOF');
+        callback(spec);
+    };
+
+    var doUnknownApp = function(block) {
+    };
+
+    var doUnknownExt = function(block) {
+    };
+
+    var handler = {
+        hdr: doHdr,
+        img: doImg,
+        gce: doGCE,
+        com: doCom,
+        app: {
+            NETSCAPE: doNetscape,
+            unknown: doUnknownApp
+        },
+        eof: doEOF
+    };
+
+    parseGIF(stream, handler);
+};
+
 
 // Create an ORA file
 // TODO: not quite up to the ORA standard; lacks thumbnail, adds "animated" attribute
