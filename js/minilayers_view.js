@@ -151,11 +151,12 @@ OldPaint.MiniLayersView = Backbone.View.extend({
     on_add: function (layer, layers, options) {
         var container = new OldPaint.MiniLayerView({model: layer,
                                                     eventbus: this.eventbus});
-        var minis = this.$el.children();
+        var minis = this.$el.children(),
+            index = this.model.layers.indexOf(layer); 
         if (minis.length === 0) {
             this.$el.prepend(container.$el);
         } else {
-            $(minis[minis.length - options.index]).before(container.$el);
+            $(minis[minis.length - index]).before(container.$el);
         }
         container.redraw();
     },
@@ -176,7 +177,7 @@ OldPaint.MiniLayersView = Backbone.View.extend({
         var target = event.currentTarget;
         if ($(target).hasClass("minilayer")) {
             var parent = $(target).parent()[0];
-            var layer = this.model.layers.getByCid($(parent).attr("data"));
+            var layer = this.model.layers.get($(parent).attr("data"));
             var index = this.model.layers.length - 1 -
                     this.$el.children().index(parent);
             this.model.layers.set_active(layer);
@@ -207,6 +208,6 @@ OldPaint.MiniLayersView = Backbone.View.extend({
 
     clear_layer: function (event) {
         this.model.clear_layer();
-    },
+    }
 
 });

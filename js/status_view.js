@@ -113,7 +113,7 @@ OldPaint.StatusView = Backbone.View.extend({
                 callback(name);
         }).bind(this);
         var on_abort = function () {};
-        Modal.input("Rename model", "What do you want to name it?", on_ok, on_abort);
+        Modal.input("Rename drawing", "What do you want to name it?", on_ok, on_abort);
     },
 
     resize_image: function () {

@@ -40,7 +40,7 @@ OldPaint.ToolsView = Backbone.View.extend({
     },
 
     select: function (event) {
-        var tool = this.collection.getByCid($(event.currentTarget).attr("data"));
+        var tool = this.collection.get($(event.currentTarget).attr("data"));
         tool.activate();
     }
 });
@@ -88,7 +88,7 @@ OldPaint.BrushesView = Backbone.View.extend({
         });
         this.$el.html(template);
         _.each($(".brush"), function (btn, index) {
-            var brush = this.collection.getByCid($(btn).attr("data"));
+            var brush = this.collection.get($(btn).attr("data"));
             if (brush) {
                 var canvas = brush.preview;
                 var size = Util.restrict_size(canvas.width, canvas.height, 20);
@@ -109,7 +109,7 @@ OldPaint.BrushesView = Backbone.View.extend({
 
     select: function (event) {
         var el = event.currentTarget;
-        var brush = this.collection.getByCid($(el).attr("data"));
+        var brush = this.collection.get($(el).attr("data"));
         console.log("select", brush);
         if (brush == this.collection.active) {
             brush.restore_backup();
